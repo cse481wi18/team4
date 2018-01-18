@@ -27,7 +27,7 @@ class Gripper(object):
         # TODO: Create goal
         goal = GripperCommandGoal()
         goal.command.position = OPENED_POS
-        goal.command.max_effort = MAX_EFFORT
+        goal.command.max_effort = Gripper.MAX_EFFORT
         # TODO: Send goal
         self.client.send_goal(goal)
         # TODO: Wait for result
