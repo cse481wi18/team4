@@ -30,22 +30,22 @@ class Base(object):
             angular_speed: The rotation speed, in radians/second. A positive
                 value means the robot should rotate clockwise.
         """
-        # TODO: Create Twist msg
+        # Create Twist msg
 	newMsg = Twist()
-        # TODO: Fill out msg
+        # Fill out msg
 	newMsg.linear.x = linear_speed
 	newMsg.linear.y = 0.0
 	newMsg.linear.z = 0.0
 	newMsg.angular.x = 0.0
 	newMsg.angular.y = 0.0
 	newMsg.angular.z = angular_speed
-        # TODO: Publish msg
+        # Publish msg
         self.pub.publish(newMsg)
 
     def stop(self):
         """Stops the mobile base from moving.
         """
-        # TODO: Publish 0 velocity
+        # Publish 0 velocity
         newMsg = Twist()
 	newMsg.linear.x = 0.0
 	newMsg.linear.y = 0.0
