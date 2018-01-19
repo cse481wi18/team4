@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import fetch_api
 import rospy
 
 
@@ -27,20 +28,19 @@ def main():
         print_usage()
         return
     command = argv[1]
-
     if command == 'look_at':
         if len(argv) < 6:
             print_usage()
             return
         frame_id, x, y, z = argv[2], float(argv[3]), float(argv[4]), float(
             argv[5])
-        rospy.logerr('Not implemented.')
+        fetch_api.Head().look_at(frame_id, x, y, z)
     elif command == 'pan_tilt':
         if len(argv) < 4:
             print_usage()
             return
         pan, tilt = float(argv[2]), float(argv[3])
-        rospy.logerr('Not implemented.')
+        fetch_api.Head().pan_tilt(pan, tilt)
     else:
         print_usage()
 
