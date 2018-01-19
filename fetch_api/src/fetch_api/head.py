@@ -86,7 +86,7 @@ class Head(object):
         # Set positions of the two joints in the trajectory point
         trajectory_point.positions = [pan, tilt]
         # Set time of the trajectory point
-        trajectory_point.time_from_start = PAN_TILT_TIME
+        trajectory_point.time_from_start = rospy.Duration(PAN_TILT_TIME)
 
         # Create goal
         goal = FollowJointTrajectoryGoal()
