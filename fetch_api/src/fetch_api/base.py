@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 
-from geometry_msgs.msg import Twist, Vector3
 import rospy
+
+from geometry_msgs.msg import Twist
 
 
 class Base(object):
@@ -31,14 +32,14 @@ class Base(object):
                 value means the robot should rotate clockwise.
         """
         # Create Twist msg
-	newMsg = Twist()
+        newMsg = Twist()
         # Fill out msg
-	newMsg.linear.x = linear_speed
-	newMsg.linear.y = 0.0
-	newMsg.linear.z = 0.0
-	newMsg.angular.x = 0.0
-	newMsg.angular.y = 0.0
-	newMsg.angular.z = angular_speed
+        newMsg.linear.x = linear_speed
+        newMsg.linear.y = 0.0
+        newMsg.linear.z = 0.0
+        newMsg.angular.x = 0.0
+        newMsg.angular.y = 0.0
+        newMsg.angular.z = angular_speed
         # Publish msg
         self.pub.publish(newMsg)
 
@@ -47,10 +48,10 @@ class Base(object):
         """
         # Publish 0 velocity
         newMsg = Twist()
-	newMsg.linear.x = 0.0
-	newMsg.linear.y = 0.0
-	newMsg.linear.z = 0.0
-	newMsg.angular.x = 0.0
-	newMsg.angular.y = 0.0
-	newMsg.angular.z = 0.0
-	self.pub.publish(newMsg)
+        newMsg.linear.x = 0.0
+        newMsg.linear.y = 0.0
+        newMsg.linear.z = 0.0
+        newMsg.angular.x = 0.0
+        newMsg.angular.y = 0.0
+        newMsg.angular.z = 0.0
+        self.pub.publish(newMsg)

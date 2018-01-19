@@ -2,8 +2,6 @@
 
 import actionlib
 from control_msgs.msg import GripperCommandAction, GripperCommandGoal
-import rospy
-
 
 CLOSED_POS = 0.0  # The position for a fully-closed gripper (meters).
 OPENED_POS = 0.10  # The position for a fully-open gripper (meters).

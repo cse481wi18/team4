@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 
-# TODO: import ?????????
-# TODO: import ???????_msgs.msg
-# TODO: import ??????????_msgs.msg
-import math
-import rospy
 
-LOOK_AT_ACTION_NAME = ''  # TODO: Get the name of the look-at action
-PAN_TILT_ACTION_NAME = ''  # TODO: Get the name of the pan/tilt action
-PAN_JOINT = ''  # TODO: Get the name of the head pan joint
-TILT_JOINT = ''  # TODO: Get the name of the head tilt joint
+import math
+
+import actionlib
+import rospy
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, PointHeadAction, PointHeadGoal
+from geometry_msgs.msg import Point, PointStamped
+from std_msgs.msg import Header
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+
+LOOK_AT_ACTION_NAME = 'head_controller/point_head'
+PAN_TILT_ACTION_NAME = 'head_controller/follow_joint_trajectory'
+PAN_JOINT = 'head_pan_joint'
+TILT_JOINT = 'head_tilt_joint'
 PAN_TILT_TIME = 2.5  # How many seconds it should take to move the head.
 
 
@@ -25,18 +29,23 @@ class Head(object):
         head.look_at('base_link', 1, 0, 0.3)
         head.pan_tilt(0, math.pi/4)
     """
-    MIN_PAN = None  # TODO: Minimum pan angle, in radians.
-    MAX_PAN = None  # TODO: Maximum pan angle, in radians.
-    MIN_TILT = None  # TODO: Minimum tilt angle, in radians.
-    MAX_TILT = None  # TODO: Maximum tilt angle, in radians.
+
+    # Values found here: http://docs.fetchrobotics.com/robot_hardware.html#joint-limits-and-types
+    MIN_PAN = - 0.5 * math.pi  # Minimum pan angle, in radians.
+    MAX_PAN = 0.5 * math.pi  # Maximum pan angle, in radians.
+    MIN_TILT = - 0.25 * math.pi  # Minimum tilt angle, in radians.
+    MAX_TILT = 0.5 * math.pi  # Maximum tilt angle, in radians.
+
+    MIN_DURATION = rospy.Duration(1)
 
     def __init__(self):
         # Create actionlib clients
-        self.pan_client = SimpleActionClient()
-        self.tilt_client = SimpleActionClient() #actionlib.SimpleActionClient('torso_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
+        self.pan_tilt_client = actionlib.SimpleActionClient(PAN_TILT_ACTION_NAME, FollowJointTrajectoryAction)
+        self.look_client = actionlib.SimpleActionClient(LOOK_AT_ACTION_NAME, PointHeadAction)
 
-        # TODO: Wait for both servers
-        pass
+        # Wait for both servers
+        self.pan_tilt_client.wait_for_server()
+        self.look_client.wait_for_server()
 
     def look_at(self, frame_id, x, y, z):
         """Moves the head to look at a point in space.
@@ -47,11 +56,18 @@ class Head(object):
             y: The y value of the point to look at.
             z: The z value of the point to look at.
         """
-        # TODO: Create goal
-        # TODO: Fill out the goal (we recommend setting min_duration to 1 second)
-        # TODO: Send the goal
-        # TODO: Wait for result
-        rospy.logerr('Not implemented.')
+        # Create goal
+        goal = PointHeadGoal()
+        # Fill out the goal
+        goal.min_duration = self.MIN_DURATION
+        goal.max_velocity = 1.57  # From documentation: http://docs.fetchrobotics.com/robot_hardware.html#forces-and-torques
+        head = Header()
+        head.frame_id = frame_id
+
+        goal.target = PointStamped(head, Point(x, y, z))
+
+        # Send the goal & wait for result
+        self.look_client.send_goal_and_wait(goal)
 
     def pan_tilt(self, pan, tilt):
         """Moves the head by setting pan/tilt angles.
@@ -60,16 +76,28 @@ class Head(object):
             pan: The pan angle, in radians. A positive value is clockwise.
             tilt: The tilt angle, in radians. A positive value is downwards.
         """
-        # TODO: Check that the pan/tilt angles are within joint limits
-        # TODO: Create a trajectory point
-        # TODO: Set positions of the two joints in the trajectory point
-        # TODO: Set time of the trajectory point
+        # check that the pan/tilt angles are within joint limits
+        if pan < self.MIN_PAN or pan > self.MAX_PAN or \
+                tilt < self.MIN_TILT or tilt > self.MAX_TILT:
+            return
 
-        # TODO: Create goal
-        # TODO: Add joint names to the list
-        # TODO: Add trajectory point created above to trajectory
+        # Create a trajectory point
+        trajectory_point = JointTrajectoryPoint()
+        # Set positions of the two joints in the trajectory point
+        trajectory_point.positions = [pan, tilt]
+        # Set time of the trajectory point
+        trajectory_point.time_from_start = PAN_TILT_TIME
 
-        # TODO: Send the goal
-        # TODO: Wait for result
+        # Create goal
+        goal = FollowJointTrajectoryGoal()
 
-        rospy.logerr('Not implemented.')
+        trajectory = JointTrajectory()
+        # Add joint names to the list
+        trajectory.joint_names = [PAN_JOINT, TILT_JOINT]
+        # Add trajectory point created above to trajectory
+        trajectory.points = [trajectory_point]
+
+        goal.trajectory = trajectory
+
+        # Send the goal & wait for result
+        self.pan_tilt_client.send_goal_and_wait(goal)

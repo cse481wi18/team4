@@ -2,10 +2,9 @@
 
 
 import actionlib
-from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
-from trajectory_msgs.msg import JointTrajectoryPoint, JointTrajectory
 import rospy
-
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 JOINT_NAME = 'torso_lift_joint'
 TIME_FROM_START = 5  # How many seconds it should take to set the torso height.
@@ -19,7 +18,8 @@ class Torso(object):
 
     def __init__(self):
         # Create actionlib client
-        self.client = actionlib.SimpleActionClient('torso_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
+        self.client = actionlib.SimpleActionClient('torso_controller/follow_joint_trajectory',
+                                                   FollowJointTrajectoryAction)
         # Wait for server
         self.client.wait_for_server()
 
