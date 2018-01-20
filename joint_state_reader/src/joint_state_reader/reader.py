@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+from sensor_msgs.msg import JointState
 
 
 class JointStateReader(object):
@@ -14,7 +15,12 @@ class JointStateReader(object):
     """
 
     def __init__(self):
-        pass
+        self.subscriber = rospy.Subscriber("joint_states", JointState, self.callback)
+        self.joints = {}
+
+    def callback(self, data):
+        for i in range(len(data.name)):
+            self.joints[data.name[i]] = data.position[i]
 
     def get_joint(self, name):
         """Gets the latest joint value.
@@ -24,8 +30,9 @@ class JointStateReader(object):
 
         Returns: the joint value, or None if we do not have a value yet.
         """
-        rospy.logerr('Not implemented.')
-        return 0
+        if name not in self.joints.keys():
+            return None
+        return self.joints[name]
 
     def get_joints(self, names):
         """Gets the latest values for a list of joint names.
@@ -37,5 +44,4 @@ class JointStateReader(object):
         Returns: A list of the joint values. Values may be None if we do not
             have a value for that joint yet.
         """
-        rospy.logerr('Not implemented.')
-        return [0 for x in names]
+        return [self.get_joint(x) for x in names]
