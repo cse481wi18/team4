@@ -57,8 +57,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate services in the 'srv' folder
 add_service_files(
-  FILES
-  SetTorso.srv
+   FILES
+   SetTorso.srv
+   TiltHead.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -70,8 +71,8 @@ add_service_files(
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
-#  DEPENDENCIES
-#  std_msgs  # Or other packages containing msgs
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
 )
 
 ################################################
@@ -106,7 +107,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES web_teleop
-CATKIN_DEPENDS fetch_api joint_state_reader roscpp rospy
+CATKIN_DEPENDS fetch_api joint_state_reader roscpp rospy message_runtime
 #  DEPENDS system_lib
 )
 
