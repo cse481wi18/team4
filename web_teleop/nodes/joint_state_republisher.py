@@ -22,8 +22,8 @@ def main():
 
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
-        # TODO: get torso joint value
-        # TODO: publish torso joint value
+        message = reader.get_joint("torso_lift_joint")
+        torso_pub.publish(message)
         rate.sleep()
 
 
