@@ -1,13 +1,26 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
 <link rel="import" href="../bower_components/ros-topic/ros-topic.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/ros-service/ros-service.html">
 
 <dom-module id="web-teleop-app">
   <template>
-    <style>
-      :host {
-        display: block;
-      }
+      <style is="custom-style" include="iron-flex"></style>
+      <style>
+          :host {
+              display: block;
+          }
+          paper-slider {
+              --paper-slider-input: {
+                  width: 100px;
+              }
+          }
+          paper-button {
+              background-color: #eee;
+          }
     </style>
     <h2>Hello [[prop1]]!</h2>
     <ros-websocket auto ros="{{ros}}"
@@ -26,6 +39,20 @@
       <div>
           Torso height: [[_round(torsoHeight.data, 0.001)]] meters
       </div>
+      <div class="layout horizontal center">
+          <paper-slider min="0" max="0.4" step="0.01" editable
+                        value="{{desiredTorsoHeight}}"></paper-slider>
+          <paper-button>Set torso</paper-button>
+      </div>
+      <ros-service
+              id="torsoService"
+              on-response="_handleTorsoSuccess"
+              on-fail="_handleTorsoError"
+              name="/web_teleop/set_torso"
+              ros="{{ros}}"
+              service-type="web_teleop/SetTorso"
+      ></ros-service>
+      <paper-button on-tap="_setTorso">Set torso</paper-button>
 <h1>Fetch teleop</h1>
       [[status]]
 
@@ -67,6 +94,8 @@
             var msg = evt.detail;
             console.log(msg);
         }
+
+
         // Rounds val to a given precision, where the precision is given as the
         // step size between numbers in the output range.
         // E.g., _round(0.053, 0.1) = 0.1
@@ -75,6 +104,19 @@
         _round(val, precision) {
             return Math.round(val/precision) * precision;
         }
+
+
+        _setTorso() {
+            this.status = 'Setting torso to ' + this.desiredTorsoHeight + ' meters...';
+            this.$.torsoService.call({height: this.desiredTorsoHeight});
+        }
+        _handleTorsoSuccess() {
+            this.status = 'Set torso to ' + this.desiredTorsoHeight + ' meters.';
+        }
+        _handleTorsoError(evt) {
+            this.status = 'Error: ' + evt.detail;
+        }
+
     }
 
     window.customElements.define(WebTeleopApp.is, WebTeleopApp);
