@@ -32,10 +32,11 @@
     </style>
     <h2>Hello [[prop1]]!</h2>
     <ros-websocket auto ros="{{ros}}"
-  url="{{url}}"
-  on-connection="_handleConnection"
-  on-close="_handleClose"
-  on-error="_handleError"></ros-websocket>
+                   url="{{url}}"
+                   on-connection="_handleConnection"
+                   on-close="_handleClose"
+                   on-error="_handleError"
+    ></ros-websocket>
 
       <ros-topic auto
                  ros="{{ros}}"
@@ -44,12 +45,11 @@
                  last-message="{{torsoHeight}}"
                  on-message="_handleTorsoHeight"
       ></ros-topic>
-      <ros-topic
-      id="baseTopic"
-      ros="{{ros}}"
-      topic="cmd_vel"
-      msg-type="geometry_msgs/Twist"
-    ></ros-topic>
+      <ros-topic id="baseTopic"
+                 ros="{{ros}}"
+                 topic="cmd_vel"
+                 msg-type="geometry_msgs/Twist"
+      ></ros-topic>
       <div>
           Torso height: [[_round(torsoHeight.data, 0.001)]] meters
       </div>
@@ -68,20 +68,26 @@
           <div class="flex"></div>
         </div>
         <div class="layout horizontal">
-          <paper-button>Left</paper-button>
-          <paper-button>Back</paper-button>
-          <paper-button>Right</paper-button>
+          <paper-button on-down="_startLeft"
+                        on-up="_endBaseCommand"
+          >Left</paper-button>
+          <paper-button on-down="_startBack"
+                        on-up="_endBaseCommand"
+          >Back</paper-button>
+          <paper-button on-down="_startRight"
+                        on-up="_endBaseCommand"
+          >Right</paper-button>
         </div>
       </div>
       <ros-service
-              id="torsoService"
-              on-response="_handleTorsoSuccess"
-              on-fail="_handleTorsoError"
-              name="/web_teleop/set_torso"
-              ros="{{ros}}"
-              service-type="web_teleop/SetTorso"
+        id="torsoService"
+        on-response="_handleTorsoSuccess"
+        on-fail="_handleTorsoError"
+        name="/web_teleop/set_torso"
+        ros="{{ros}}"
+        service-type="web_teleop/SetTorso"
       ></ros-service>
-<h1>Fetch teleop</h1>
+    <h1>Fetch teleop</h1>
       [[status]]
 
       <div id="camera">
@@ -131,8 +137,6 @@
     _round(val, precision) {
         return Math.round(val/precision) * precision;
     }
-
-
     _setTorso() {
         this.status = 'Setting torso to ' + this.desiredTorsoHeight + ' meters...';
         this.$.torsoService.call({height: this.desiredTorsoHeight});
@@ -141,6 +145,17 @@
         this.status = 'Set torso to ' + this.desiredTorsoHeight + ' meters.';
     }
     _handleTorsoError(evt) {
+        this.status = 'Error: ' + evt.detail;
+    }
+
+    _setHead() {
+        this.status = 'Setting head to ' + this.desiredHeadValue + ' radians...';
+        this.$.headService.call({height: this.desiredHeadValue});
+    }
+    _handleHeadSuccess() {
+        this.status = 'Set head to ' + this.desiredHeadValue + ' radians.';
+    }
+    _handleHeadError(evt) {
         this.status = 'Error: ' + evt.detail;
     }
 
@@ -155,7 +170,7 @@
         this.baseCommand = setInterval(function() {
                 baseTopic.publish({
                 linear: {
-                    x: 0.1, // Set positive or negative meters/s to drive
+                    x: 1.0, // Set positive or negative meters/s to drive
                     y: 0,
                     z: 0
                 },
@@ -163,6 +178,78 @@
                     x: 0,
                     y: 0,
                     z: 0 // Set rads/s to turn
+                }
+            });
+        }, 10); // Run this function every 10ms, or approximately 100 times per second.
+    }
+
+    _startBack(evt) {
+        evt.preventDefault(); // Prevent right-click menu from showing up after long press on mobile
+        this.status = 'Driving backward...';
+        var baseTopic = this.$.baseTopic; // Get <ros-topic>
+        if (this.baseCommand) {
+            // The timer should not be set at this point, but clear it just in case
+            clearInterval(this.baseCommand);
+        }
+        this.baseCommand = setInterval(function() {
+                baseTopic.publish({
+                linear: {
+                    x: -0.5, // Set positive or negative meters/s to drive
+                    y: 0,
+                    z: 0
+                },
+                angular: {
+                    x: 0,
+                    y: 0,
+                    z: 0 // Set rads/s to turn
+                }
+            });
+        }, 10); // Run this function every 10ms, or approximately 100 times per second.
+    }
+
+    _startLeft(evt) {
+        evt.preventDefault(); // Prevent right-click menu from showing up after long press on mobile
+        this.status = 'Driving left...';
+        var baseTopic = this.$.baseTopic; // Get <ros-topic>
+        if (this.baseCommand) {
+            // The timer should not be set at this point, but clear it just in case
+            clearInterval(this.baseCommand);
+        }
+        this.baseCommand = setInterval(function() {
+                baseTopic.publish({
+                linear: {
+                    x: 0, // Set positive or negative meters/s to drive
+                    y: 0,
+                    z: 0
+                },
+                angular: {
+                    x: 0,
+                    y: 0,
+                    z: 1.0 // Set rads/s to turn
+                }
+            });
+        }, 10); // Run this function every 10ms, or approximately 100 times per second.
+    }
+
+    _startRight(evt) {
+        evt.preventDefault(); // Prevent right-click menu from showing up after long press on mobile
+        this.status = 'Driving right...';
+        var baseTopic = this.$.baseTopic; // Get <ros-topic>
+        if (this.baseCommand) {
+            // The timer should not be set at this point, but clear it just in case
+            clearInterval(this.baseCommand);
+        }
+        this.baseCommand = setInterval(function() {
+                baseTopic.publish({
+                linear: {
+                    x: 0, // Set positive or negative meters/s to drive
+                    y: 0,
+                    z: 0
+                },
+                angular: {
+                    x: 0,
+                    y: 0,
+                    z: -1.0 // Set rads/s to turn
                 }
             });
         }, 10); // Run this function every 10ms, or approximately 100 times per second.
@@ -177,8 +264,8 @@
         super.ready();
         this.hostname = window.location.hostname;
     }
-}
+  }
 
-window.customElements.define(WebTeleopApp.is, WebTeleopApp);
+  window.customElements.define(WebTeleopApp.is, WebTeleopApp);
   </script>
 </dom-module>
