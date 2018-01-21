@@ -70,6 +70,7 @@ class Head(object):
         self.look_client.send_goal_and_wait(goal)
 
     def pan_tilt(self, pan, tilt):
+        rospy.loginfo("Pan_tilt values: " + str(pan) + " " + str(tilt))
         """Moves the head by setting pan/tilt angles.
 
               Args:

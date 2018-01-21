@@ -20,10 +20,10 @@ class Arm(object):
     """
 
     def __init__(self):
-        # TODO: Create actionlib client
+        # Create actionlib client
         self.client = actionlib.SimpleActionClient('arm_controller/follow_joint_trajectory',
                                                    FollowJointTrajectoryAction)
-        # TODO: Wait for server
+        # Wait for server
         self.client.wait_for_server()
         pass
 
@@ -34,23 +34,22 @@ class Arm(object):
             arm_joints: An ArmJoints object that specifies the joint values for
                 the arm.
         """
-        # TODO: Create a trajectory point
+        # Create a trajectory point
         message = JointTrajectory()
-        # TODO: Set position of trajectory point
+        # Set position of trajectory point
         point = JointTrajectoryPoint()
         point.positions = arm_joints.values()
-        # TODO: Set time of trajectory point
+        # Set time of trajectory point
         point.time_from_start = rospy.Duration(TIME_FROM_START)
         message.points = [point]
-        # TODO: Create goal
+        # Create goal
         goal = FollowJointTrajectoryGoal()
-        # TODO: Add joint name to list
+        # Add joint name to list
         message.joint_names = arm_joints.names()
-
-        # TODO: Add the trajectory point created above to trajectory
+        # Add the trajectory point created above to trajectory
         goal.trajectory = message
 
-        # TODO: Send goal
+        # Send goal
         self.client.send_goal(goal)
-        # TODO: Wait for result
+        # Wait for result
         self.client.wait_for_result()

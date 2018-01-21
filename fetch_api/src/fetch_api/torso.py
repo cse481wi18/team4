@@ -21,6 +21,7 @@ class Torso(object):
         self.client = actionlib.SimpleActionClient('torso_controller/follow_joint_trajectory',
                                                    FollowJointTrajectoryAction)
         # Wait for server
+        rospy.loginfo("waiting for server in torso.py")
         self.client.wait_for_server()
 
     def set_height(self, height):
@@ -50,5 +51,6 @@ class Torso(object):
             goal.trajectory = message
             # Send goal
             self.client.send_goal(goal)
+            rospy.loginfo("sent goal\n\n\n")
             # Wait for result
             self.client.wait_for_result()

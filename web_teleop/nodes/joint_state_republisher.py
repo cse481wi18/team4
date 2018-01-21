@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
+import fetch_api
 import rospy
-from std_msgs.msg import Float64
 from joint_state_reader import JointStateReader
+from std_msgs.msg import Float64
+
+ARMS = fetch_api.ArmJoints.names()
 
 
 def wait_for_time():
@@ -22,11 +25,13 @@ def main():
 
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
-        message = reader.get_joint("torso_lift_joint")
-        torso_pub.publish(message)
+        val = reader.get_joint("torso_lift_joint")
+        torso_pub.publish(val)
+        arm_vals = reader.get_joints(ARMS)
+        # publish arm_vals (make an arm_val publisher)
+
         rate.sleep()
 
 
 if __name__ == '__main__':
     main()
-
