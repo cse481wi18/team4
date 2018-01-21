@@ -38,18 +38,19 @@
                    on-error="_handleError"
     ></ros-websocket>
 
-      <ros-topic auto
-                 ros="{{ros}}"
-                 topic="joint_state_republisher/torso_lift_joint"
-                 msg-type="std_msgs/Float64"
-                 last-message="{{torsoHeight}}"
-                 on-message="_handleTorsoHeight"
-      ></ros-topic>
-      <ros-topic id="baseTopic"
-                 ros="{{ros}}"
-                 topic="cmd_vel"
-                 msg-type="geometry_msgs/Twist"
-      ></ros-topic>
+    <ros-topic auto
+               ros="{{ros}}"
+               topic="joint_state_republisher/torso_lift_joint"
+               msg-type="std_msgs/Float64"
+               last-message="{{torsoHeight}}"
+               on-message="_handleTorsoHeight"
+    ></ros-topic>
+    <ros-topic id="baseTopic"
+               ros="{{ros}}"
+               topic="cmd_vel"
+               msg-type="geometry_msgs/Twist"
+    ></ros-topic>
+    
       <div>
           Torso height: [[_round(torsoHeight.data, 0.001)]] meters
       </div>
@@ -79,14 +80,40 @@
           >Right</paper-button>
         </div>
       </div>
-      <ros-service
+
+    <ros-service
         id="torsoService"
         on-response="_handleTorsoSuccess"
         on-fail="_handleTorsoError"
         name="/web_teleop/set_torso"
         ros="{{ros}}"
         service-type="web_teleop/SetTorso"
-      ></ros-service>
+    ></ros-service>
+    <ros-service
+        id="armService"
+        on-response="_handleArmSuccess"
+        on-fail="_handleArmError"
+        name="/web_teleop/set_arm"
+        ros="{{ros}}"
+        service-type="web_teleop/SetArm"
+    ></ros-service>
+    <ros-service
+        id="gripService"
+        on-response="_handleGripSuccess"
+        on-fail="_handleGripError"
+        name="/web_teleop/set_grip"
+        ros="{{ros}}"
+        service-type="web_teleop/SetGrip"
+    ></ros-service>
+    <ros-service
+        id="headService"
+        on-response="_handleHeadSuccess"
+        on-fail="_handleHeadError"
+        name="/web_teleop/set_head"
+        ros="{{ros}}"
+        service-type="web_teleop/SetHead"
+    ></ros-service>
+      
     <h1>Fetch teleop</h1>
       [[status]]
 
@@ -128,6 +155,14 @@
         console.log(msg);
     }
 
+    // Arms
+
+
+    // Grip
+
+
+    // Head
+
 
     // Rounds val to a given precision, where the precision is given as the
     // step size between numbers in the output range.
@@ -148,16 +183,6 @@
         this.status = 'Error: ' + evt.detail;
     }
 
-    _setHead() {
-        this.status = 'Setting head to ' + this.desiredHeadValue + ' radians...';
-        this.$.headService.call({height: this.desiredHeadValue});
-    }
-    _handleHeadSuccess() {
-        this.status = 'Set head to ' + this.desiredHeadValue + ' radians.';
-    }
-    _handleHeadError(evt) {
-        this.status = 'Error: ' + evt.detail;
-    }
 
     _startForward(evt) {
         evt.preventDefault(); // Prevent right-click menu from showing up after long press on mobile
