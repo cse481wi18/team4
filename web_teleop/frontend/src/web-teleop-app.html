@@ -293,7 +293,7 @@
                 this.baseCommand = setInterval(function () {
                     baseTopic.publish({
                         linear: {
-                            x: 1.0, // Set positive or negative meters/s to drive
+                            x: 0.3, // Set positive or negative meters/s to drive
                             y: 0,
                             z: 0
                         },
@@ -317,7 +317,7 @@
                 this.baseCommand = setInterval(function () {
                     baseTopic.publish({
                         linear: {
-                            x: -0.5, // Set positive or negative meters/s to drive
+                            x: -0.3, // Set positive or negative meters/s to drive
                             y: 0,
                             z: 0
                         },
@@ -348,7 +348,7 @@
                         angular: {
                             x: 0,
                             y: 0,
-                            z: 1.0 // Set rads/s to turn
+                            z: 0.3 // Set rads/s to turn
                         }
                     });
                 }, 10); // Run this function every 10ms, or approximately 100 times per second.
@@ -372,7 +372,7 @@
                         angular: {
                             x: 0,
                             y: 0,
-                            z: -1.0 // Set rads/s to turn
+                            z: -0.3 // Set rads/s to turn
                         }
                     });
                 }, 10); // Run this function every 10ms, or approximately 100 times per second.

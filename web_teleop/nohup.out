@@ -1,0 +1,30 @@
+... logging to /home/team4/.ros/log/5f6768d0-fe59-11e7-a2ac-989096e29a2d/roslaunch-cas-2397.log
+Checking log directory for disk usage. This may take awhile.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;roscore
+[1mstarted roslaunch server http://localhost:34233/[0m
+ros_comm version 1.11.21
+
+
+SUMMARY
+========
+
+PARAMETERS
+ * /rosdistro: indigo
+ * /rosversion: 1.11.21
+
+NODES
+
+auto-starting new master
+[1mprocess[master]: started with pid [2409][0m
+[1mROS_MASTER_URI=http://localhost:11311/[0m
+]2;roscore http://localhost:11311/
+[1msetting /run_id to 5f6768d0-fe59-11e7-a2ac-989096e29a2d[0m
+[1mprocess[rosout-1]: started with pid [2422][0m
+started core service [/rosout]
+[rosout-1] killing on exit
+[master] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
