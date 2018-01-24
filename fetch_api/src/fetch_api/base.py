@@ -105,6 +105,7 @@ class Base(object):
                                           math.pow((current_position.y - start_pos.y), 2) +
                                           math.pow((current_position.z - start_pos.z), 2))
             direction = -1 if distance < 0 else 1
+            speed = max(0.05, min(0.5, distance - traveled_distance))  # scale based on remaining distance
             self.move(direction * speed, 0)
             if traveled_distance >= math.fabs(distance):
                 break
