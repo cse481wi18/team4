@@ -3,6 +3,10 @@
 import rospy
 
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+
+import copy
+import math
 
 
 class Base(object):
@@ -16,7 +20,11 @@ class Base(object):
     """
 
     def __init__(self):
+        # Publish stuff
         self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+        # Subscribe to odometry info
+        self._odom_sub = rospy.Subscriber('odom', Odometry, callback=self._odom_callback)
+        self.has_received_odom_msg = False
         pass
 
     def move(self, linear_speed, angular_speed):
@@ -55,3 +63,49 @@ class Base(object):
         newMsg.angular.y = 0.0
         newMsg.angular.z = 0.0
         self.pub.publish(newMsg)
+
+    def _odom_callback(self, msg):
+        """
+        :param msg: nav_msgs/Odometry Message
+        :return:
+        """
+        self.has_received_odom_msg = True
+        self.last_position = msg.pose.pose  # contains 'position' and 'orientation'
+
+    def go_forward(self, distance, speed=0.1):
+        """Moves the robot a certain distance.
+
+        It's recommended that the robot move slowly. If the robot moves too
+        quickly, it may overshoot the target. Note also that this method does
+        not know if the robot's path is perturbed (e.g., by teleop). It stops
+        once the distance traveled is equal to the given distance or more.
+
+        Args:
+            distance: The distance, in meters, to move. A positive value
+                means forward, negative means backward.
+            speed: The speed to travel, in meters/second.
+        """
+        # TODO: rospy.sleep until the base has received at least one message on /odom
+        while not self.has_received_odom_msg:
+            rospy.sleep(0.5)
+
+        # TODO: record start position, use Python's copy.deepcopy
+        start_pos = copy.deepcopy(self.last_position.position)
+        rate = rospy.Rate(10)
+        # CONDITION should check if the robot has traveled the desired distance
+        # TODO: Be sure to handle the case where the distance is negative!
+        current_position = copy.deepcopy(self.last_position.position)
+        traveled_distance = math.sqrt(math.pow((current_position.x - start_pos.x), 2) +
+                                      math.pow((current_position.y - start_pos.y), 2) +
+                                      math.pow((current_position.z - start_pos.z), 2))
+        while (not rospy.is_shutdown() and traveled_distance < math.fabs(distance)):
+            current_position = copy.deepcopy(self.last_position.position)
+            traveled_distance = math.sqrt(math.pow((current_position.x - start_pos.x), 2) +
+                                          math.pow((current_position.y - start_pos.y), 2) +
+                                          math.pow((current_position.z - start_pos.z), 2))
+            # TODO: you will probably need to do some math in this loop to check the CONDITION
+            direction = -1 if distance < 0 else 1
+            self.move(direction * speed, 0)
+            if traveled_distance >= math.fabs(distance):
+                break
+            rate.sleep()

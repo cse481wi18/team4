@@ -32,8 +32,8 @@ class NavPath(object):
         x = pos.x
         y = pos.y
         z = pos.z
-        SOME_CONDITION = math.sqrt(math.pow((n_x - x), 2) + math.pow((n_y - y), 2) + math.pow((n_z - z), 2)) > 0.1
-        if SOME_CONDITION:
+        has_moved = math.sqrt(math.pow((n_x - x), 2) + math.pow((n_y - y), 2) + math.pow((n_z - z), 2)) > 0.1
+        if has_moved:
             self._path.append(msg.pose.pose.position)
             self.id += 1
             marker = Marker(
