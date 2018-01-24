@@ -128,7 +128,9 @@ class Base(object):
         start_yaw = self.quaternion_to_yaw(start_orientation)
         # TODO: What will you do if angular_distance is greater than 2*pi or less than -2*pi?
 
-        # do we even care if angular_distance is < or > 2pi? shouldn't we just spin around that many times?
+        # TODO do we even care if angular_distance is < or > 2pi? shouldn't we just spin around that many times?
+        ##TODO  Yeah - we lost that info on converting to radians. e.g. 370 degrees should spin more than 1 time, but
+        ## is considered equivalent to 10 degrees.
         polarity = -1 if angular_distance < 0 else 1
         finish_angle = angular_distance % (2 * math.pi) * polarity
         current_orientation = copy.deepcopy(self.last_position.orientation)
