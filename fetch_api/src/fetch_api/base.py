@@ -110,7 +110,7 @@ class Base(object):
                 break
             rate.sleep()
 
-    def turn(self, angular_distance, speed=0.5):
+    def turn(self, angular_distance, angular_speed=0.5):
         """Rotates the robot a certain angle.
 
         Args:
@@ -138,23 +138,17 @@ class Base(object):
 
         rate = rospy.Rate(10)
         # TODO: CONDITION should check if the robot has rotated the desired amount
-        # TODO: Be sure to handle the case where the desired amount is negative!
         while (not rospy.is_shutdown() and traveled_angle < math.fabs(finish_angle)):
-            # TODO: you will probably need to do some math in this loop to check the CONDITION
-            # need to calculate how much the angle has changed, need to deal with "wraparound" issue
-
+            # TODO need to calculate how much the angle has changed, need to deal with "wraparound" issue
+            current_orientation = copy.deepcopy(self.last_position.orientation)
+            current_yaw = self.quaternion_to_yaw(current_orientation)
+            traveled_angle = math.fabs(current_yaw - start_yaw)
+            angular_speed = max(0.25, min(1, angular_speed))
             direction = -1 if angular_distance < 0 else 1
-            self.move(0, direction * speed)
+            self.move(0, direction * angular_speed)
             rate.sleep()
 
-    def quaternion_to_yaw(q):
-        """
-        Automates getting yaw for navigation. Only rotation parameter that matters to you for navigation is Θ, the rotation about the Z-axis.
-        See https://github.com/cse481wi18/cse481wi18/wiki/Lab-14%3A-Odometry-and-rotations#whats-my-yaw for mathematical explanation
-        Args:
-            q: type: geometry_msgs/Quaternion.msg. has paramams w x y z
-        :return: yaw in radians
-        """
+    def quaternion_to_yaw(self, q):
         rotation_matrix = tft.quaternion_matrix([q.x, q.y, q.z, q.w])
         x = rotation_matrix[0, 0]
         y = rotation_matrix[1, 0]
