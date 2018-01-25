@@ -86,7 +86,7 @@ class Base(object):
                 means forward, negative means backward.
             speed: The speed to travel, in meters/second.
         """
-        # TODO: rospy.sleep until the base has received at least one message on /odom
+        # rospy.sleep until the base has received at least one message on /odom
         while not self.has_received_odom_msg:
             rospy.sleep(0.5)
 
@@ -113,7 +113,6 @@ class Base(object):
 
     def turn(self, angular_distance, angular_speed=0.5):
         """Rotates the robot a certain angle.
-
         Args:
             angular_distance: The angle, in radians, to rotate. A positive
                 value rotates counter-clockwise.
@@ -123,17 +122,11 @@ class Base(object):
         while not self.has_received_odom_msg:
             rospy.sleep(0.5)
 
-        # record start position
-        start_orientation = copy.deepcopy(
-            self.last_position.orientation)  # *shudders* it's a Quaternion, not sure how to use
+            # record start position
+        start_orientation = copy.deepcopy(self.last_position.orientation)  # type Quaternion
         start_yaw = self.quaternion_to_yaw(start_orientation)
         # TODO: What will you do if angular_distance is greater than 2*pi or less than -2*pi?
-
-        # TODO do we even care if angular_distance is < or > 2pi? shouldn't we just spin around that many times?
-        ##TODO  Yeah - we lost that info on converting to radians. e.g. 370 degrees should spin more than 1 time, but
-        ## is considered equivalent to 10 degrees.
-        polarity = -1 if angular_distance < 0 else 1
-        finish_angle = angular_distance % (2 * math.pi) * polarity
+        finish_angle = angular_distance % (2 * math.pi)
         current_orientation = copy.deepcopy(self.last_position.orientation)
         # Idea: get yaw (rotation abt z azis)
         current_yaw = self.quaternion_to_yaw(current_orientation)
@@ -145,11 +138,71 @@ class Base(object):
             # TODO need to calculate how much the angle has changed, need to deal with "wraparound" issue
             current_orientation = copy.deepcopy(self.last_position.orientation)
             current_yaw = self.quaternion_to_yaw(current_orientation)
-            traveled_angle = math.fabs(current_yaw - start_yaw)
+            traveled_angle = math.fabs((current_yaw - start_yaw) % (2 * math.pi))
             angular_speed = max(0.25, min(1, angular_speed))
             direction = -1 if angular_distance < 0 else 1
             self.move(0, direction * angular_speed)
             rate.sleep()
+
+        # Current to goal is counter-clockwise (CCW), no wraparound in between
+
+        # how much is left -
+        # goal - current
+        # if rest is -270 = 90 left to go
+
+        # if angular_distance > 0 and angular_distance + current_yaw < 2 * math.pi:
+        #     print("angular_distance > 0 and angular_distance + current_yaw < 2 * math.pi")
+        #     # TODO: What will you do if angular_distance is greater than 2*pi or less than -2*pi?
+        #     goal = current_yaw + angular_distance
+        #     #
+        #     goal_distance = current_yaw + angular_distance
+        #
+        #     print("goal_distance: ", goal_distance)
+        #     # Idea: get yaw (rotation abt z azis)
+        #     traveled_angle = math.fabs(current_yaw - start_yaw)  # [-pi, pi]
+        #     print("Initial traveled angle: ", traveled_angle)
+        #
+        #     rate = rospy.Rate(10)
+        #     while (not rospy.is_shutdown() and traveled_angle < goal_distance):
+        #         print("Updated: ", traveled_angle)
+        #         # TODO need to calculate how much the angle has changed, need to deal with "wraparound" issue
+        #         current_orientation = copy.deepcopy(self.last_position.orientation)
+        #         current_yaw = self.quaternion_to_yaw(current_orientation)
+        #         print("Current_yaw: ", current_yaw)
+        #         traveled_angle = math.fabs(current_yaw - start_yaw)
+        #         angular_speed = max(0.25, min(1, angular_speed))
+        #         direction = -1 if angular_distance < 0 else 1
+        #         self.move(0, direction * angular_speed)
+        #         rate.sleep()
+        # # Current to goal is CCW, with wraparound in between - case: angular_distance is greater than 2*pi or less than -2*pi?
+        # #goal_distance
+        # else:
+        #     print("Out of bounds!")
+        # elif angular_distance > 0 and
+        #     # TODO: What will you do if angular_distance is greater than 2*pi or less than -2*pi?
+        #     finish_angle = angular_distance % (2 * math.pi)
+        #     print("Finish angle: ", finish_angle)
+        #     current_orientation = copy.deepcopy(self.last_position.orientation)
+        #     # Idea: get yaw (rotation abt z azis)
+        #     current_yaw = self.quaternion_to_yaw(current_orientation)
+        #     traveled_angle = math.fabs(current_yaw - start_yaw)  # [-pi, pi]
+        #     print("Initial traveled angle: ", traveled_angle)
+        #
+        #     rate = rospy.Rate(10)
+        #     while (not rospy.is_shutdown() and traveled_angle < math.fabs(finish_angle)):
+        #         print("Updated: ", traveled_angle)
+        #         # TODO need to calculate how much the angle has changed, need to deal with "wraparound" issue
+        #         current_orientation = copy.deepcopy(self.last_position.orientation)
+        #         current_yaw = self.quaternion_to_yaw(current_orientation)
+        #         print("Current_yaw: ", current_yaw)
+        #         traveled_angle = math.fabs(current_yaw - start_yaw)
+        #         angular_speed = max(0.25, min(1, angular_speed))
+        #         direction = -1 if angular_distance < 0 else 1
+        #         self.move(0, direction * angular_speed)
+        #         rate.sleep()
+
+    # Current to goal is CW, no wraparound in between
+    # Current to goal is CW, with wraparound in between
 
     def quaternion_to_yaw(self, q):
         rotation_matrix = tft.quaternion_matrix([q.x, q.y, q.z, q.w])
