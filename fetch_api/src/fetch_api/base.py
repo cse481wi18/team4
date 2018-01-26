@@ -119,10 +119,8 @@ class Base(object):
             speed: The angular speed to rotate, in radians/second.
         """
 
-        # Matt's attempt at doing a thing
+        # Matt's attempt at doing a thing -- mostly works except for a few floating point issues
         # sleep until the base has received at least one message on /odom
-
-        # Final verdict: don't exactly know what I'm doing, but it seems like it's almost close to working
         while not self.has_received_odom_msg:
             rospy.sleep(0.5)
 
@@ -132,17 +130,24 @@ class Base(object):
         # regularize angle to be between 0 and 2*pi
         # angle = angle % (math.pi * 2)
         current_rads = self.quaternion_to_yaw(self.last_position.orientation) + math.pi
-        rads_traveled = ((current_rads - start_rads) * direction + 2 * math.pi) % 2 * math.pi
+        rads_traveled = ((current_rads - start_rads) * direction + (2 * math.pi)) % (2 * math.pi)
+        print "start: ", start_rads
+        print "current: ", current_rads
         print "target: ", abs(angle)
+        print "traveled: ", rads_traveled
+        print "c - s: ", current_rads - start_rads
+        print "2pi % 2pi: ", (2 * math.pi) % (2 * math.pi)
+        print "direction: ", direction
         rate = rospy.Rate(10)
         # check if the robot has rotated the desired amount
         # Be sure to handle the case where the desired amount is negative!
         while not rospy.is_shutdown() and rads_traveled < abs(angle):
             # do some math in this loop to check the CONDITION
+            # angular_speed = max(0.25, min(1.0, angular_speed))
             self.move(0, direction * angular_speed)
             rate.sleep()
             current_rads = self.quaternion_to_yaw(self.last_position.orientation) + math.pi
-            rads_traveled = ((current_rads - start_rads) * direction + 2 * math.pi) % 2 * math.pi
+            rads_traveled = ((current_rads - start_rads) * direction + (2 * math.pi)) % (2 * math.pi)
             print "rads traveled: ", rads_traveled
 
         """
