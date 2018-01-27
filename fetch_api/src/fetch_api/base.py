@@ -93,13 +93,11 @@ class Base(object):
         # record start position, use Python's copy.deepcopy
         start_pos = copy.deepcopy(self.last_position.position)
         rate = rospy.Rate(10)
-        # CONDITION should check if the robot has traveled the desired distance
-        # TODO: Be sure to handle the case where the distance is negative!
         current_position = copy.deepcopy(self.last_position.position)
         traveled_distance = math.sqrt(math.pow((current_position.x - start_pos.x), 2) +
                                       math.pow((current_position.y - start_pos.y), 2) +
                                       math.pow((current_position.z - start_pos.z), 2))
-        while (not rospy.is_shutdown() and traveled_distance < math.fabs(distance)):
+        while not rospy.is_shutdown() and traveled_distance < math.fabs(distance):
             current_position = copy.deepcopy(self.last_position.position)
             traveled_distance = math.sqrt(math.pow((current_position.x - start_pos.x), 2) +
                                           math.pow((current_position.y - start_pos.y), 2) +
@@ -119,8 +117,6 @@ class Base(object):
             speed: The angular speed to rotate, in radians/second.
         """
 
-        # Matt's attempt at doing a thing -- mostly works except for a few floating point issues
-        # sleep until the base has received at least one message on /odom
         while not self.has_received_odom_msg:
             rospy.sleep(0.5)
 
@@ -131,68 +127,13 @@ class Base(object):
         angle = (angle * direction + (2 * math.pi) + .0001) % (math.pi * 2)
         current_rads = self.quaternion_to_yaw(self.last_position.orientation) + math.pi
         rads_traveled = ((current_rads - start_rads) * direction + (2 * math.pi) + .0001) % (2 * math.pi)
-        # print "start: ", start_rads
-        # print "current: ", current_rads
-        # print "target: ", abs(angle)
-        # print "traveled: ", rads_traveled
-        # print "c - s: ", current_rads - start_rads
-        # print "2pi % 2pi: ", (2 * math.pi) % (2 * math.pi)
-        # print "direction: ", direction
         rate = rospy.Rate(10)
         # check if the robot has rotated the desired amount
-        # Be sure to handle the case where the desired amount is negative!
         while not rospy.is_shutdown() and rads_traveled < abs(angle):
-            # do some math in this loop to check the CONDITION
-            # angular_speed = max(0.25, min(1.0, angular_speed))
             self.move(0, direction * angular_speed)
             rate.sleep()
             current_rads = self.quaternion_to_yaw(self.last_position.orientation) + math.pi
             rads_traveled = ((current_rads - start_rads) * direction + (2 * math.pi) + .0001) % (2 * math.pi)
-            # print "rads traveled: ", rads_traveled
-
-        """
-        # rospy.sleep until the base has received at least one message on /odom
-        while not self.has_received_odom_msg:
-            rospy.sleep(0.5)
-
-        # record start position
-        start_orientation = copy.deepcopy(self.last_position.orientation)  # has type quaternion
-        start_yaw = self.quaternion_to_yaw(start_orientation)
-
-        desired_yaw = start_yaw + angle
-        desired_yaw_in_degrees = desired_yaw * 180 / math.pi
-        goal_vector = [math.cos(desired_yaw_in_degrees), math.sin(desired_yaw_in_degrees), 0]
-        direction = -1 if angle < 0 else 1
-
-        curr_x = \
-            tft.quaternion_matrix([start_orientation.x, start_orientation.y,
-                                   start_orientation.z, start_orientation.w])[0, 0:3]
-        print("Curr x", curr_x)
-        print("goal_vector", goal_vector)
-        print("diff", np.linalg.norm(goal_vector - curr_x))
-
-        # if min(angle, 2 * math.pi - angle) != angle:
-        #     angle = min(angle, 2 * math.pi - angle)
-        #     direction *= -1
-
-        # TODO: What will you do if angular_distance is greater than 2*pi or less than -2*pi?
-
-        rate = rospy.Rate(10)
-        # TODO: CONDITION should check if the robot has rotated the desired amount
-        while (not rospy.is_shutdown() and np.linalg.norm(goal_vector - curr_x) > 0.02):
-            print("Curr x", curr_x)
-            print("goal_vector", goal_vector)
-            print("diff", np.linalg.norm(goal_vector - curr_x))
-            # TODO need to calculate how much the angle has changed, need to deal with "wraparound" issue
-            current_orientation = copy.deepcopy(self.last_position.orientation)
-            curr_x = \
-                tft.quaternion_matrix([current_orientation.x, current_orientation.y,
-                                       current_orientation.z, current_orientation.w])[0, 0:3]
-            angular_speed = max(0.25, min(1, angular_speed))
-            direction = -1 if angle < 0 else 1
-            self.move(0, direction * angular_speed)
-            rate.sleep()
-        """
 
     def quaternion_to_yaw(self, q):
         rotation_matrix = tft.quaternion_matrix([q.x, q.y, q.z, q.w])
