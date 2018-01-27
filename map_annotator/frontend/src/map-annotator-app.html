@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
 <link rel="import" href="../bower_components/ros-topic/ros-topic.html">
+<link rel="import" href="map-annotator-pose.html">
 
 <dom-module id="map-annotator-app">
   <template>
@@ -27,6 +28,11 @@
 
     <h1>Fetch Web-app connection</h1>
     [[status]]
+
+    <h2>Poses</h2>
+    <template is="dom-repeat" items="[[poseNames.names]]">
+      <map-annotator-pose ros="[[ros]]" pose-name="[[item]]"></map-annotator-pose>
+    </template>
   </template>
 
   <script>
