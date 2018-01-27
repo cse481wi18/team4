@@ -89,7 +89,7 @@ def main():
     prt_marker.header.frame_id = "base_link"
     prt_marker.name = "prt_marker"
     prt_marker.description = "Turn port"
-    prt_marker.pose.position.y = -1
+    prt_marker.pose.position.y = 1
     prt_marker.pose.orientation.w = 1
     # create teal cube marker for the interactive marker
     pbox_marker = Marker()
@@ -107,7 +107,7 @@ def main():
     stb_marker.header.frame_id = "base_link"
     stb_marker.name = "stb_marker"
     stb_marker.description = "Turn starboard"
-    stb_marker.pose.position.y = 1
+    stb_marker.pose.position.y = -1
     stb_marker.pose.orientation.w = 1
     # create teal cube marker for the interactive marker
     sbox_marker = Marker()
@@ -116,9 +116,9 @@ def main():
     sbox_marker.scale.x = 0.45
     sbox_marker.scale.y = 0.45
     sbox_marker.scale.z = 0.45
-    sbox_marker.color.r = 0.5
-    sbox_marker.color.g = 0.0
-    sbox_marker.color.b = 0.5
+    sbox_marker.color.r = 0.0
+    sbox_marker.color.g = 1.0
+    sbox_marker.color.b = 0.0
     sbox_marker.color.a = 1.0
 
     # create an InteractiveMarkerControl, add the Marker to it, and
