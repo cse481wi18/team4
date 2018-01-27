@@ -128,16 +128,16 @@ class Base(object):
         # record start position, add pi to make it be between 0 and 2*pi
         start_rads = self.quaternion_to_yaw(self.last_position.orientation) + math.pi
         # regularize angle to be between 0 and 2*pi
-        # angle = angle % (math.pi * 2)
+        angle = (angle * direction + (2 * math.pi) + .0001) % (math.pi * 2)
         current_rads = self.quaternion_to_yaw(self.last_position.orientation) + math.pi
-        rads_traveled = ((current_rads - start_rads) * direction + (2 * math.pi)) % (2 * math.pi)
-        print "start: ", start_rads
-        print "current: ", current_rads
-        print "target: ", abs(angle)
-        print "traveled: ", rads_traveled
-        print "c - s: ", current_rads - start_rads
-        print "2pi % 2pi: ", (2 * math.pi) % (2 * math.pi)
-        print "direction: ", direction
+        rads_traveled = ((current_rads - start_rads) * direction + (2 * math.pi) + .0001) % (2 * math.pi)
+        # print "start: ", start_rads
+        # print "current: ", current_rads
+        # print "target: ", abs(angle)
+        # print "traveled: ", rads_traveled
+        # print "c - s: ", current_rads - start_rads
+        # print "2pi % 2pi: ", (2 * math.pi) % (2 * math.pi)
+        # print "direction: ", direction
         rate = rospy.Rate(10)
         # check if the robot has rotated the desired amount
         # Be sure to handle the case where the desired amount is negative!
@@ -147,8 +147,8 @@ class Base(object):
             self.move(0, direction * angular_speed)
             rate.sleep()
             current_rads = self.quaternion_to_yaw(self.last_position.orientation) + math.pi
-            rads_traveled = ((current_rads - start_rads) * direction + (2 * math.pi)) % (2 * math.pi)
-            print "rads traveled: ", rads_traveled
+            rads_traveled = ((current_rads - start_rads) * direction + (2 * math.pi) + .0001) % (2 * math.pi)
+            # print "rads traveled: ", rads_traveled
 
         """
         # rospy.sleep until the base has received at least one message on /odom
