@@ -1,0 +1,68 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
+<link rel="import" href="../bower_components/ros-topic/ros-topic.html">
+
+<dom-module id="map-annotator-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+    
+    <ros-websocket auto ros="{{ros}}"
+  url="{{url}}"
+  on-connection="_handleConnection"
+  on-close="_handleClose"
+  on-error="_handleError"></ros-websocket>
+
+<ros-topic auto
+  ros="{{ros}}"
+  topic="map_annotator/pose_names"
+  msg-type="map_annotator/PoseNames"
+  last-message="{{poseNames}}"
+  on-message="_handlePoseNames"
+></ros-topic>
+
+    <h1>Fetch Web-app connection</h1>
+    [[status]]
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class MapAnnotatorApp extends Polymer.Element {
+      static get is() { return 'map-annotator-app'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'map-annotator-app'
+          }
+        };
+      }
+    _handleConnection() {
+    this.status = 'Connected to the websocket server.';
+    console.log(this.status);
+    }
+    _handleClose() {
+    this.status = 'Closed connection to the websocket server.';
+    console.log(this.status);
+    }
+    _handleError() {
+    this.status = 'Error connecting to the websocket server.';
+    console.log(this.status);
+    }
+
+    _handlePoseNames(evt) {
+    var msg = evt.detail;
+    console.log('Pose list: ', msg);
+    }
+    }
+
+    window.customElements.define(MapAnnotatorApp.is, MapAnnotatorApp);
+  </script>
+</dom-module>
