@@ -27,6 +27,9 @@ def main():
     torso = fetch_api.Torso()
     torso.set_height(height)
 
+    torso = fetch_api.Torso()
+    torso.set_height(height)
+
 
 if __name__ == '__main__':
     main()
