@@ -55,9 +55,10 @@
             <div id="content" class="layout horizontal">
                 <div id="controls">
                     <h2>Poses</h2>
-                    <template is="dom-repeat" items="[[poseNames.names]]">
+                    <template is="dom-repeat" items="[[poseNames.positions]]">
                         <map-annotator-pose ros="[[ros]]" pose-name="[[item]]"></map-annotator-pose>
                     </template>
+
                     <paper-button on-tap="_handleCreate">Create</paper-button>
                 </div>
                 <ros-rviz id="rviz" class="flex"></ros-rviz>
@@ -73,6 +74,15 @@
          */
         class MapAnnotatorApp extends Polymer.Element {
             static get is() { return 'map-annotator-app'; }
+
+            static get properties() {
+                return {
+                    prop1: {
+                        type: String,
+                        value: 'map-annotator-app'
+                    }
+                };
+            }
 
             _handleConnection() {
                 this.status = "Connected to the websocket server.";
@@ -160,7 +170,7 @@
                     name: prompt()
                 };
                 this.$.userActions.publish(msg);
-                
+
             }
         }
 
