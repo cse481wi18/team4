@@ -90,7 +90,8 @@
             }
 
             _handlePoseNames(evt) {
-              console.log("Handling pose names!")
+                var msg = evt.detail;
+                console.log('Pose list: ', msg);
             }
 
             ready() {
@@ -159,6 +160,7 @@
                     name: prompt()
                 };
                 this.$.userActions.publish(msg);
+                
             }
         }
 
