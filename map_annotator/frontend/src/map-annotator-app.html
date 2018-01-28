@@ -170,7 +170,7 @@
                 console.log('Creating marker');
                 var msg = {
                     command: 'create',
-                    name: prompt()
+                    name: prompt("Create with marker name:")
                 };
                 this.$.userActions.publish(msg);
 
