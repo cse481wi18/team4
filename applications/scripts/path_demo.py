@@ -32,7 +32,7 @@ class NavPath(object):
         x = pos.x
         y = pos.y
         z = pos.z
-        has_moved = math.sqrt(math.pow((n_x - x), 2) + math.pow((n_y - y), 2) + math.pow((n_z - z), 2)) > 0.1
+        has_moved = math.sqrt(math.pow((n_x - x), 2) + math.pow((n_y - y), 2) + math.pow((n_z - z), 2)) > 0.5
         if has_moved:
             self._path.append(msg.pose.pose.position)
             self.id += 1
@@ -41,7 +41,7 @@ class NavPath(object):
                 id=self.id,
                 lifetime=rospy.Duration(500),
                 pose=Pose(Point(n_x, n_y, n_z), Quaternion(0, 0, 0, 1)),
-                scale=Vector3(0.6, 0.6, 0.6),
+                scale=Vector3(0.2, 0.2, 0.2),
                 header=Header(frame_id='odom'),
                 color=ColorRGBA(1.0, 1.0, 0.0, 0.8)
             )

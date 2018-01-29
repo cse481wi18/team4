@@ -17,18 +17,23 @@
                 font-family: sans-serif;
                 height: 100%;
             }
+
             #main {
                 height: 100%;
             }
+
             #content {
                 height: 100%;
             }
+
             #controls {
                 min-width: 300px;
             }
+
             map-annotator-pose + map-annotator-pose {
                 margin-top: 8px;
             }
+
             paper-button {
                 background-color: lightpink;
             }
@@ -64,7 +69,7 @@
 
                     <paper-button on-tap="_handleCreate">Create</paper-button>
                 </div>
-                <ros-rviz id="rviz" class="flex"></ros-rviz>
+                <ros-rviz id="rviz" ros="[[ros]]" class="flex"></ros-rviz>
             </div>
         </div>
 
@@ -76,7 +81,9 @@
          * @polymer
          */
         class MapAnnotatorApp extends Polymer.Element {
-            static get is() { return 'map-annotator-app'; }
+            static get is() {
+                return 'map-annotator-app';
+            }
 
             static get properties() {
                 return {
