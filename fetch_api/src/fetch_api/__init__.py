@@ -4,3 +4,4 @@ from .base import Base
 from .gripper import Gripper
 from .head import Head
 from .torso import Torso
+from .moveit_goal_builder import MoveItGoalBuilder
