@@ -2,10 +2,12 @@
 
 import actionlib
 import rospy
+from .arm_joints import ArmJoints
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from .moveit_goal_builder import MoveItGoalBuilder
 from moveit_msgs.msg import MoveItErrorCodes, MoveGroupAction
+from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest
 
 TIME_FROM_START = 5
 
@@ -86,6 +88,7 @@ class Arm(object):
         self.client = actionlib.SimpleActionClient('arm_controller/follow_joint_trajectory',
                                                    FollowJointTrajectoryAction)
         self.moveClient = actionlib.SimpleActionClient('move_group', MoveGroupAction)
+        self._compute_ik = rospy.ServiceProxy('compute_ik', GetPositionIK)
 
         # Wait for server
         self.client.wait_for_server()
@@ -187,3 +190,31 @@ class Arm(object):
         self.client.send_goal(goal)
         # Wait for result
         self.client.wait_for_result()
+
+    def compute_ik(self, pose_stamped, timeout=rospy.Duration(5)):
+        """Computes inverse kinematics for the given pose.
+
+        Note: if you are interested in returning the IK solutions, we have
+            shown how to access them.
+
+        Args:
+            pose_stamped: geometry_msgs/PoseStamped.
+            timeout: rospy.Duration. How long to wait before giving up on the
+                IK solution.
+
+        Returns: True if the inverse kinematics were found, False otherwise.
+        """
+        request = GetPositionIKRequest()
+        request.ik_request.pose_stamped = pose_stamped
+        request.ik_request.group_name = 'arm'
+        request.ik_request.timeout = timeout
+        response = self._compute_ik(request)
+        error_str = moveit_error_string(response.error_code.val)
+        success = error_str == 'SUCCESS'
+        if not success:
+            return False
+        joint_state = response.solution.joint_state
+        for name, position in zip(joint_state.name, joint_state.position):
+            if name in ArmJoints.names():
+                rospy.loginfo('{}: {}'.format(name, position))
+        return True
