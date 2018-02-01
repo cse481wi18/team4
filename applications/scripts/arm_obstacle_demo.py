@@ -4,6 +4,7 @@ import fetch_api
 import rospy
 from moveit_python import PlanningSceneInterface
 from geometry_msgs.msg import PoseStamped
+from moveit_msgs.msg import OrientationConstraint
 
 
 def wait_for_time():
@@ -54,6 +55,15 @@ def main():
     pose1.pose.position.z = 0.75
     pose1.pose.orientation.w = 1
 
+    oc = OrientationConstraint()
+    oc.header.frame_id = 'base_link'
+    oc.link_name = 'wrist_roll_link'
+    oc.orientation.w = 1
+    oc.absolute_x_axis_tolerance = 0.1
+    oc.absolute_y_axis_tolerance = 0.1
+    oc.absolute_z_axis_tolerance = 3.14
+    oc.weight = 1.0
+
     pose2 = PoseStamped()
     pose2.header.frame_id = 'base_link'
     pose2.pose.position.x = 0.5
@@ -74,7 +84,8 @@ def main():
         'allowed_planning_time': 15,
         'execution_timeout': 10,
         'num_planning_attempts': 10,
-        'replan': False
+        'replan': False,
+        'orientation_constraint': oc
     }
     rospy.logerr("Moving arm to pose1!  ")
     error = arm.move_to_pose(pose1, **kwargs)
