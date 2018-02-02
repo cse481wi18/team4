@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 
 import math
-import numpy as np
-from geometry_msgs.msg import Point, Pose, PoseStamped
+from geometry_msgs.msg import Point, Pose, PoseStamped, Quaternion
 from std_msgs.msg import ColorRGBA
 import visualization_msgs.msg
 import rospy
@@ -50,10 +49,15 @@ def axis_marker(pose_stamped):
 
     return marker
 
+
 def transform_to_pose(matrix):
     pose = Pose()
-    tft.quaternion_from_matrix(matrix)
-    tft.quaternion_matrix([x, y, z, w])  # Takes in a plain list of numbers.
+    q = tft.quaternion_from_matrix(matrix)  # possibly invert?
+    pose.orientation = Quaternion(q[0], q[1], q[2], q[3])
+    pose.position.x = matrix[0, 3]
+    pose.position.y = matrix[1, 3]
+    pose.position.z = matrix[2, 3]
+
     return pose
 
 
@@ -85,16 +89,16 @@ def main():
         [0, 0, 0, 1]
     ])
     ps = PoseStamped()
-    ps.header.frame_id = 'frame_a'
+    ps.header.frame_id = 'frame_a'  # source frame
     ps.pose = transform_to_pose(b_in_a)
     viz_pub.publish(axis_marker(ps))
 
-    # point_in_b = np.array([1, 0, 0, 1])
-    # point_in_a = np.dot(b_in_a, point_in_b)
-    # rospy.loginfo(point_in_b)
-    # rospy.loginfo(point_in_a)
-    # point = Point(point_in_a[0], point_in_a[1], point_in_a[2])
-    # viz_pub.publish(arrow_marker(point))
+    point_in_b = np.array([1, 0, 0, 1])
+    point_in_a = np.dot(b_in_a, point_in_b)
+    rospy.loginfo(point_in_b)
+    rospy.loginfo(point_in_a)
+    point = Point(point_in_a[0], point_in_a[1], point_in_a[2])
+    viz_pub.publish(arrow_marker(point))
 
 
 if __name__ == '__main__':
