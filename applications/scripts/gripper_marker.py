@@ -23,6 +23,10 @@ def create_marker(posestamped):
     right_finger.mesh_resource = R_FINGER_MESH
 
 
+def make_6of_controls():
+    # body = create_marker()
+
+
 class GripperTeleop(object):
     def __init__(self, arm, gripper, im_server):
         self._arm = arm
@@ -59,7 +63,24 @@ class AutoPickTeleop(object):
         self._im_server = im_server
 
     def start(self):
-        # obj_im = InteractiveMarker() ...
+        obj_im = InteractiveMarker()
+        """
+        obj_im.header.frame_id = "base_link"
+        obj_im.name = "auto_pick_teleop_marker"
+        obj_im.description = "AutoPick"
+        obj_im.pose.orientation.w = 1
+        # create teal cube marker for the interactive marker
+        fbox_marker = Marker()
+        fbox_marker.type = Marker.CUBE
+        fbox_marker.pose.orientation.w = 1
+        fbox_marker.scale.x = 0.45
+        fbox_marker.scale.y = 0.45
+        fbox_marker.scale.z = 0.45
+        fbox_marker.color.r = 0.5
+        fbox_marker.color.g = 0.5
+        fbox_marker.color.b = 0.0
+        fbox_marker.color.a = 1.0
+        """
         self._im_server.insert(obj_im, feedback_cb=self.handle_feedback)
 
     def handle_feedback(self, feedback):
@@ -72,6 +93,10 @@ def main():
     rospy.sleep(0.5)
     im_server = InteractiveMarkerServer('gripper_im_server')
     auto_pick_im_server = InteractiveMarkerServer('auto_pick_im_server')
+
+    arm = fetch_api.Arm()
+    gripper = fetch_api.Gripper()
+
     teleop = GripperTeleop(arm, gripper, im_server)
     auto_pick = AutoPickTeleop(arm, gripper, auto_pick_im_server)
     teleop.start()
