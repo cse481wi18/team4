@@ -18,6 +18,13 @@ MENU_GRIP_MOVE = 3
 
 # TODO need offset: rosrun tf tf_echo wrist_roll_link gripper_link
 
+"""
+Notes from Justin:
+only track position of the "interactive marker," the meshes are defined relative to the interactive marker -
+don't set the poses of the meshes
+Don't set the frame-ids of each mesh
+"""
+
 def create_markers(gripper_interactive_marker):
     control = InteractiveMarkerControl()
     control.orientation.w = 1
