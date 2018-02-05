@@ -12,8 +12,14 @@ GRIPPER_MESH = 'package://fetch_description/meshes/gripper_link.dae'
 L_FINGER_MESH = 'package://fetch_description/meshes/l_gripper_finger_link.STL'
 R_FINGER_MESH = 'package://fetch_description/meshes/r_gripper_finger_link.STL'
 
+# TODO need offset: rosrun tf tf_echo wrist_roll_link gripper_link
 
-def create_markers(pose_stamped):
+def create_markers(gripper_interactive_marker):
+    control = InteractiveMarkerControl()
+    control.orientation.w = 1
+    control.interaction_mode = InteractiveMarkerControl.MENU
+    control.always_visible = True # handle drag events
+
     # teal gripper marker
     gripper_body = Marker()
     gripper_body.type = Marker.MESH_RESOURCE
@@ -25,6 +31,7 @@ def create_markers(pose_stamped):
     gripper_body.scale.z = 0.45
     gripper_body.color.r = 1.0
     gripper_body.color.a = 1.0
+    control.markers.append(gripper_body)
 
     # left/right fingers - other colors
     left_finger = Marker()
@@ -37,6 +44,7 @@ def create_markers(pose_stamped):
     left_finger.scale.z = 0.45
     left_finger.color.r = 0.5
     left_finger.color.a = 1.0
+    control.markers.append(left_finger)
 
     right_finger = Marker()
     right_finger.type = Marker.MESH_RESOURCE
@@ -48,10 +56,14 @@ def create_markers(pose_stamped):
     right_finger.scale.z = 0.45
     right_finger.color.r = 1.0
     right_finger.color.a = 0.5
+    control.markers.append(right_finger)
 
+    return gripper_interactive_marker.controls.append(control) # dont remember if python is pass by value/ref
 
+# Return a list of InteractiveMarkerControls
 def make_6of_controls(): # TODO args?
-    # body = create_marker()
+    pass
+
 
 MENU_GRIP_OPEN = 1
 MENU_GRIP_CLOSE = 2
@@ -71,8 +83,8 @@ class GripperTeleop(object):
         gripper_im.header.frame_id = "gripper_link"  # Could also be wrist_roll_link?  #TODO wait should this be baselink?
         gripper_im.name = "gripper_teleop_marker"
         gripper_im.description = "Gripper"
-        create_markers()
-        make_6of_controls()
+        gripper_im = create_markers(gripper_im)
+        gripper_im.extend(make_6of_controls())
         self._im_server.insert(gripper_im, feedback_cb=self.handle_feedback)
         self._im_server.applyChanges()
 
@@ -139,8 +151,8 @@ class AutoPickTeleop(object):
 def main():
     rospy.init_node('gripper_marker_node') # TODO I don't remember if this name matters
     rospy.sleep(0.5)
-    im_server = InteractiveMarkerServer('gripper_im_server')
-    auto_pick_im_server = InteractiveMarkerServer('auto_pick_im_server')
+    im_server = InteractiveMarkerServer('gripper_im_server', q_size=2) # set q_size for running on real robot TODO may need to uncomment for sim
+    auto_pick_im_server = InteractiveMarkerServer('auto_pick_im_server', q_size=2)
 
     arm = fetch_api.Arm()
     gripper = fetch_api.Gripper()
