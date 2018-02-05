@@ -12,6 +12,10 @@ GRIPPER_MESH = 'package://fetch_description/meshes/gripper_link.dae'
 L_FINGER_MESH = 'package://fetch_description/meshes/l_gripper_finger_link.STL'
 R_FINGER_MESH = 'package://fetch_description/meshes/r_gripper_finger_link.STL'
 
+MENU_GRIP_OPEN = 1
+MENU_GRIP_CLOSE = 2
+MENU_GRIP_MOVE = 3
+
 # TODO need offset: rosrun tf tf_echo wrist_roll_link gripper_link
 
 def create_markers(gripper_interactive_marker):
@@ -60,22 +64,43 @@ def create_markers(gripper_interactive_marker):
 
     return gripper_interactive_marker.controls.append(control) # dont remember if python is pass by value/ref
 
-# Return a list of InteractiveMarkerControls
+# Returns a list of InteractiveMarkerControls
 def make_6of_controls():
-    # body = create_marker()
     controls = []
 
+    # TODO orientations for markers (different for move/rotate?)
     control_x = InteractiveMarkerControl()
     control_x.name = 'move_x'
+    control_x.interaction_mode = InteractiveMarkerControl.MOVE_AXIS
+    control_x.always_visible = True
     controls.append(control_x)
+    rot_control_x = copy.deepcopy(control_x)
+    rot_control_x.interaction_mode = InteractiveMarkerControl.rotate_AXIS
+    rot_control_x.name = 'rotate_x'
+    controls.append(rot_control_x)
 
-    control_x.name = 'rotate_x'
-    controls.append(control)
+    control_y = InteractiveMarkerControl()
+    control_y.name = 'move_y'
+    control_y.interaction_mode = InteractiveMarkerControl.MOVE_AXIS
+    control_y.always_visible = True
+    controls.append(control_y)
+    rot_control_y = copy.deepcopy(control_y)
+    rot_control_y.interaction_mode = InteractiveMarkerControl.rotate_AXIS
+    rot_control_y.name = 'rotate_y'
+    controls.append(rot_control_y)
+
+    control_z = InteractiveMarkerControl()
+    control_z.name = 'move_z'
+    control_z.interaction_mode = InteractiveMarkerControl.MOVE_AXIS
+    control_z.always_visible = True
+    controls.append(control_z)
+    rot_control_z = copy.deepcopy(control_z)
+    rot_control_z.interaction_mode = InteractiveMarkerControl.rotate_AXIS
+    rot_control_z.name = 'rotate_z'
+    controls.append(rot_control_z)
 
 
-MENU_GRIP_OPEN = 1
-MENU_GRIP_CLOSE = 2
-MENU_GRIP_MOVE = 3
+
 
 class GripperTeleop(object):
     def __init__(self, arm, gripper, im_server):
