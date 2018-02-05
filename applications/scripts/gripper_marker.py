@@ -23,13 +23,18 @@ Notes from Justin:
 only track position of the "interactive marker," the meshes are defined relative to the interactive marker -
 don't set the poses of the meshes
 Don't set the frame-ids of each mesh
+
+For the autopick, have 3 gripper poses in frame of object, to convert to base frame:
+multiply transform of base to object by transform of object to gripper to get transform from base to gripper
+(bTo * oTg = bTg)
 """
+
 
 def create_markers(gripper_interactive_marker):
     control = InteractiveMarkerControl()
     control.orientation.w = 1
     control.interaction_mode = InteractiveMarkerControl.MENU
-    control.always_visible = True # handle drag events
+    control.always_visible = True  # handle drag events
 
     # teal gripper marker
     gripper_body = Marker()
@@ -69,7 +74,8 @@ def create_markers(gripper_interactive_marker):
     right_finger.color.a = 0.5
     control.markers.append(right_finger)
 
-    return gripper_interactive_marker.controls.append(control) # dont remember if python is pass by value/ref
+    return gripper_interactive_marker.controls.append(control)  # dont remember if python is pass by value/ref
+
 
 # Returns a list of InteractiveMarkerControls
 def make_6of_controls():
@@ -108,8 +114,6 @@ def make_6of_controls():
     return controls
 
 
-
-
 class GripperTeleop(object):
     def __init__(self, arm, gripper, im_server):
         self._arm = arm
@@ -118,7 +122,7 @@ class GripperTeleop(object):
         self.pose_ok = False
         self.pose = None
 
-    #TODO difference between start and init?
+    # TODO difference between start and init?
     def start(self):
         gripper_im = InteractiveMarker()
         gripper_im.header.frame_id = "gripper_link"  # Could also be wrist_roll_link?  #TODO wait should this be baselink?
@@ -204,9 +208,10 @@ class AutoPickTeleop(object):
 
 
 def main():
-    rospy.init_node('gripper_marker_node') # TODO I don't remember if this name matters
+    rospy.init_node('gripper_marker_node')  # TODO I don't remember if this name matters
     rospy.sleep(0.5)
-    im_server = InteractiveMarkerServer('gripper_im_server', q_size=2) # set q_size for running on real robot TODO may need to uncomment for sim
+    im_server = InteractiveMarkerServer('gripper_im_server',
+                                        q_size=2)  # set q_size for running on real robot TODO may need to uncomment for sim
     auto_pick_im_server = InteractiveMarkerServer('auto_pick_im_server', q_size=2)
 
     arm = fetch_api.Arm()
