@@ -40,11 +40,11 @@ def create_markers(gripper_interactive_marker):
     gripper_body = Marker()
     gripper_body.type = Marker.MESH_RESOURCE
     gripper_body.mesh_resource = GRIPPER_MESH
-    gripper_body.pose.orientation.w = 1
-    gripper_body.pose.position.x = .1
-    gripper_body.scale.x = 0.45
-    gripper_body.scale.y = 0.45
-    gripper_body.scale.z = 0.45
+    # gripper_body.pose.orientation.w = 1
+    # gripper_body.pose.position.x = .1
+    # gripper_body.scale.x = 0.45
+    # gripper_body.scale.y = 0.45
+    # gripper_body.scale.z = 0.45
     gripper_body.color.r = 1.0
     gripper_body.color.a = 1.0
     control.markers.append(gripper_body)
@@ -53,11 +53,11 @@ def create_markers(gripper_interactive_marker):
     left_finger = Marker()
     left_finger.type = Marker.MESH_RESOURCE
     left_finger.mesh_resource = L_FINGER_MESH
-    left_finger.pose.orientation.w = 1
-    left_finger.pose.position.x = .1
-    left_finger.scale.x = 0.45
-    left_finger.scale.y = 0.45
-    left_finger.scale.z = 0.45
+    # left_finger.pose.orientation.w = 1
+    # left_finger.pose.position.x = .1
+    # left_finger.scale.x = 0.45
+    # left_finger.scale.y = 0.45
+    # left_finger.scale.z = 0.45
     left_finger.color.r = 0.5
     left_finger.color.a = 1.0
     control.markers.append(left_finger)
@@ -65,16 +65,16 @@ def create_markers(gripper_interactive_marker):
     right_finger = Marker()
     right_finger.type = Marker.MESH_RESOURCE
     right_finger.mesh_resource = L_FINGER_MESH
-    right_finger.pose.orientation.w = 1
-    right_finger.pose.position.x = .1
-    right_finger.scale.x = 0.45
-    right_finger.scale.y = 0.45
-    right_finger.scale.z = 0.45
+    # right_finger.pose.orientation.w = 1
+    # right_finger.pose.position.x = .1
+    # right_finger.scale.x = 0.45
+    # right_finger.scale.y = 0.45
+    # right_finger.scale.z = 0.45
     right_finger.color.r = 1.0
     right_finger.color.a = 0.5
     control.markers.append(right_finger)
 
-    return gripper_interactive_marker.controls.append(control)  # dont remember if python is pass by value/ref
+    gripper_interactive_marker.controls.append(control)  # dont remember if python is pass by value/ref
 
 
 # Returns a list of InteractiveMarkerControls
@@ -88,7 +88,7 @@ def make_6of_controls():
     control_x.always_visible = True
     controls.append(control_x)
     rot_control_x = copy.deepcopy(control_x)
-    rot_control_x.interaction_mode = InteractiveMarkerControl.rotate_AXIS
+    rot_control_x.interaction_mode = InteractiveMarkerControl.ROTATE_AXIS
     rot_control_x.name = 'rotate_x'
     controls.append(rot_control_x)
 
@@ -96,20 +96,39 @@ def make_6of_controls():
     control_y.name = 'move_y'
     control_y.interaction_mode = InteractiveMarkerControl.MOVE_AXIS
     control_y.always_visible = True
+    control_y.orientation.w = 1
+    control_y.orientation.x = 0
+    control_y.orientation.y = 1
+    control_y.orientation.z = 0
+
     controls.append(control_y)
     rot_control_y = copy.deepcopy(control_y)
-    rot_control_y.interaction_mode = InteractiveMarkerControl.rotate_AXIS
+    rot_control_y.interaction_mode = InteractiveMarkerControl.ROTATE_AXIS
     rot_control_y.name = 'rotate_y'
+    rot_control_y.orientation.w = 1
+    rot_control_y.orientation.x = 0
+    rot_control_y.orientation.y = 1
+    rot_control_y.orientation.z = 0
+
     controls.append(rot_control_y)
 
     control_z = InteractiveMarkerControl()
     control_z.name = 'move_z'
     control_z.interaction_mode = InteractiveMarkerControl.MOVE_AXIS
     control_z.always_visible = True
+    control_z.orientation.w = 1
+    control_z.orientation.x = 0
+    control_z.orientation.y = 0
+    control_z.orientation.z = 1
+
     controls.append(control_z)
     rot_control_z = copy.deepcopy(control_z)
-    rot_control_z.interaction_mode = InteractiveMarkerControl.rotate_AXIS
+    rot_control_z.interaction_mode = InteractiveMarkerControl.ROTATE_AXIS
     rot_control_z.name = 'rotate_z'
+    rot_control_z.orientation.w = 1
+    rot_control_z.orientation.x = 0
+    rot_control_z.orientation.y = 0
+    rot_control_z.orientation.z = 1
     controls.append(rot_control_z)
     return controls
 
@@ -128,8 +147,9 @@ class GripperTeleop(object):
         gripper_im.header.frame_id = "gripper_link"  # Could also be wrist_roll_link?  #TODO wait should this be baselink?
         gripper_im.name = "gripper_teleop_marker"
         gripper_im.description = "Gripper"
-        gripper_im = create_markers(gripper_im)
-        gripper_im.extend(make_6of_controls())
+        create_markers(gripper_im)
+        for control in make_6of_controls():
+            gripper_im.controls.append(control)
 
         open_entry = MenuEntry()
         open_entry.id = MENU_GRIP_OPEN
@@ -144,7 +164,7 @@ class GripperTeleop(object):
         move_entry.title = "Move"
         gripper_im.menu_entries.append(move_entry)
 
-        self._im_server.insert(gripper_im, feedback_cb=self.handle_feedback)
+        self._im_server.insert(gripper_im, self.handle_feedback)
         self._im_server.applyChanges()
 
     def handle_feedback(self, feedback):
