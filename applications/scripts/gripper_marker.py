@@ -30,6 +30,8 @@ multiply transform of base to object by transform of object to gripper to get tr
 (bTo * oTg = bTg)
 """
 
+OFFSET = 0.166
+
 
 def create_markers(gripper_interactive_marker):
     control = InteractiveMarkerControl()
@@ -42,7 +44,7 @@ def create_markers(gripper_interactive_marker):
     gripper_body.type = Marker.MESH_RESOURCE
     gripper_body.mesh_resource = GRIPPER_MESH
     # gripper_body.pose.orientation.w = 1
-    # gripper_body.pose.position.x = .1
+    gripper_body.pose.position.x = OFFSET
     # gripper_body.scale.x = 0.45
     # gripper_body.scale.y = 0.45
     # gripper_body.scale.z = 0.45
@@ -55,6 +57,7 @@ def create_markers(gripper_interactive_marker):
     left_finger.mesh_resource = L_FINGER_MESH
     # left_finger.pose.orientation.w = 1
     left_finger.pose.position.y = -.16
+    left_finger.pose.position.x = OFFSET
     # left_finger.scale.x = 0.45
     # left_finger.scale.y = 0.45
     # left_finger.scale.z = 0.45
@@ -66,6 +69,7 @@ def create_markers(gripper_interactive_marker):
     right_finger.mesh_resource = L_FINGER_MESH
     # right_finger.pose.orientation.w = 1
     right_finger.pose.position.y = -.06
+    right_finger.pose.position.x = OFFSET
     # right_finger.scale.x = 0.45
     # right_finger.scale.y = 0.45
     # right_finger.scale.z = 0.45
@@ -143,7 +147,7 @@ class GripperTeleop(object):
     # TODO difference between start and init?
     def start(self):
         self.gripper_im = InteractiveMarker()
-        self.gripper_im.header.frame_id = "gripper_link"
+        self.gripper_im.header.frame_id = "base_link"
         self.gripper_im.name = "gripper_teleop_marker"
         self.gripper_im.description = "Gripper"
         create_markers(self.gripper_im)
@@ -182,6 +186,8 @@ class GripperTeleop(object):
                 }
                 if self.pose_ok:
                     self._arm.move_to_pose(self.pose, **kwargs)
+                    self._im_server.insert(gripper_marker, feedback_cb=self.handle_feedback)
+                    self._im_server.applyChanges()
                 else:
                     rospy.logerr("Error - couldn't move to pose")
         elif feedback.event_type == InteractiveMarkerFeedback.POSE_UPDATE:
