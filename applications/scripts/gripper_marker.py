@@ -61,8 +61,16 @@ def create_markers(gripper_interactive_marker):
     return gripper_interactive_marker.controls.append(control) # dont remember if python is pass by value/ref
 
 # Return a list of InteractiveMarkerControls
-def make_6of_controls(): # TODO args?
-    pass
+def make_6of_controls():
+    # body = create_marker()
+    controls = []
+
+    control_x = InteractiveMarkerControl()
+    control_x.name = 'move_x'
+    controls.append(control_x)
+
+    control_x.name = 'rotate_x'
+    controls.append(control)
 
 
 MENU_GRIP_OPEN = 1
