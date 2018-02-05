@@ -3,6 +3,7 @@
 from interactive_markers.interactive_marker_server import InteractiveMarkerServer
 from visualization_msgs.msg import InteractiveMarker, InteractiveMarkerControl, InteractiveMarkerFeedback
 from visualization_msgs.msg import Marker, MenuEntry
+from std_msgs.msg import ColorRGBA
 import fetch_api
 import rospy
 import copy
@@ -45,8 +46,7 @@ def create_markers(gripper_interactive_marker):
     # gripper_body.scale.x = 0.45
     # gripper_body.scale.y = 0.45
     # gripper_body.scale.z = 0.45
-    gripper_body.color.r = 1.0
-    gripper_body.color.a = 1.0
+    gripper_body.color = ColorRGBA(0, 0, 1, 1)
     control.markers.append(gripper_body)
 
     # left/right fingers - other colors
@@ -58,8 +58,7 @@ def create_markers(gripper_interactive_marker):
     # left_finger.scale.x = 0.45
     # left_finger.scale.y = 0.45
     # left_finger.scale.z = 0.45
-    left_finger.color.r = 1.0
-    left_finger.color.a = 1.0
+    left_finger.color = ColorRGBA(0, 0, 1, 1)
     control.markers.append(left_finger)
 
     right_finger = Marker()
@@ -70,8 +69,7 @@ def create_markers(gripper_interactive_marker):
     # right_finger.scale.x = 0.45
     # right_finger.scale.y = 0.45
     # right_finger.scale.z = 0.45
-    right_finger.color.r = 1.0
-    right_finger.color.a = 1.0
+    right_finger.color = ColorRGBA(0, 0, 1, 1)
     control.markers.append(right_finger)
 
     gripper_interactive_marker.controls.append(control)  # dont remember if python is pass by value/ref
@@ -140,31 +138,32 @@ class GripperTeleop(object):
         self._im_server = im_server
         self.pose_ok = False
         self.pose = None
+        self.gripper_im = None
 
     # TODO difference between start and init?
     def start(self):
-        gripper_im = InteractiveMarker()
-        gripper_im.header.frame_id = "gripper_link"  # Could also be wrist_roll_link?  #TODO wait should this be baselink?
-        gripper_im.name = "gripper_teleop_marker"
-        gripper_im.description = "Gripper"
-        create_markers(gripper_im)
-        for control in make_6of_controls():
-            gripper_im.controls.append(control)
+        self.gripper_im = InteractiveMarker()
+        self.gripper_im.header.frame_id = "gripper_link"
+        self.gripper_im.name = "gripper_teleop_marker"
+        self.gripper_im.description = "Gripper"
+        create_markers(self.gripper_im)
+        controls = make_6of_controls()
+        self.gripper_im.controls.extend(controls)
 
         open_entry = MenuEntry()
         open_entry.id = MENU_GRIP_OPEN
         open_entry.title = "Open"
-        gripper_im.menu_entries.append(open_entry)
+        self.gripper_im.menu_entries.append(open_entry)
         close_entry = MenuEntry()
         close_entry.id = MENU_GRIP_CLOSE
         close_entry.title = "Close"
-        gripper_im.menu_entries.append(close_entry)
+        self.gripper_im.menu_entries.append(close_entry)
         move_entry = MenuEntry()
         move_entry.id = MENU_GRIP_MOVE
         move_entry.title = "Move"
-        gripper_im.menu_entries.append(move_entry)
+        self.gripper_im.menu_entries.append(move_entry)
 
-        self._im_server.insert(gripper_im, self.handle_feedback)
+        self._im_server.insert(self.gripper_im, feedback_cb=self.handle_feedback)
         self._im_server.applyChanges()
 
     def handle_feedback(self, feedback):
@@ -187,12 +186,17 @@ class GripperTeleop(object):
                     rospy.logerr("Error - couldn't move to pose")
         elif feedback.event_type == InteractiveMarkerFeedback.POSE_UPDATE:
             pose_stamped = PoseStamped()
-            pose_stamped.pose = feedback.pose
-            pose_stamped.header = feedback.header
+            pose_stamped.pose = copy.deepcopy(feedback.pose)
+            pose_stamped.header = copy.deepcopy(feedback.header)
             result = self._arm.compute_ik(pose_stamped)
             self.pose_ok = result
+            for mesh in gripper_marker.controls[0].markers:
+                if result:
+                    mesh.color = ColorRGBA(0, 1, 0, 1)
+                else:
+                    mesh.color = ColorRGBA(1, 0, 0, 1)
             self.pose = pose_stamped
-            self._im_server.insert(gripper_marker)
+            self._im_server.insert(gripper_marker, feedback_cb=self.handle_feedback)
             self._im_server.applyChanges()
 
 
@@ -221,7 +225,7 @@ class AutoPickTeleop(object):
         fbox_marker.color.b = 0.0
         fbox_marker.color.a = 1.0
         """
-        self._im_server.insert(obj_im, feedback_cb=self.handle_feedback)
+        # self._im_server.insert(obj_im, feedback_cb=self.handle_feedback)
 
     def handle_feedback(self, feedback):
         pass
@@ -232,15 +236,15 @@ def main():
     rospy.sleep(0.5)
     im_server = InteractiveMarkerServer('gripper_im_server',
                                         q_size=2)  # set q_size for running on real robot TODO may need to uncomment for sim
-    auto_pick_im_server = InteractiveMarkerServer('auto_pick_im_server', q_size=2)
+    # auto_pick_im_server = InteractiveMarkerServer('auto_pick_im_server', q_size=2)
 
     arm = fetch_api.Arm()
     gripper = fetch_api.Gripper()
 
     teleop = GripperTeleop(arm, gripper, im_server)
-    auto_pick = AutoPickTeleop(arm, gripper, auto_pick_im_server)
+    # auto_pick = AutoPickTeleop(arm, gripper, auto_pick_im_server)
     teleop.start()
-    auto_pick.start()
+    # auto_pick.start()
     rospy.spin()
 
 
