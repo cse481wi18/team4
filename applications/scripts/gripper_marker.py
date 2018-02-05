@@ -54,11 +54,11 @@ def create_markers(gripper_interactive_marker):
     left_finger.type = Marker.MESH_RESOURCE
     left_finger.mesh_resource = L_FINGER_MESH
     # left_finger.pose.orientation.w = 1
-    # left_finger.pose.position.x = .1
+    left_finger.pose.position.y = -.16
     # left_finger.scale.x = 0.45
     # left_finger.scale.y = 0.45
     # left_finger.scale.z = 0.45
-    left_finger.color.r = 0.5
+    left_finger.color.r = 1.0
     left_finger.color.a = 1.0
     control.markers.append(left_finger)
 
@@ -66,12 +66,12 @@ def create_markers(gripper_interactive_marker):
     right_finger.type = Marker.MESH_RESOURCE
     right_finger.mesh_resource = L_FINGER_MESH
     # right_finger.pose.orientation.w = 1
-    # right_finger.pose.position.x = .1
+    right_finger.pose.position.y = -.06
     # right_finger.scale.x = 0.45
     # right_finger.scale.y = 0.45
     # right_finger.scale.z = 0.45
     right_finger.color.r = 1.0
-    right_finger.color.a = 0.5
+    right_finger.color.a = 1.0
     control.markers.append(right_finger)
 
     gripper_interactive_marker.controls.append(control)  # dont remember if python is pass by value/ref
