@@ -2,7 +2,7 @@
 
 from interactive_markers.interactive_marker_server import InteractiveMarkerServer
 from visualization_msgs.msg import InteractiveMarker, InteractiveMarkerControl, InteractiveMarkerFeedback
-from visualization_msgs.msg import Marker
+from visualization_msgs.msg import Marker, MenuEntry
 import fetch_api
 import rospy
 import copy
@@ -105,6 +105,7 @@ def make_6of_controls():
     rot_control_z.interaction_mode = InteractiveMarkerControl.rotate_AXIS
     rot_control_z.name = 'rotate_z'
     controls.append(rot_control_z)
+    return controls
 
 
 
@@ -125,6 +126,20 @@ class GripperTeleop(object):
         gripper_im.description = "Gripper"
         gripper_im = create_markers(gripper_im)
         gripper_im.extend(make_6of_controls())
+
+        open_entry = MenuEntry()
+        open_entry.id = MENU_GRIP_OPEN
+        open_entry.title = "Open"
+        gripper_im.menu_entries.append(open_entry)
+        close_entry = MenuEntry()
+        close_entry.id = MENU_GRIP_CLOSE
+        close_entry.title = "Close"
+        gripper_im.menu_entries.append(close_entry)
+        move_entry = MenuEntry()
+        move_entry.id = MENU_GRIP_MOVE
+        move_entry.title = "Move"
+        gripper_im.menu_entries.append(move_entry)
+
         self._im_server.insert(gripper_im, feedback_cb=self.handle_feedback)
         self._im_server.applyChanges()
 
