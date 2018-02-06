@@ -1,3 +1,5 @@
 *.pyc
 .idea/*
 *~
+map_annotator/src/map_annotator/savedPoses.p
+savedPoses.p
