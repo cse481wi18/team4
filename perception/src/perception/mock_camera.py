@@ -2,9 +2,6 @@
 
 import rosbag
 
-camera = perception.MockCamera()
-cloud = camera.read_cloud('~/data/tags.bag')
-
 class MockCamera(object): 
     """A MockCamera reads saved point clouds.
     """
@@ -22,6 +19,6 @@ class MockCamera(object):
             PointCloud2 messages in the bag file.
         """
         with rosbag.Bag(path) as bag:
-            for topic, msg, t in bag.read_messages(topics=['chatter', 'numbers']):
+            for topic, msg, t in bag.read_messages(topics=[]):
                 return msg
         return None
