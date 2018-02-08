@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from geometry_msgs.msg import PoseStamped
-from sensor_msgs.msg import PointCloud2
+from ar_track_alvar_msgs.msg import AlvarMarkers
 import fetch_api
 import rospy
 
@@ -22,6 +22,7 @@ class ArTagReader(object):
 
 
 def main():
+    rospy.init_node("hallucinated_reach")
     wait_for_time()
 
     start = PoseStamped()
@@ -31,16 +32,19 @@ def main():
     start.pose.position.z = 0.75
     arm = fetch_api.Arm()
     arm.move_to_pose(start)
-                                                                               
+
     reader = ArTagReader()
-    sub = rospy.Subscriber("ar_pose_marker", PointCloud2, reader.callback) # Subscribe to AR tag poses, use reader.callback
-    
+    sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers,
+                           reader.callback)  # Subscribe to AR tag poses, use reader.callback
+
     while len(reader.markers) == 0:
         rospy.sleep(0.1)
-    
+
     for marker in reader.markers:
-        # TODO: get the pose to move to
-        error = arm.move_to_pose(???)
+        print "reaching for pose"
+        pose_stamped = marker.pose
+        pose_stamped.header.frame_id = "base_link"
+        error = arm.move_to_pose(pose_stamped)
         if error is None:
             rospy.loginfo('Moved to marker {}'.format(marker.id))
             return
