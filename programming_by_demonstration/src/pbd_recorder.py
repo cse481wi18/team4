@@ -20,3 +20,6 @@ class recorder:
 
     def save_path(self, name):
         pass
+
+    def get_tags(self):
+        pass
