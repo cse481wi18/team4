@@ -23,7 +23,6 @@ class Interface:
 
     def run(self):
         self._grip = fetch_api.Gripper()
-        self._arm = fetch_api.Arm()
         self._recorder = Recorder()
 
         self._main_menu()
