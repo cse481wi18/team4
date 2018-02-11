@@ -2,7 +2,7 @@ import query_action_client
 from joint_state_reader import JointStateReader
 
 
-class recorder:
+class Recorder:
     def __init__(self):
         self.joint_state_reader = JointStateReader()
         self.stamped_poses = []
@@ -14,7 +14,7 @@ class recorder:
     def arm_rigid(self):
         self.arm_controller.start_arm()
 
-    # frame: marker_id -- assuming it's always the same, -1 for base_frame
+    # frame: (int) marker_id -- assuming it's always the same, -1 for base_frame
     def record_pose(self, frame):
         self.joint_state_reader.get_joints()
 
