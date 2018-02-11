@@ -105,12 +105,12 @@ class Interface:
             dict_tags[idx] = tag
         return dict_tags
 
-    def open_grip(self):
+    def _open_grip(self):
         print 'Opening grip...'
         self._grip.open()
         self._creating_program()
 
-    def close_grip(self):
+    def _close_grip(self):
         print 'Closing grip...'
         self._grip.close()
         self._creating_program()
