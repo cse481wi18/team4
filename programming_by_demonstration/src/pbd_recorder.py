@@ -14,7 +14,7 @@ class Recorder:
 
     # frame: (int) marker_id -- assuming it's always the same, -1 for base_frame
     def record_pose(self, frame):
-        pass
+        self.stamped_poses.append()
 
     def save_path(self, name):
         pass

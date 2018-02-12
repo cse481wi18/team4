@@ -62,16 +62,17 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
   PointCloudC::Ptr cloud(new PointCloudC());
   pcl::fromROSMsg(msg, *cloud);
 
-  //PointCloudC::Ptr cloud(new PointCloudC);
-  pcl::PointIndices indices;
-  for (size_t i=0; i<indices.indices.size(); ++i) {
-    int index = indices.indices[i];
+  // TODO - all the way until filter
+  // Create the segmentation object
+  //pcl::PointIndices indices;
+  pcl::PointIndices::Ptr indices (new pcl::PointIndices ());
+  for (size_t i=0; i<indices->indices.size(); ++i) {
+    int index = indices->indices[i];
     const PointC& pt = cloud->points[index];
   }
 
   // Given these data types:
   PointCloudC::Ptr original_cloud(new PointCloudC);
-  //pcl::PointIndices indices;
   PointCloudC::Ptr subset_cloud(new PointCloudC);
 
   // Extract subset of original_cloud into subset_cloud:
