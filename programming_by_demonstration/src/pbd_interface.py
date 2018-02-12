@@ -7,6 +7,8 @@ from pbd_recorder import Recorder
 """
 user inputs should be numbers corresponding to their option
 """
+
+
 class Interface:
     def __init__(self):
         self._main_menu_actions = {
@@ -119,6 +121,7 @@ class Interface:
 # Exit program
 def exit():
     sys.exit()
+
 
 def main():
     torso = fetch_api.Torso()
