@@ -48,6 +48,17 @@ void SegmentSurface(PointCloudC::Ptr cloud, pcl::PointIndices::Ptr indices) {
     return;
   }
 }
+  /*
+Notes from lab:
+Implement GetAxisAlignedBoundingBox so that it sets the pose and dimensions of a box surrounding the given point cloud. Because we are computing an axis-aligned bounding box, the orientation of the box is just the identity orientation. Making a box that fits more tightly to the data is a refinement that requires extra work.
+
+Implementation hints:
+
+Use pcl::getMinMax3D as discussed in the previous lab.
+The center X position is (max.x + min.x) / 2.
+The X dimension is max.x - min.x.
+You can't return multiple values from a C++ function, but you can pass in pointers and have the function mutate those pointers. Set pointer values like so: pose->orientation.w = 1.
+   */
 
 void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                                geometry_msgs::Pose* pose,
@@ -80,6 +91,8 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
   extract.setInputCloud(original_cloud);
   extract.setIndices(indices);
   extract.filter(*subset_cloud);
+
+
   pcl::PointIndices::Ptr table_inliers(new pcl::PointIndices());
   SegmentSurface(cloud, table_inliers);
 }
