@@ -68,6 +68,14 @@ void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
   pcl::getMinMax3D<PointC>(*cloud, min_pcl, max_pcl);
 
   float center_x = (max.x + min.x) / 2;
+  pose->x.position = center_x;
+  pose->position.y = (max_pcl.y + min_pcl.y) / 2;
+  pose->position.z =  (max_pcl.z + min_pcl.z) / 2;
+  dimensions->x = max_pcl.x - min_pcl.x;
+  dimensions->y = max_pcl.y - min_pcl.y;
+  dimensions->z = max_pcl.z - min_pcl.z;
+  pose->orientation.w = 1;
+
 }
 
 Segmenter::Segmenter(const ros::Publisher& surface_points_pub)
