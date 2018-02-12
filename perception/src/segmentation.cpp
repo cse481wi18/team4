@@ -63,7 +63,11 @@ You can't return multiple values from a C++ function, but you can pass in pointe
 void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                                geometry_msgs::Pose* pose,
                                geometry_msgs::Vector3* dimensions) {
-   //TODO: implement this
+  PointC min_pcl;
+  PointC max_pcl;
+  pcl::getMinMax3D<PointC>(*cloud, min_pcl, max_pcl);
+
+  float center_x = (max.x + min.x) / 2;
 }
 
 Segmenter::Segmenter(const ros::Publisher& surface_points_pub)
