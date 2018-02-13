@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import sys, os, time
+import rospy
 import fetch_api
 from pbd_recorder import Recorder
 
@@ -71,7 +72,7 @@ class Interface:
         print 'Should the pose be saved relative to the base frame or to a tag?'
         print '0. base frame'
         curr_tags = self._get_tags()
-        for key, val in enumerate(curr_tags):
+        for key, val in curr_tags.items():
             print '{}. Tag {}'.format(key, val)
         choice = int(raw_input('  >>>  '))
         # check bounds:
@@ -104,7 +105,7 @@ class Interface:
         tags = self._recorder.get_tags()
         dict_tags = {}
         for idx, tag in enumerate(tags):
-            dict_tags[idx] = tag
+            dict_tags[idx + 1] = tag
         return dict_tags
 
     def _open_grip(self):
@@ -124,11 +125,20 @@ def exit():
 
 
 def main():
+    rospy.init_node('pbd_interface')
+    wait_for_time()
     torso = fetch_api.Torso()
     print 'Raising torso height...'
     torso.set_height(torso.MAX_HEIGHT)
     demo_runner = Interface()
     demo_runner.run()
+
+
+def wait_for_time():
+    """Wait for simulated time to begin.
+    """
+    while rospy.Time().now().to_sec() == 0:
+        pass
 
 
 # Main Program

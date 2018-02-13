@@ -1,11 +1,11 @@
-from robot_controllers_msgs.msg import QueryControllerStates, ControllerState, QueryControllerStatesGoal
+from robot_controllers_msgs.msg import QueryControllerStatesAction, ControllerState, QueryControllerStatesGoal
 import actionlib
 
 
 class arm_control:
     def __init__(self):
         self._controller_client = actionlib.SimpleActionClient('query_controller_states',
-                                                               QueryControllerStates)
+                                                               QueryControllerStatesAction)
 
     def stop_arm(self):
         goal = QueryControllerStatesGoal()

@@ -8,6 +8,8 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from .moveit_goal_builder import MoveItGoalBuilder
 from moveit_msgs.msg import MoveItErrorCodes, MoveGroupAction
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest
+from geometry_msgs.msg import Pose, Quaternion, Point
+import tf
 
 TIME_FROM_START = 5
 
@@ -221,3 +223,12 @@ class Arm(object):
             if name in ArmJoints.names():
                 rospy.loginfo('{}: {}'.format(name, position))
         return True
+
+    def get_pose(self):
+        listener = tf.TransformListener()
+        listener.waitForTransform('base_link', 'wrist_roll_link', rospy.Time(), rospy.Duration(4.0))
+        (p, q) = listener.lookupTransform('base_link', 'wrist_roll_link', rospy.Time(0))
+        pose = Pose()
+        pose.position = Point(p[0], p[1], p[2])
+        pose.orientation = Quaternion(q[0], q[1], q[2], q[3])
+        return pose
