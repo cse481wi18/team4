@@ -458,14 +458,14 @@ def main():
     arm = fetch_api.Arm()
     gripper = fetch_api.Gripper()
 
-    # im_server = InteractiveMarkerServer('gripper_im_server',
-    #                                     q_size=2)  # set q_size for running on real robot TODO may need to uncomment for sim
-    # teleop = GripperTeleop(arm, gripper, im_server)
-    # teleop.start()
+    im_server = InteractiveMarkerServer('gripper_im_server',
+                                        q_size=2)  # set q_size for running on real robot TODO may need to uncomment for sim
+    teleop = GripperTeleop(arm, gripper, im_server)
+    teleop.start()
 
-    auto_pick_im_server = InteractiveMarkerServer('auto_pick_im_server', q_size=2)
-    auto_pick = AutoPickTeleop(arm, gripper, auto_pick_im_server)
-    auto_pick.start()
+    # auto_pick_im_server = InteractiveMarkerServer('auto_pick_im_server', q_size=2)
+    # auto_pick = AutoPickTeleop(arm, gripper, auto_pick_im_server)
+    # auto_pick.start()
     rospy.spin()
 
 

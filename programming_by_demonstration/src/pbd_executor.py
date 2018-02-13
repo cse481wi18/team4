@@ -6,7 +6,7 @@ import fetch_api
 from pbd_recorder import Recorder
 
 
-class Interface:
+class Executor:
     def __init__(self):
         self.recorder = Recorder()
 
@@ -22,7 +22,7 @@ def main():
     torso = fetch_api.Torso()
     print 'Raising torso height...'
     torso.set_height(torso.MAX_HEIGHT)
-    demo_runner = Interface()
+    demo_runner = Executor()
     demo_runner.run()
 
 

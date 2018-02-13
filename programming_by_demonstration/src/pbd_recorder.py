@@ -2,10 +2,11 @@ import query_action_client
 import fetch_api
 import rospy
 import tf.transformations as tft
+import tf
 import numpy as np
 import pickle
 from ar_track_alvar_msgs.msg import AlvarMarkers
-from geometry_msgs.msg import Pose, PoseStamped
+from geometry_msgs.msg import Pose, PoseStamped, Quaternion, Point
 
 
 def pose_to_matrix(pose):
@@ -29,46 +30,61 @@ def matrix_to_pose(matrix):
 class Recorder:
     def __init__(self):
         self.stamped_poses = []
-        self.arm_controller = query_action_client.arm_control()
-        self.arm = fetch_api.Arm()
-        self.reader = ArTagReader()
-        self.sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers,
-                                    self.reader.callback)  # Subscribe to AR tag poses, use reader.callback
+        self._poses = []
+        self._arm_controller = query_action_client.arm_control()
+        self._arm = fetch_api.Arm()
+        self._gripper = fetch_api.Gripper()
+        self._reader = ArTagReader()
+        self._sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers,
+                                     self._reader.callback)  # Subscribe to AR tag poses, use reader.callback
+        self._transform_listener = tf.TransformListener()
 
     def arm_limp(self):
-        self.arm_controller.stop_arm()
+        self._arm_controller.stop_arm()
 
     def arm_rigid(self):
-        self.arm_controller.start_arm()
+        self._arm_controller.start_arm()
 
     # frame: (int) marker_id -- assuming it's always the same, -1 for base_frame
-    def record_pose(self, frame):
-        ps = PoseStamped()
-        ps.pose = self.arm.get_pose()
-        ps.header.frame_id = 'base_link'
-        if frame is not -1:
-            # transform
-            wrist_matrix = pose_to_matrix(ps.pose)
-            tag1_matrix = pose_to_matrix(self.reader.markers[frame])
-
-            pose = matrix_to_pose(np.dot(np.linalg.inv(tag1_matrix), wrist_matrix))
-            ps.pose = pose
-        self.stamped_poses.append((ps, frame))
+    def record_pose(self, frame, gripper_open=True):
+        pose = Pose()
+        if frame == -1:
+            (position, quaternion) = self._transform_listener.lookupTransform('base_link', 'wrist_roll_link',
+                                                                              rospy.Time(0))
+            pose.position = position
+            pose.orientation = quaternion
+        else:
+            curr_marker = self._reader.markers[frame]
+            (pos_b, quat_b) = self._transform_listener.lookupTransform('base_link', 'wrist_roll_link', rospy.Time(0))
+            base_to_wrist_matrix = tft.quaternion_matrix(quat_b)
+            pos_b.append(1)
+            base_to_wrist_matrix[:, 3] = pos_b
+            base_to_tag_matrix = tft.quaternion_matrix([curr_marker.orientation.x, curr_marker.orientation.y, curr_marker.orientation.z, curr_marker.orientation.w])
+            base_to_tag_matrix[:, 3] = (curr_marker.position.x, curr_marker.position.y, curr_marker.position.z, 1)
+            t_b_matrix = np.linalg.inv(base_to_tag_matrix)
+            tag_to_wrist_matrix = np.dot(t_b_matrix, base_to_wrist_matrix)
+            pose.position = Point(tag_to_wrist_matrix[0, 3], tag_to_wrist_matrix[1, 3], tag_to_wrist_matrix[2, 3])
+            temp = tft.quaternion_from_matrix(tag_to_wrist_matrix)
+            pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
+            self._poses.append((pose, frame, gripper_open))
 
     # Saving program
     def save_path(self, name):
+    def save_path(self, name):
         rospy.logerr("Writing pickle file")
         try:
-            pickle.dump(self.stamped_poses, open(name + ".p", "wb"))
+            # pickle.dump(self.stamped_poses, open(name + ".p", "wb"))
+            pickle.dump(self._poses, open(name + ".p", "wb"))
             rospy.logerr("Dumped pickle file!")
         except Exception as e:
             rospy.roserr(e)
         finally:
             self.stamped_poses = []
+            self._poses = []
 
     def get_tags(self):
         tag_list = []
-        for marker in self.reader.markers.keys():
+        for marker in self._reader.markers.keys():
             tag_list.append(marker)
         return tag_list
 
@@ -80,21 +96,49 @@ class Recorder:
         except Exception as e:
             print e
         if len(path) > 0:
-            for pose, frame in path:
-                if frame is -1:
-                    rospy.logerr('moving to pose')
-                    err = self.arm.move_to_pose(pose)
+            for pose, frame, gripper_open in path:
+                if gripper_open:
+                    self._gripper.open()
                 else:
-                    rospy.logerr('moving to pose relative to tag')
-                    tag_to_base = pose_to_matrix(self.reader.markers[frame])
-                    wrist_to_tag = pose_to_matrix(pose.pose)
-                    goal = matrix_to_pose(np.dot(wrist_to_tag, tag_to_base))
-                    pose.pose = goal
-                    rospy.logerr('sending goal')
-                    err = self.arm.move_to_pose(pose)
-                    rospy.logerr('goal executed')
-                if err is not None:
-                    print err
+                    self._gripper.close()
+
+                ps = PoseStamped()
+                ps.header.frame_id = 'base_link'
+
+                if frame == -1:
+                    ps.pose = Pose()
+                    ps.pose.position.x = pose.position[0]
+                    ps.pose.position.y = pose.position[1]
+                    ps.pose.position.z = pose.position[2]
+                    ps.pose.orientation.x = pose.orientation[0]
+                    ps.pose.orientation.y = pose.orientation[1]
+                    ps.pose.orientation.z = pose.orientation[2]
+                    ps.pose.orientation.w = pose.orientation[3]
+
+                    error = self._arm.move_to_pose(ps)
+                    if error is not None:
+                        rospy.logerr(error)
+                else:
+                    curr_marker = self._reader.markers[frame]
+                    (tag_with_position, tag_with_quaternion) = pose.position, pose.orientation
+                    tag_to_wrist_matrix = tft.quaternion_matrix(
+                        [tag_with_quaternion.x, tag_with_quaternion.y, tag_with_quaternion.z, tag_with_quaternion.w])
+                    tag_to_wrist_matrix[:, 3] = (tag_with_position.x, tag_with_position.y, tag_with_position.z, 1)
+                    base_to_tag_matrix = tft.quaternion_matrix(
+                        [curr_marker.orientation.x, curr_marker.orientation.y, curr_marker.orientation.z,
+                         curr_marker.orientation.w])
+                    base_to_tag_matrix[:, 3] = (
+                        curr_marker.position.x, curr_marker.position.y, curr_marker.position.z, 1)
+                    base_to_wrist_matrix = np.dot(base_to_tag_matrix, tag_to_wrist_matrix)
+                    ps.pose = Pose()
+                    ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3],
+                                             base_to_wrist_matrix[2, 3])
+                    temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
+                    ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
+
+                    error = self._arm.move_to_pose(ps)
+                    if error is not None:
+                        rospy.logerr(error)
 
 
 class ArTagReader():
@@ -102,9 +146,10 @@ class ArTagReader():
         self.markers = {}
 
     def callback(self, msg):
-        self.markers = {}
-        markers = msg.markers
-        for m in markers:
-            self.markers[m.id] = m.pose.pose
-        # for m in markers:
+        markers = {}
+        copied_markers = msg.markers
+        for m in copied_markers:
+            markers[m.id] = m.pose.pose
+        self.markers = markers
+        # for m in self.markers:
         #     print msg

@@ -26,6 +26,8 @@ class Interface:
 
     def run(self):
         self._grip = fetch_api.Gripper()
+        self._gripper_open = True
+        self._grip.open()
         self._recorder = Recorder()
 
         self._main_menu()
@@ -81,7 +83,7 @@ class Interface:
             print 'Invalid choice: {}'.format(choice)
             self._save_pose()
         curr_tags.update({0: -1})  # add base frame option
-        self._recorder.record_pose(curr_tags[choice])
+        self._recorder.record_pose(curr_tags[choice], self._gripper_open)
         print 'Pose saved!'
         self._creating_program()
 
@@ -113,11 +115,13 @@ class Interface:
 
     def _open_grip(self):
         print 'Opening grip...'
+        self._gripper_open = True
         self._grip.open()
         self._creating_program()
 
     def _close_grip(self):
         print 'Closing grip...'
+        self._gripper_open = False
         self._grip.close()
         self._creating_program()
 
