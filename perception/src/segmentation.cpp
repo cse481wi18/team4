@@ -1,5 +1,5 @@
 #include "perception/segmentation.h"
-
+#include "pcl/common/common.h"
 #include "pcl/PointIndices.h"
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
@@ -67,8 +67,8 @@ void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
   PointC max_pcl;
   pcl::getMinMax3D<PointC>(*cloud, min_pcl, max_pcl);
 
-  float center_x = (max.x + min.x) / 2;
-  pose->x.position = center_x;
+  float center_x = (max_pcl.x + min_pcl.x) / 2;
+  pose->position.x = center_x;
   pose->position.y = (max_pcl.y + min_pcl.y) / 2;
   pose->position.z =  (max_pcl.z + min_pcl.z) / 2;
   dimensions->x = max_pcl.x - min_pcl.x;

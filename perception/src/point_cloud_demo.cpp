@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   // Cropper
-/* commented to only run segmentation
+
   ros::Publisher crop_pub =
       nh.advertise<sensor_msgs::PointCloud2>("cropped_cloud", 1, true);
   //perception::Cropper cropper;
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
   perception::Downsampler downsampler(d_pub);
   ros::Subscriber d_sub =
       nh.subscribe("cropped_cloud", 1, &perception::Downsampler::Callback, &downsampler);
-*/
+/*
   // Segmenter
   ros::Publisher table_pub =
       nh.advertise<sensor_msgs::PointCloud2>("table_cloud", 1, true);
