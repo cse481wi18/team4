@@ -3,6 +3,7 @@ import fetch_api
 import rospy
 import tf.transformations as tft
 import numpy as np
+import pickle
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from geometry_msgs.msg import Pose, PoseStamped
 
@@ -44,36 +45,66 @@ class Recorder:
     def record_pose(self, frame):
         ps = PoseStamped()
         ps.pose = self.arm.get_pose()
-        if frame == -1:
-            ps.header.frame_id = 'base_link'
-        else:
+        ps.header.frame_id = 'base_link'
+        if frame is not -1:
             # transform
-            wrist_matrix = ps.pose
-            # tag1_matrix =
-            # np.dot()
-        self.stamped_poses.append(ps)
+            wrist_matrix = pose_to_matrix(ps.pose)
+            tag1_matrix = pose_to_matrix(self.reader.markers[frame])
+
+            pose = matrix_to_pose(np.dot(np.linalg.inv(tag1_matrix), wrist_matrix))
+            ps.pose = pose
+        self.stamped_poses.append((ps, frame))
 
     # Saving program
     def save_path(self, name):
-        pass
+        rospy.logerr("Writing pickle file")
+        try:
+            pickle.dump(self.stamped_poses, open(name + ".p", "wb"))
+            rospy.logerr("Dumped pickle file!")
+        except Exception as e:
+            rospy.roserr(e)
+        finally:
+            self.stamped_poses = []
 
     def get_tags(self):
         tag_list = []
-        for marker in self.reader.markers:
-            tag_list.append(marker.id)
+        for marker in self.reader.markers.keys():
+            tag_list.append(marker)
         return tag_list
 
-    def read_tags(self):
-        pass
+    def execute_path(self, name):
+        path = []
+        try:
+            path = pickle.load(open(name + ".p", "rb"))
+            rospy.logerr("Read from pickle file.")
+        except Exception as e:
+            print e
+        if len(path) > 0:
+            for pose, frame in path:
+                if frame is -1:
+                    rospy.logerr('moving to pose')
+                    err = self.arm.move_to_pose(pose)
+                else:
+                    rospy.logerr('moving to pose relative to tag')
+                    tag_to_base = pose_to_matrix(self.reader.markers[frame])
+                    wrist_to_tag = pose_to_matrix(pose.pose)
+                    goal = matrix_to_pose(np.dot(wrist_to_tag, tag_to_base))
+                    pose.pose = goal
+                    rospy.logerr('sending goal')
+                    err = self.arm.move_to_pose(pose)
+                    rospy.logerr('goal executed')
+                if err is not None:
+                    print err
 
 
 class ArTagReader():
     def __init__(self):
-        self.markers = []
+        self.markers = {}
 
     def callback(self, msg):
-        self.markers = []
+        self.markers = {}
         markers = msg.markers
-        self.markers.extend(markers)
+        for m in markers:
+            self.markers[m.id] = m.pose.pose
         # for m in markers:
         #     print msg

@@ -56,7 +56,8 @@ class Interface:
 
     def _create_new_program(self):
         print 'Relaxing arm...'
-        self._recorder.arm_limp()
+        if not rospy.get_param("use_sim_time", False):
+            self._recorder.arm_limp()
         return self._creating_program()
 
     def _creating_program(self):
@@ -90,6 +91,8 @@ class Interface:
         self._recorder.save_path(name)
         print 'Program saved!'
         time.sleep(0.5)
+        if not rospy.get_param("use_sim_time", False):
+            self._recorder.arm_rigid()
         self._main_menu()
 
     def _get_tags(self):
