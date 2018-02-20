@@ -53,13 +53,16 @@ class Recorder:
                                                                               rospy.Time(0))
             pose.position = position
             pose.orientation = quaternion
+            self._poses.append((pose, frame, gripper_open))
         else:
             curr_marker = self._reader.markers[frame]
             (pos_b, quat_b) = self._transform_listener.lookupTransform('base_link', 'wrist_roll_link', rospy.Time(0))
             base_to_wrist_matrix = tft.quaternion_matrix(quat_b)
             pos_b.append(1)
             base_to_wrist_matrix[:, 3] = pos_b
-            base_to_tag_matrix = tft.quaternion_matrix([curr_marker.orientation.x, curr_marker.orientation.y, curr_marker.orientation.z, curr_marker.orientation.w])
+            base_to_tag_matrix = tft.quaternion_matrix(
+                [curr_marker.orientation.x, curr_marker.orientation.y, curr_marker.orientation.z,
+                 curr_marker.orientation.w])
             base_to_tag_matrix[:, 3] = (curr_marker.position.x, curr_marker.position.y, curr_marker.position.z, 1)
             t_b_matrix = np.linalg.inv(base_to_tag_matrix)
             tag_to_wrist_matrix = np.dot(t_b_matrix, base_to_wrist_matrix)
@@ -69,7 +72,6 @@ class Recorder:
             self._poses.append((pose, frame, gripper_open))
 
     # Saving program
-    def save_path(self, name):
     def save_path(self, name):
         rospy.logerr("Writing pickle file")
         try:
@@ -90,6 +92,7 @@ class Recorder:
 
     def execute_path(self, name):
         path = []
+
         try:
             path = pickle.load(open(name + ".p", "rb"))
             rospy.logerr("Read from pickle file.")
@@ -97,6 +100,7 @@ class Recorder:
             print e
         if len(path) > 0:
             for pose, frame, gripper_open in path:
+                print "pose: {}, frame: {}, gripper_open: {}".format(pose, frame, gripper_open)
                 if gripper_open:
                     self._gripper.open()
                 else:
@@ -144,12 +148,15 @@ class Recorder:
 class ArTagReader():
     def __init__(self):
         self.markers = {}
+        # self.has_stored_markers = False
 
     def callback(self, msg):
-        markers = {}
+        markers = {}  # TODO - figure out handling not seeing AR markers - cant move robot
         copied_markers = msg.markers
         for m in copied_markers:
             markers[m.id] = m.pose.pose
-        self.markers = markers
+            # if not self.has_stored_markers:
+            self.markers = markers
+            # self.has_stored_markers = True
         # for m in self.markers:
         #     print msg

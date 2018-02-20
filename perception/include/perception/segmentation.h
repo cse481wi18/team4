@@ -1,3 +1,5 @@
+#include <vector>
+
 #include "pcl/PointIndices.h"
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
@@ -5,6 +7,9 @@
 #include "sensor_msgs/PointCloud2.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/Vector3.h"
+#include "pcl/common/common.h"
+#include "pcl/ModelCoefficients.h"
+#include "perception/object.h"
 
 namespace perception {
 // Finds the largest horizontal surface in the given point cloud.
@@ -15,7 +20,8 @@ namespace perception {
 //  indices: The indices of points in the point cloud that correspond to the
 //    surface. Empty if no surface was found.
 void SegmentSurface(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-                    pcl::PointIndices::Ptr indices);
+                    pcl::PointIndices::Ptr indices,
+                    pcl::ModelCoefficients::Ptr coeff);
 
 // Computes the axis-aligned bounding box of a point cloud.
 //
@@ -28,12 +34,22 @@ void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                                geometry_msgs::Pose* pose,
                                geometry_msgs::Vector3* dimensions);
 
+void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+                           pcl::PointIndices::Ptr surface_indices,
+                           std::vector<pcl::PointIndices>* object_indices);
+
 class Segmenter {
  public:
-  Segmenter(const ros::Publisher& surface_points_pub);
+  Segmenter(const ros::Publisher& surface_points_pub,
+  			const ros::Publisher& marker_pub,
+  			const ros::Publisher& above_surface_pub);
   void Callback(const sensor_msgs::PointCloud2& msg);
+  void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+                          std::vector<Object>* objects);
 
  private:
   ros::Publisher surface_points_pub_;
+  ros::Publisher marker_pub_;
+  ros::Publisher above_surface_pub_;
 };
 }  // namespace perception
