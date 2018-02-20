@@ -9,6 +9,7 @@ project(perception_msgs)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   message_generation
+  message_runtime
 )
 
 ## System dependencies are found with CMake's conventions

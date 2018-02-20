@@ -14,7 +14,7 @@
 #include "perception/feature_extraction.h"
 #include "perception/object.h"
 #include "perception/segmentation.h"
-//#include "perception/typedefs.h" // TODO: figure out what this is
+#include "perception/typedefs.h"
 #include "perception_msgs/ObjectFeatures.h"
 
 void Crop(PointCloudC::Ptr cloud_in, PointCloudC::Ptr cloud_out) {
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
   Crop(pcl_cloud, cropped_cloud);
 
   std::vector<perception::Object> objects;
-  perception::SegmentTabletopScene(cropped_cloud, &objects);
+  perception::FindObjects(cropped_cloud, &objects);
   if (objects.size() != 1) {
     std::cerr << "Expected to see exactly one object, found " << objects.size()
               << std::endl;

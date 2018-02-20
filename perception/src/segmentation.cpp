@@ -132,10 +132,69 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 	         object_indices->size(), min_size, max_size);
 }
 
-void Segmenter::SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+void FindObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                           std::vector<Object>* objects) {
-    //PointCloudC::Ptr cloud(new PointCloudC());
-	//pcl::fromROSMsg(msg, *cloud);
+	pcl::PointIndices::Ptr table_inliers(new pcl::PointIndices());
+	pcl::ModelCoefficients::Ptr coeff(new pcl::ModelCoefficients());
+	SegmentSurface(cloud, table_inliers, coeff);
+
+	PointCloudC::Ptr table_cloud(new PointCloudC());
+
+	// Extract subset of original_cloud into table_cloud:
+	pcl::ExtractIndices<PointC> extract;
+	extract.setInputCloud(cloud);
+	extract.setIndices(table_inliers);
+	extract.filter(*table_cloud);
+
+	// segmenting surface objects
+	std::vector<pcl::PointIndices> object_indices;
+	SegmentSurfaceObjects(cloud, table_inliers, &object_indices);
+
+
+        // find above surface cloud
+	PointCloudC::Ptr above_surface_cloud(new PointCloudC);
+	extract.setNegative(true);
+
+	extract.filter(*above_surface_cloud);
+
+	for (size_t i = 0; i < object_indices.size(); ++i) {
+	  // Reify indices into a point cloud of the object.
+	  pcl::PointIndices::Ptr indices(new pcl::PointIndices);
+	  *indices = object_indices[i];
+	  PointCloudC::Ptr object_cloud(new PointCloudC());
+	  // TODO: fill in object_cloud using indices
+	  extract.setIndices(indices);
+	  extract.setNegative(false);
+	  extract.filter(*object_cloud);
+	  geometry_msgs::Pose object_pose;
+
+      shape_msgs::SolidPrimitive shape;
+      FitBox(*object_cloud, coeff, *above_surface_cloud, shape, object_pose);
+
+      Object o;
+      o.name = "o";
+      o.confidence = 0.0;
+      o.cloud = object_cloud;
+      o.pose = object_pose;
+      if (shape.type == shape_msgs::SolidPrimitive::BOX) {
+        o.dimensions.x = shape.dimensions[0];
+//        ROS_INFO(o.dimensions.x);
+        o.dimensions.y = shape.dimensions[1];
+//        ROS_INFO(o.dimensions.y);
+        o.dimensions.z = shape.dimensions[2];
+//        ROS_INFO(o.dimensions.z);
+	  } else {
+	    std::cout << "error on BOX" ;
+	  }
+	  objects->push_back(o);
+    }
+}
+
+void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+                          std::vector<Object>* objects,
+                          ros::Publisher surface_points_pub_,
+                          ros::Publisher marker_pub_,
+                          ros::Publisher above_surface_pub_) {
 
 	pcl::PointIndices::Ptr table_inliers(new pcl::PointIndices());
 	pcl::ModelCoefficients::Ptr coeff(new pcl::ModelCoefficients());
@@ -166,26 +225,16 @@ void Segmenter::SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr clou
 	geometry_msgs::Pose table_pose;
 //	 simple_grasping::extractShape(*table_cloud, coeff, *extract_out, shape, table_pose);
 	FitBox(*table_cloud, coeff, *extract_out, shape, table_pose);
-//	if (shape.type == shape_msgs::SolidPrimitive::BOX) {
-//		table_marker.scale.x = shape.dimensions[0];
-//		table_marker.scale.y = shape.dimensions[1];
-//		table_marker.scale.z = shape.dimensions[2];
-//		table_marker.pose = table_pose;
-//		table_marker.pose.position.z -= table_marker.scale.z;
-//	}
-//
-//	table_marker.color.r = 1;
-//	table_marker.color.a = 0.8;
-//	marker_pub_.publish(table_marker);
 
 	// segmenting surface objects
 	std::vector<pcl::PointIndices> object_indices;
 	SegmentSurfaceObjects(cloud, table_inliers, &object_indices);
 
-	// publish the above surface cloud
+    // find above surface cloud
 	PointCloudC::Ptr above_surface_cloud(new PointCloudC);
 	extract.setNegative(true);
 	extract.filter(*above_surface_cloud);
+	// publish the above surface cloud
 	pcl::toROSMsg(*above_surface_cloud, msg_out);
 	above_surface_pub_.publish(msg_out);
 
@@ -251,7 +300,7 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
     pcl::removeNaNFromPointCloud(*cloud_unfiltered, *cloud, index);
 
     std::vector<Object> objects;
-    SegmentTabletopScene(cloud, &objects);
+    SegmentTabletopScene(cloud, &objects, surface_points_pub_, marker_pub_, above_surface_pub_);
 
 	// bounding box for objects
 	for (size_t i = 0; i < objects.size(); ++i) {

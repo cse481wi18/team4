@@ -38,14 +38,22 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                            pcl::PointIndices::Ptr surface_indices,
                            std::vector<pcl::PointIndices>* object_indices);
 
+void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+                          std::vector<Object>* objects,
+                          ros::Publisher surface_points_pub_,
+                          ros::Publisher marker_pub_,
+                          ros::Publisher above_surface_pub_);
+
+
+void FindObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+                          std::vector<Object>* objects);
+
 class Segmenter {
  public:
   Segmenter(const ros::Publisher& surface_points_pub,
   			const ros::Publisher& marker_pub,
   			const ros::Publisher& above_surface_pub);
   void Callback(const sensor_msgs::PointCloud2& msg);
-  void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-                          std::vector<Object>* objects);
 
  private:
   ros::Publisher surface_points_pub_;
