@@ -115,6 +115,7 @@ catkin_package(
     perception_segmentation
     perception_box_fitter
     perception_feature_extraction
+    perception_object_recognizer
 #  CATKIN_DEPENDS roscpp rospy
 #  DEPENDS system_lib
 )
@@ -140,6 +141,7 @@ add_library(perception_downsample src/downsample.cpp)
 add_library(perception_segmentation src/segmentation.cpp)
 add_library(perception_box_fitter src/box_fitter.cpp)
 add_library(perception_feature_extraction src/feature_extraction.cpp)
+add_library(perception_object_recognizer src/object_recognizer.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -169,6 +171,7 @@ add_dependencies(perception_downsample ${${PROJECT_NAME}_EXPORTED_TARGETS} ${cat
 add_dependencies(perception_segmentation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_box_fitter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_feature_extraction ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(perception_object_recognizer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_dependencies(perception_save_cloud_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_point_cloud_demo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -210,6 +213,11 @@ target_link_libraries(perception_box_fitter
 )
 
 target_link_libraries(perception_feature_extraction
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(perception_object_recognizer
+  perception_feature_extraction
   ${catkin_LIBRARIES}
 )
 
