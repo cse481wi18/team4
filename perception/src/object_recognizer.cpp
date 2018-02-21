@@ -55,7 +55,8 @@ void ObjectRecognizer::Recognize(const Object& object, std::string* name,
                                  double* confidence) {
   // extract features from the object
   perception_msgs::ObjectFeatures obj_features;
-  ExtractSizeFeatures(object, &obj_features); // todo check: is this the right fn?
+
+  ExtractFeatures(object, &obj_features);
   // Thoughts: Does our segmenter work on a tennis balls on the floor (instead of table)?
 
   double min_distance = std::numeric_limits<double>::max();
