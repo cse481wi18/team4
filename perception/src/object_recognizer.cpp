@@ -62,7 +62,7 @@ void ObjectRecognizer::Recognize(const Object& object, std::string* name,
   double second_min_distance = std::numeric_limits<double>::max();
   for (size_t i = 0; i < dataset_.size(); ++i) {
     // compare the features of the input object to the features of the current dataset object.
-    double distance = EuclideanDistance(features.values, dataset_[i].values)
+    double distance = EuclideanDistance(obj_features.values, dataset_[i].values);
     if (distance < min_distance) {
       second_min_distance = min_distance;
       min_distance = distance;
