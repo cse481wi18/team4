@@ -19,6 +19,11 @@
 #include "simple_grasping/shape_extraction.h"
 #include "shape_msgs/SolidPrimitive.h"
 
+
+#include <math.h>
+#include <sstream>
+#include "perception/object_recognizer.h"
+
 typedef pcl::PointXYZRGB PointC;
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloudC;
 
@@ -178,11 +183,8 @@ void FindObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
       o.pose = object_pose;
       if (shape.type == shape_msgs::SolidPrimitive::BOX) {
         o.dimensions.x = shape.dimensions[0];
-//        ROS_INFO(o.dimensions.x);
         o.dimensions.y = shape.dimensions[1];
-//        ROS_INFO(o.dimensions.y);
         o.dimensions.z = shape.dimensions[2];
-//        ROS_INFO(o.dimensions.z);
 	  } else {
 	    std::cout << "error on BOX" ;
 	  }
@@ -283,10 +285,12 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 
 Segmenter::Segmenter(const ros::Publisher& surface_points_pub,
 					 const ros::Publisher& marker_pub,
-					 const ros::Publisher& above_surface_pub)
+					 const ros::Publisher& above_surface_pub,
+					 const ObjectRecognizer& recognizer)
     : surface_points_pub_(surface_points_pub),
       marker_pub_(marker_pub),
-      above_surface_pub_(above_surface_pub) {}
+      above_surface_pub_(above_surface_pub),
+      recognizer_(recognizer) {}
 
 void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
 	PointCloudC::Ptr cloud_unfiltered(new PointCloudC());
@@ -317,6 +321,36 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
 	  object_marker.color.g = 1;
 	  object_marker.color.a = 0.3;
 	  marker_pub_.publish(object_marker);
+
+
+	    std::string name;
+        double confidence;
+        // recognize the object with the recognizer_.
+        recognizer_.Recognize(object, &name, &confidence);
+
+	    confidence = round(1000 * confidence) / 1000;
+
+        std::stringstream ss;
+        ss << name << " (" << confidence << ")";
+
+        // Publish the recognition result.
+        visualization_msgs::Marker name_marker;
+        name_marker.ns = "recognition";
+        name_marker.id = i;
+        name_marker.header.frame_id = "base_link";
+        name_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        name_marker.pose.position = object.pose.position;
+        name_marker.pose.position.z += 0.1;
+        name_marker.pose.orientation.w = 1;
+        name_marker.scale.x = 0.025;
+        name_marker.scale.y = 0.025;
+        name_marker.scale.z = 0.025;
+        name_marker.color.r = 0;
+        name_marker.color.g = 0;
+        name_marker.color.b = 1.0;
+        name_marker.color.a = 1.0;
+        name_marker.text = ss.str();
+        marker_pub_.publish(name_marker);
 	}
 }
 }  // namespace perception

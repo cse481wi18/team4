@@ -186,6 +186,7 @@ target_link_libraries(perception_point_cloud_demo
   perception_downsample
   perception_segmentation
   perception_box_fitter
+  perception_object_recognizer
   ${catkin_LIBRARIES}
 )
 
@@ -205,6 +206,8 @@ target_link_libraries(perception_downsample
 
 target_link_libraries(perception_segmentation
   perception_box_fitter
+  perception_feature_extraction
+  perception_object_recognizer
   ${catkin_LIBRARIES}
 )
 
