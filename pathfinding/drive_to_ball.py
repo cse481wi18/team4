@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 
 import rospy
 import copy
@@ -7,7 +6,6 @@ from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Pose
 from std_msgs.msg import Header
 
 current_position = None
-FILE_NAME = "savedPoses.p"
 
 
 def wait_for_time():
