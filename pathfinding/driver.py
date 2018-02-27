@@ -7,12 +7,7 @@ from std_msgs.msg import Header
 
 current_position = None
 
-
-def wait_for_time():
-    """Wait for simulated time to begin.
-    """
-    while rospy.Time().now().to_sec() == 0:
-        pass
+# TODO milestone 1 implement class
 
 
 class Driver(object):
@@ -93,3 +88,5 @@ class Driver(object):
         newGoal.pose = copy.deepcopy(pose_stamped.pose)
 
         self._goto_publisher.publish(newGoal)
+
+    def return_to_default_position(self, pose_stamped):
