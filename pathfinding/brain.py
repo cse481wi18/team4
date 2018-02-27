@@ -12,10 +12,12 @@ from std_msgs.msg import Header
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
 
-BASKET_POSITION = PoseStamped()
+BASKET_POSITION = PoseStamped() # TODO figure out map stuff for hallway
 
 # TODO milestone 1
-# find location behind target so that input
+# find location behind target so that position that robot drives to is
+#  in arms reach of ball/basket
+
 def get_position_offset_target(target_pose):
     return target_pose
 
@@ -36,7 +38,7 @@ def main():
             print "Ball Found!"
             print ball_position
             target = get_position_offset_target(ball_position)
-            my_driver.go_to(ball_position) # handle offset (go behind ball)
+            my_driver.go_to(target) # handle offset (go behind ball)
             # TODO milestone 3: check if ball still there
             my_arm.pick_up_ball(ball_position)
             # assume for milestone 1 that basket is marked on map
