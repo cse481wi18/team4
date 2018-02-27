@@ -82,6 +82,7 @@ class Driver(object):
         current_position = msg
 
     def go_to(self, pose_stamped):
+        # TODO blocking
         newGoal = PoseStamped()
         newGoal.header = copy.deepcopy(pose_stamped.header)
         newGoal.header.frame_id = "map"
@@ -89,4 +90,6 @@ class Driver(object):
 
         self._goto_publisher.publish(newGoal)
 
+    # TODO blocking
     def return_to_default_position(self, pose_stamped):
+        pass

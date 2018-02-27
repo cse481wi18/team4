@@ -32,8 +32,6 @@ def main():
     while True:
         my_arm.tuck_arm()
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
-        # TODO milestone 2: move head if no ball seen
-        # TODO milestone 3: move base if no ball seen
         if ball_position is not None:
             print "Ball Found!"
             print ball_position
@@ -45,9 +43,10 @@ def main():
             driver.go_to(BASKET_POSITION)
             my_arm.drop_ball_in_basket()
             driver.return_to_default_position()
-            continue
-
-        print "No ball found!"
+        else:
+            print "No ball found!"
+            # TODO milestone 2: move head if no ball seen
+            # TODO milestone 3: move base if no ball seen
 
 
     rospy.spin()
