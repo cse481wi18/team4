@@ -28,7 +28,6 @@ def main():
     my_perceptor = perceptor.Perceptor()
 
     while True:
-        my_arm.tuck_arm()
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
         if ball_position is not None:
             print "Ball Found!"

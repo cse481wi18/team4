@@ -1,6 +1,8 @@
 # TODO milestone 1 implement class
 
 import fetch_api
+import pickle
+import rospy
 import tf.transformations as tft
 import numpy as np
 from geometry_msgs.msg import PoseStamped, Pose
@@ -43,10 +45,50 @@ class ArmController:
         self._arm = fetch_api.Arm()
         self._gripper = fetch_api.Gripper()
 
+        try:
+            self.tuck_pose = pickle.load(open("tuck.p", "rb"))
+        except Exception as e:
+            print e
+
+        try:
+            self.drop_path = pickle.load(open("drop_path.p", "rb"))
+        except Exception as e:
+            print e
+
+        try:
+            self.pick_path = pickle.load(open("pick_path.p", "rb"))
+        except Exception as e:
+            print e
+
     # block & return upon arm tuck
     def tuck_arm(self):
-        # blocking
-        pass
+        err = self._arm.move_to_pose(self.tuck_pose)
+        if err is not None:
+            rospy.logerr(err)
+
+    def pick_up_ball_pbd(self, ball_pose):
+        for pose, relative_to_ball in self.pick_path:
+            if not relative_to_ball:
+                err = self._arm.move_to_pose(pose)
+                if err is not None:
+                    rospy.logerr(err)
+            else:
+                (point_with_position, point_with_quaternion) = pose.position, pose.orientation
+                point_to_wrist_matrix = tft.quaternion_matrix(
+                    [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z, point_with_quaternion.w])
+                point_to_wrist_matrix[:, 3] = (point_with_position.x, point_with_position.y, point_with_position.z, 1)
+                base_to_point_matrix = tft.quaternion_matrix(
+                    [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z, ball_pose.orientation.w])
+                base_to_point_matrix[:, 3] = (ball_pose.position.x, ball_pose.position.y, ball_pose.position.z, 1)
+                base_to_wrist_matrix = np.dot(base_to_point_matrix, point_to_wrist_matrix)
+                target = Pose()
+                target.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
+                temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
+                target.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
+
+                err = self._arm.move_to_pose(???)
+                if err is not None:
+                    rospy.logerr(err)
 
     # ball pose type TBD
     # block before return
@@ -76,5 +118,10 @@ class ArmController:
     # go through set list of poses for gripper + arm\
     # look at disco/arm wave demo
     def drop_ball_in_basket(self):
-        # blocking
-        return False
+        for pose in self.drop_path:
+            err = self._arm.move_to_pose(pose)
+            if err is not None:
+                rospy.logerr(err)
+
+        self._gripper.open()
+        self.tuck_arm()
