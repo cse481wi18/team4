@@ -2,12 +2,10 @@
 
 import rospy
 import driver
-import copy
 import arm_controller
 import perceptor
 import wait_for_time
-from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Pose
-from std_msgs.msg import Header
+from geometry_msgs.msg import PoseStamped
 
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
@@ -23,7 +21,7 @@ def get_position_offset_target(target_pose):
 
 def main():
     rospy.init_node('brain')
-    wait_for_time()
+    wait_for_time.wait_for_time()
 
     my_driver = driver.Driver()
     my_arm = arm_controller.ArmController()
@@ -47,7 +45,7 @@ def main():
             print "No ball found!"
             # TODO milestone 2: move head if no ball seen
             # TODO milestone 3: move base if no ball seen
-
+        rospy.sleep(1)
 
     rospy.spin()
 

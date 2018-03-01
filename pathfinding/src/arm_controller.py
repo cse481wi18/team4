@@ -1,8 +1,9 @@
 # TODO milestone 1 implement class
 
 import fetch_api
-import copy
-from geometry_msgs.msg import PoseStamped, Pose, Point
+import tf.transformations as tft
+import numpy as np
+from geometry_msgs.msg import PoseStamped, Pose
 
 GRIPPER_MARKER_OFFSET = 0.166
 OBJECT_GRIPPER_OFFSET = - 0.04
@@ -37,7 +38,7 @@ def matrix_to_pose(matrix):
 
     return pose
 
-def ArmController:
+class ArmController:
     def __init__(self):
         self._arm = fetch_api.Arm()
         self._gripper = fetch_api.Gripper()
@@ -48,7 +49,7 @@ def ArmController:
         pass
 
     # ball pose type TBD
-    # returns True if ball pickup is successful
+    # block before return
     def pick_up_ball(self, ball_pose):
         pre_pose = Pose()
         pre_pose.position.x = -GRIPPER_MARKER_OFFSET + OBJECT_GRIPPER_OFFSET - 0.1
