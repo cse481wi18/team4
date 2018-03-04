@@ -46,7 +46,7 @@ class ArmController:
         self._gripper = fetch_api.Gripper()
 
         try:
-            self.tuck_pose = pickle.load(open("tuck.p", "rb"))
+            self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
         except Exception as e:
             print e
 
@@ -61,67 +61,71 @@ class ArmController:
             print e
 
     # block & return upon arm tuck
-    def tuck_arm(self):
-        err = self._arm.move_to_pose(self.tuck_pose)
-        if err is not None:
-            rospy.logerr(err)
-
-    def pick_up_ball_pbd(self, ball_pose):
-        for pose, relative_to_ball in self.pick_path:
-            if not relative_to_ball:
-                err = self._arm.move_to_pose(pose)
-                if err is not None:
-                    rospy.logerr(err)
+    def execute_path(self, path, ball_pose):
+        for pose, relative_to_ball, gripper_open in path:
+            if gripper_open:
+                self._gripper.open()
             else:
-                (point_with_position, point_with_quaternion) = pose.position, pose.orientation
-                point_to_wrist_matrix = tft.quaternion_matrix(
-                    [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z, point_with_quaternion.w])
-                point_to_wrist_matrix[:, 3] = (point_with_position.x, point_with_position.y, point_with_position.z, 1)
-                base_to_point_matrix = tft.quaternion_matrix(
-                    [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z, ball_pose.orientation.w])
-                base_to_point_matrix[:, 3] = (ball_pose.position.x, ball_pose.position.y, ball_pose.position.z, 1)
-                base_to_wrist_matrix = np.dot(base_to_point_matrix, point_to_wrist_matrix)
-                target = Pose()
-                target.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
-                temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
-                target.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
+                self._gripper.close()
 
-                err = self._arm.move_to_pose(???)
+            ps = PoseStamped()
+            ps.header.frame_id = 'base_link'
+
+            if not relative_to_ball:
+                ps.pose = pose
+                err = self._arm.move_to_pose(ps)
                 if err is not None:
                     rospy.logerr(err)
+           else:
+               (point_with_position, point_with_quaternion) = pose.position, pose.orientation
+               point_to_wrist_matrix = tft.quaternion_matrix(
+                   [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z, point_with_quaternion.w])
+               point_to_wrist_matrix[:, 3] = (point_with_position.x, point_with_position.y, point_with_position.z, 1)
+               base_to_point_matrix = tft.quaternion_matrix(
+                   [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z, ball_pose.orientation.w])
+               base_to_point_matrix[:, 3] = (ball_pose.position.x, ball_pose.position.y, ball_pose.position.z, 1)
+               base_to_wrist_matrix = np.dot(base_to_point_matrix, point_to_wrist_matrix)
+               ps.pose = Pose()
+               ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
+               temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
+               ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
+
+               err = self._arm.move_to_pose(ps)
+               if err is not None:
+                   rospy.logerr(err)
+
+    def tuck_arm(self):
+        self.execute_path(self.tuck_path, None)
+
+    def pick_up_ball(self, ball_pose):
+        self.execute_path(self.pick_path, ball_pose)
 
     # ball pose type TBD
     # block before return
-    def pick_up_ball(self, ball_pose):
-        pre_pose = Pose()
-        pre_pose.position.x = -GRIPPER_MARKER_OFFSET + OBJECT_GRIPPER_OFFSET - 0.1
-
-        pre_base_pose = PoseStamped()
-        pre_base_pose.header.frame_id = "base_link"
-        pre_base_pose.pose = transform_gripper_to_base(pre_pose, ball_pose.pose)
-
-        grasp_pose = Pose()
-        grasp_pose.position.x = -GRIPPER_MARKER_OFFSET + OBJECT_GRIPPER_OFFSET
-
-        grasp_base_pose = PoseStamped()
-        grasp_base_pose.header.frame_id = "base_link"
-        grasp_base_pose.pose = transform_gripper_to_base(grasp_pose, ball_pose.pose)
-
-        self._gripper.open()
-        self._arm.move_to_pose(pre_base_pose)
-        self._arm.move_to_pose(grasp_base_pose)
-        self._gripper.close()
-        self.tuck_arm()
-        # blocking
-        return False
+    # def pick_up_ball(self, ball_pose):
+    #     pre_pose = Pose()
+    #     pre_pose.position.x = -GRIPPER_MARKER_OFFSET + OBJECT_GRIPPER_OFFSET - 0.1
+    #
+    #     pre_base_pose = PoseStamped()
+    #     pre_base_pose.header.frame_id = "base_link"
+    #     pre_base_pose.pose = transform_gripper_to_base(pre_pose, ball_pose.pose)
+    #
+    #     grasp_pose = Pose()
+    #     grasp_pose.position.x = -GRIPPER_MARKER_OFFSET + OBJECT_GRIPPER_OFFSET
+    #
+    #     grasp_base_pose = PoseStamped()
+    #     grasp_base_pose.header.frame_id = "base_link"
+    #     grasp_base_pose.pose = transform_gripper_to_base(grasp_pose, ball_pose.pose)
+    #
+    #     self._gripper.open()
+    #     self._arm.move_to_pose(pre_base_pose)
+    #     self._arm.move_to_pose(grasp_base_pose)
+    #     self._gripper.close()
+    #     self.tuck_arm()
+    #     # blocking
+    #     return False
 
     # go through set list of poses for gripper + arm\
     # look at disco/arm wave demo
     def drop_ball_in_basket(self):
-        for pose in self.drop_path:
-            err = self._arm.move_to_pose(pose)
-            if err is not None:
-                rospy.logerr(err)
-
-        self._gripper.open()
-        self.tuck_arm()
+       self.execute_path(self.drop_path, None)

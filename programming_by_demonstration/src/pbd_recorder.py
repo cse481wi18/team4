@@ -46,16 +46,16 @@ class Recorder:
         self._arm_controller.start_arm()
 
     # frame: (int) marker_id -- assuming it's always the same, -1 for base_frame
-    def record_pose(self, frame, gripper_open=True):
+    def record_pose(self, relative_to_ball, ball_pose = None, gripper_open=True):
         pose = Pose()
-        if frame == -1:
+        if not relative_to_ball:
             (position, quaternion) = self._transform_listener.lookupTransform('base_link', 'wrist_roll_link',
                                                                               rospy.Time(0))
             pose.position = position
             pose.orientation = quaternion
             self._poses.append((pose, frame, gripper_open))
         else:
-            curr_marker = self._reader.markers[frame]
+            curr_marker = ball_pose
             (pos_b, quat_b) = self._transform_listener.lookupTransform('base_link', 'wrist_roll_link', rospy.Time(0))
             base_to_wrist_matrix = tft.quaternion_matrix(quat_b)
             pos_b.append(1)

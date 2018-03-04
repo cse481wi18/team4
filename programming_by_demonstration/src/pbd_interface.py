@@ -83,7 +83,7 @@ class Interface:
             print 'Invalid choice: {}'.format(choice)
             self._save_pose()
         curr_tags.update({0: -1})  # add base frame option
-        self._recorder.record_pose(curr_tags[choice], self._gripper_open)
+        self._recorder.record_pose(curr_tags[choice], self._gripper_open) # get ball_pose here?
         print 'Pose saved!'
         self._creating_program()
 
