@@ -43,6 +43,9 @@ class Driver(object):
         self._goto_client.send_goal_and_wait(move_goal) # blocks until move is successful
         self._curr_goal_pose = None
 
-    # TODO blocking
+    def cancel_goals(self):
+        self._goto_client.cancelAllGoals()
+
+    # TODO blocking - milestone 2/3
     def return_to_default_position(self, pose_stamped):
         pass
