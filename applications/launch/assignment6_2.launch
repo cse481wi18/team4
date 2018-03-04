@@ -8,7 +8,7 @@
     <param name="crop_max_z" value="1.5" />
     <param name="crop_max_x" value="1.05" />
     <param name="crop_min_z" value="0.74" />
-	<node name="point_cloud_demo" pkg="perception" type="point_cloud_demo" respawn="false"  output="screen">
+	<node name="tennis_ball_finder" pkg="perception" type="tennis_ball_finder" respawn="false"  output="screen">
 	<remap from="cloud_in" to="mock_point_cloud" />
 	<!-- to use with astro
 	<remap from="cloud_in" to="/head_camera/depth_downsample/points" />

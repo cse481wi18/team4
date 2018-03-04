@@ -152,7 +152,7 @@ add_library(perception_object_recognizer src/object_recognizer.cpp)
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(perception_save_cloud_main src/save_cloud_main.cpp)
-add_executable(perception_point_cloud_demo src/point_cloud_demo.cpp)
+add_executable(perception_tennis_ball_finder src/tennis_ball_finder.cpp)
 add_executable(perception_extract_features_main src/extract_features_main.cpp)
 
 ## Rename C++ executable without prefix
@@ -160,7 +160,7 @@ add_executable(perception_extract_features_main src/extract_features_main.cpp)
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 set_target_properties(perception_save_cloud_main PROPERTIES OUTPUT_NAME save_cloud PREFIX "")
-set_target_properties(perception_point_cloud_demo PROPERTIES OUTPUT_NAME point_cloud_demo PREFIX "")
+set_target_properties(perception_tennis_ball_finder PROPERTIES OUTPUT_NAME tennis_ball_finder PREFIX "")
 set_target_properties(perception_extract_features_main PROPERTIES OUTPUT_NAME extract_features PREFIX "")
 
 ## Add cmake target dependencies of the executable
@@ -174,14 +174,14 @@ add_dependencies(perception_feature_extraction ${${PROJECT_NAME}_EXPORTED_TARGET
 add_dependencies(perception_object_recognizer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_dependencies(perception_save_cloud_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(perception_point_cloud_demo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(perception_tennis_ball_finder ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_extract_features_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(perception_save_cloud_main
    ${catkin_LIBRARIES}
 )
 
-target_link_libraries(perception_point_cloud_demo
+target_link_libraries(perception_tennis_ball_finder
   perception_crop
   perception_downsample
   perception_segmentation

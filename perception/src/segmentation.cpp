@@ -19,7 +19,6 @@
 #include "simple_grasping/shape_extraction.h"
 #include "shape_msgs/SolidPrimitive.h"
 
-
 #include <math.h>
 #include <sstream>
 #include "perception/object_recognizer.h"
@@ -192,6 +191,8 @@ void FindObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
     }
 }
 
+
+// TODO change "table" to floor
 void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                           std::vector<Object>* objects,
                           ros::Publisher surface_points_pub_,
@@ -286,10 +287,12 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 Segmenter::Segmenter(const ros::Publisher& surface_points_pub,
 					 const ros::Publisher& marker_pub,
 					 const ros::Publisher& above_surface_pub,
+					 const ros::Publisher& ball_positions_pub,
 					 const ObjectRecognizer& recognizer)
     : surface_points_pub_(surface_points_pub),
       marker_pub_(marker_pub),
       above_surface_pub_(above_surface_pub),
+      ball_positions_pub_(ball_positions_pub),
       recognizer_(recognizer) {}
 
 void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
@@ -304,11 +307,26 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
     pcl::removeNaNFromPointCloud(*cloud_unfiltered, *cloud, index);
 
     std::vector<Object> objects;
-    SegmentTabletopScene(cloud, &objects, surface_points_pub_, marker_pub_, above_surface_pub_);
+    // "table" == floor for now lol
+    SegmentTabletopScene(cloud, &objects, surface_points_pub_, marker_pub_, above_surface_pub_); // TODO change
 
+
+    std::vector<float> ball_positions;
+    size_t ball_number = 0;
 	// bounding box for objects
 	for (size_t i = 0; i < objects.size(); ++i) {
 	  const Object& object = objects[i];
+
+	  // add found object to ball positions
+	  ball_positions.push_back(object.pose.position.x);
+	  ball_positions.push_back(object.pose.position.y);
+	  ball_positions.push_back(object.pose.position.z);
+	  ball_number++;
+//	  ROS_INFO("Found new ball: " + object.pose.position);
+//	  ROS_INFO("total balls found: " + ball_number);
+
+
+
 
 	  // Publish a bounding box around it.
 	  visualization_msgs::Marker object_marker;
@@ -321,6 +339,8 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
 	  object_marker.color.g = 1;
 	  object_marker.color.a = 0.3;
 	  marker_pub_.publish(object_marker);
+
+
 
 
 	    std::string name;
@@ -352,5 +372,6 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
         name_marker.text = ss.str();
         marker_pub_.publish(name_marker);
 	}
+	ball_positions_pub_.publish(ball_positions);
 }
 }  // namespace perception
