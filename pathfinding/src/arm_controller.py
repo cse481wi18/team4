@@ -5,7 +5,7 @@ import pickle
 import rospy
 import tf.transformations as tft
 import numpy as np
-from geometry_msgs.msg import PoseStamped, Pose
+from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 
 GRIPPER_MARKER_OFFSET = 0.166
 OBJECT_GRIPPER_OFFSET = - 0.04
@@ -76,23 +76,23 @@ class ArmController:
                 err = self._arm.move_to_pose(ps)
                 if err is not None:
                     rospy.logerr(err)
-           else:
-               (point_with_position, point_with_quaternion) = pose.position, pose.orientation
-               point_to_wrist_matrix = tft.quaternion_matrix(
-                   [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z, point_with_quaternion.w])
-               point_to_wrist_matrix[:, 3] = (point_with_position.x, point_with_position.y, point_with_position.z, 1)
-               base_to_point_matrix = tft.quaternion_matrix(
-                   [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z, ball_pose.orientation.w])
-               base_to_point_matrix[:, 3] = (ball_pose.position.x, ball_pose.position.y, ball_pose.position.z, 1)
-               base_to_wrist_matrix = np.dot(base_to_point_matrix, point_to_wrist_matrix)
-               ps.pose = Pose()
-               ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
-               temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
-               ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
+            else:
+                (point_with_position, point_with_quaternion) = pose.position, pose.orientation
+                point_to_wrist_matrix = tft.quaternion_matrix(
+                    [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z, point_with_quaternion.w])
+                point_to_wrist_matrix[:, 3] = (point_with_position.x, point_with_position.y, point_with_position.z, 1)
+                base_to_point_matrix = tft.quaternion_matrix(
+                    [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z, ball_pose.orientation.w])
+                base_to_point_matrix[:, 3] = (ball_pose.position.x, ball_pose.position.y, ball_pose.position.z, 1)
+                base_to_wrist_matrix = np.dot(base_to_point_matrix, point_to_wrist_matrix)
+                ps.pose = Pose()
+                ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
+                temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
+                ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
 
-               err = self._arm.move_to_pose(ps)
-               if err is not None:
-                   rospy.logerr(err)
+                err = self._arm.move_to_pose(ps)
+                if err is not None:
+                    rospy.logerr(err)
 
     def tuck_arm(self):
         self.execute_path(self.tuck_path, None)
