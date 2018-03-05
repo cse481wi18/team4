@@ -4,7 +4,6 @@
 namespace perception {
 class Downsampler {
  public:
-  Downsampler();
   Downsampler(const ros::Publisher& pub);
   void Callback(const sensor_msgs::PointCloud2& msg);
 

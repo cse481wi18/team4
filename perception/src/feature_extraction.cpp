@@ -1,17 +1,24 @@
 #include "perception/feature_extraction.h"
-#include "ros/ros.h"
 
-#include <algorithm> // std::min and std::max
+#include <algorithm>
 
+#include "pcl/point_types.h"
 #include "perception/object.h"
 #include "perception_msgs/ObjectFeatures.h"
+#include "ros/ros.h"
 
 namespace perception {
+
+void ExtractFeatures(const Object& object,
+                     perception_msgs::ObjectFeatures* features) {
+  ExtractSizeFeatures(object, features);
+  ExtractColorFeatures(object, features);
+}
+
 void ExtractSizeFeatures(const Object& object,
                          perception_msgs::ObjectFeatures* features) {
   double weight;
   ros::param::param("size_weight", weight, 2.0);
-  ROS_INFO("weight: %lf", weight);
   // "x" dimension is always the smallest of x and y to account for rotations.
   // z always points up.
   features->names.push_back("box_dim_x");
@@ -46,11 +53,4 @@ void ExtractColorFeatures(const Object& object,
   features->values.insert(features->values.end(), color_features.begin(),
                           color_features.end());
 }
-
-void ExtractFeatures(const Object& object,
-                     perception_msgs::ObjectFeatures* features) {
-  ExtractSizeFeatures(object, features);
-  ExtractColorFeatures(object, features);
-}
-
 }  // namespace perception

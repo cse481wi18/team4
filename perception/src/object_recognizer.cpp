@@ -19,11 +19,12 @@ namespace perception {
 namespace {
 double EuclideanDistance(const std::vector<double>& v1,
                          const std::vector<double>& v2) {
-    double squared_norm = 0;
-    for (int i = 0; i < v1.size(); i++) {
-        squared_norm += pow(v2[i] - v1[i], 2);
-    }
-    return sqrt(squared_norm);
+  double distance = 0;
+  for (size_t i = 0; i < v1.size(); ++i) {
+    double diff = v1[i] - v2[i];
+    distance += diff * diff;
+  }
+  return sqrt(distance);
 }
 }
 
@@ -53,17 +54,14 @@ ObjectRecognizer::ObjectRecognizer(const std::vector<ObjectFeatures>& dataset)
 
 void ObjectRecognizer::Recognize(const Object& object, std::string* name,
                                  double* confidence) {
-  // extract features from the object
-  perception_msgs::ObjectFeatures obj_features;
-
-  ExtractFeatures(object, &obj_features);
-  // Thoughts: Does our segmenter work on a tennis balls on the floor (instead of table)?
+  ObjectFeatures input_features;
+  ExtractFeatures(object, &input_features);
 
   double min_distance = std::numeric_limits<double>::max();
   double second_min_distance = std::numeric_limits<double>::max();
   for (size_t i = 0; i < dataset_.size(); ++i) {
-    // compare the features of the input object to the features of the current dataset object.
-    double distance = EuclideanDistance(obj_features.values, dataset_[i].values);
+    const ObjectFeatures& features = dataset_[i];
+    double distance = EuclideanDistance(input_features.values, features.values);
     if (distance < min_distance) {
       second_min_distance = min_distance;
       min_distance = distance;

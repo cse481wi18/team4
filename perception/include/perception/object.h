@@ -14,7 +14,6 @@ struct Object {
   double confidence;
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
   geometry_msgs::Pose pose;
-  double radius;
   geometry_msgs::Vector3 dimensions;
 };
 }  // namespace perception
