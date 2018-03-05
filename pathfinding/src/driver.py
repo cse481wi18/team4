@@ -15,6 +15,8 @@ def printPose(stampedPose):
     print "Position: ", pose.position.x, pose.position.y, pose.position.z
     print "Quaternion: ", pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w
 
+# amcl Publication::validateHeader:498: Client [/brain] wants topic
+# /amcl_pose to have datatype/md5sum [geometry_msgs/PoseStamped/d3812c3cbc69362b77dc0b19b345f8f5], but our version has [geometry_msgs/PoseWithCovarianceStamped/953b798c0f514ff060a53a3498ce6246]. Dropping connection.
 
 class Driver(object):
     def __init__(self):
