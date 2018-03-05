@@ -249,14 +249,15 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
       pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
       if (isTennisBall(object_cloud, coefficients)) {
           Object o;
+          geometry_msgs::Pose object_pose;
           o.name = "muh tennis ball";
 //          o.confidence = 0.0; // 10000000% confidence
           o.cloud = object_cloud;
           o.pose = object_pose;
-          o.radius = coefficients->value[3];
-          o.pose.position.x = coefficients->value[0];
-          o.pose.position.y  = coefficients->value[1];
-          o.pose.position.z  = coefficients->value[2];
+          o.radius = coefficients->values[3];
+          o.pose.position.x = coefficients->values[0];
+          o.pose.position.y  = coefficients->values[1];
+          o.pose.position.z  = coefficients->values[2];
           o.dimensions.x = o.radius;
           o.dimensions.y = o.radius;
           o.dimensions.z = o.radius;

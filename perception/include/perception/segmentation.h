@@ -45,6 +45,7 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                           ros::Publisher marker_pub_,
                           ros::Publisher above_surface_pub_);
 
+bool isTennisBall(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, pcl::ModelCoefficients::Ptr coefficient);
 
 void FindObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                           std::vector<Object>* objects);
