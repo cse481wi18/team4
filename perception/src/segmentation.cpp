@@ -242,12 +242,9 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 	  *indices = object_indices[i];
 	  PointCloudC::Ptr object_cloud(new PointCloudC());
 	  extract.setIndices(indices);
-//	  extract.setNegative(false);
+//	  extract.setNegative(false); // ???
 	  extract.filter(*object_cloud);
 
-//	  geometry_msgs::Pose object_pose;
-
-//      FitBox(*object_cloud, coeff, *above_surface_cloud, shape, object_pose);
 
       pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
       if (isTennisBall(object_cloud, coefficients)) {
@@ -284,10 +281,10 @@ bool isTennisBall(PointCloudC::Ptr cloud, pcl::ModelCoefficients::Ptr coefficien
     segmentation.setRadiusLimits(0.001, 0.04);
     segmentation.setMaxIterations(1000);
     segmentation.setProbability(0.99);
-    segmentation.setEpsAngle(90.0f * (3.14159265/180.0f));
+    segmentation.setEpsAngle(90.0f * (3.1416/180.0f));
 
     pcl::PointIndices inlierIndices;
-    segmentation.segment(inlierIndices, *coeff_out);
+    segmentation.segment(inlierIndices, *coefficient);
 
     return inlierIndices.indices.size() != 0;
 }
