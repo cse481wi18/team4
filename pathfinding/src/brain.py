@@ -24,12 +24,12 @@ def main():
     wait_for_time.wait_for_time()
 
     my_driver = driver.Driver()
-    my_arm = arm_controller.ArmController()
     my_perceptor = perceptor.Perceptor()
-
+    my_arm = arm_controller.ArmController()
     while True:
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
         if ball_position is not None:
+
             print "Ball Found!"
             print ball_position
             target = get_position_offset_target(ball_position)

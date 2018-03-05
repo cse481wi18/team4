@@ -50,6 +50,11 @@ int main(int argc, char** argv) {
   ros::Publisher marker_pub =
       nh.advertise<visualization_msgs::Marker>("visualization_marker", 1, true);
 
+
+//     std::vector<std::string> topics;
+//      topics.push_back("tennis_ball_position_topic");
+//      rosbag::View view(bag, rosbag::TopicQuery(topics));
+
   ros::Publisher tennis_ball_pub =
       nh.advertise<perception_msgs::BallPositions>("tennis_ball_position_topic", 1, true);
 

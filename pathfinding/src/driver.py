@@ -15,13 +15,11 @@ def printPose(stampedPose):
     print "Position: ", pose.position.x, pose.position.y, pose.position.z
     print "Quaternion: ", pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w
 
-# amcl Publication::validateHeader:498: Client [/brain] wants topic
-# /amcl_pose to have datatype/md5sum [geometry_msgs/PoseStamped/d3812c3cbc69362b77dc0b19b345f8f5], but our version has [geometry_msgs/PoseWithCovarianceStamped/953b798c0f514ff060a53a3498ce6246]. Dropping connection.
 
 class Driver(object):
     def __init__(self):
         # self._goto_publisher = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
-        self._curr_pose_sub = rospy.Subscriber('/amcl_pose', PoseStamped, self.set_curr_map_pose)
+        self._curr_pose_sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.set_curr_map_pose)
         self._goto_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self._curr_goal_pose = None
         self._curr_map_pose = None
@@ -37,9 +35,10 @@ class Driver(object):
         goal_pose = PoseStamped()
         goal_pose.header.frame_id = "map"
         goal_pose.pose = copy.deepcopy(pose)
-        quat_arr = tft.quaternion_from_euler(0, 0, math.atan2(pose.position.y - self._curr_map_pose.y, pose.position.x - self._curr_map_pose.x))
-        orientation = Quaternion(quat_arr[0], quat_arr[1], quat_arr[2], quat_arr[3])
-        goal_pose.pose.orientation = orientation
+        # quat_arr = tft.quaternion_from_euler(0, 0, math.atan2(pose.position.y - self._curr_map_pose.y, pose.position.x - self._curr_map_pose.x))
+        # orientation = Quaternion(quat_arr[0], quat_arr[1], quat_arr[2], quat_arr[3])
+        # goal_pose.pose.orientation = orientation #TODO figure out if we need - add to BallPositionsMsg
+        goal_pose.pose.orientation = Quaternion()
         move_goal = MoveBaseGoal()
         move_goal.target_pose = goal_pose
         self._goto_client.send_goal_and_wait(move_goal) # blocks until move is successful

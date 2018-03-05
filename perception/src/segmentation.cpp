@@ -23,6 +23,8 @@
 #include <sstream>
 #include "perception/object_recognizer.h"
 
+#include "perception_msgs/BallPositions.h"
+
 typedef pcl::PointXYZRGB PointC;
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloudC;
 
@@ -311,11 +313,16 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
     SegmentTabletopScene(cloud, &objects, surface_points_pub_, marker_pub_, above_surface_pub_); // TODO change
 
 
-    std::vector<float> ball_positions;
+    std::vector<double> ball_positions;
     size_t ball_number = 0;
+
+    perception_msgs::BallPositions ball_position_msg;
+
 	// bounding box for objects
 	for (size_t i = 0; i < objects.size(); ++i) {
 	  const Object& object = objects[i];
+
+
 
 	  // add found object to ball positions
 	  ball_positions.push_back(object.pose.position.x);
@@ -372,6 +379,11 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
         name_marker.text = ss.str();
         marker_pub_.publish(name_marker);
 	}
-	ball_positions_pub_.publish(ball_positions);
+	ROS_INFO("Publishing balls: %ld", ball_number);
+
+    ball_position_msg.num_balls_found = ball_number;
+    ball_position_msg.positions = ball_positions;
+
+	ball_positions_pub_.publish(ball_position_msg);
 }
 }  // namespace perception

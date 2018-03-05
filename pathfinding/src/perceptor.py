@@ -4,6 +4,10 @@ from perception_msgs.msg import BallPositions
 from geometry_msgs.msg import Pose
 # TODO milestone 1 implement class
 
+
+def temp_fn(msg):
+    print "called tmp"
+
 class Perceptor:
     # return None if no ball found
     # return some type of position (pose_stamped) (correspond to pick_up_ball arg)
@@ -21,12 +25,12 @@ class Perceptor:
 
 
     def _set_curr_map_pose(self, obj_feat_msg):
+        print "calling _set_curr_map_pose"
         self._curr_seen_ball_poses = []
         # todo milestone 1 stuff to process msgs
         for i in range(obj_feat_msg.num_balls_found):
             pose = Pose()
-            pose.position.x = obj_feat_msg[3*i]
-            pose.position.y = obj_feat_msg[3*i + 1]
-            pose.position.z = obj_feat_msg[3*i + 2]
+            pose.position.x = obj_feat_msg.positions[3*i]
+            pose.position.y = obj_feat_msg.positions[3*i + 1]
+            pose.position.z = obj_feat_msg.positions[3*i + 2]
             self._curr_seen_ball_poses.append(pose)
-        self._curr_seen_ball_poses = obj_feat_msg
