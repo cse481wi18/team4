@@ -6,7 +6,7 @@
 #include "visualization_msgs/Marker.h"
 
 #include "perception/object_recognizer.h" // lab34
-//#include "perception_msgs/BallPositions.h"
+#include "perception_msgs/BallPositions.h"
 
 
 #include "ros/ros.h"
@@ -98,6 +98,9 @@ int main(int argc, char** argv) {
       nh.advertise<sensor_msgs::PointCloud2>("above_table_cloud", 1, true);
   ros::Publisher marker_pub =
       nh.advertise<visualization_msgs::Marker>("visualization_marker", 100);
+
+   ros::Publisher ball_poses_pub =
+      nh.advertise<perception_msgs::BallPositions>("tennis_ball_position_topic", 100);
 
   // Create the object recognizer.
   std::vector<perception_msgs::ObjectFeatures> dataset;
