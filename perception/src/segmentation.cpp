@@ -249,22 +249,58 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 
 //      FitBox(*object_cloud, coeff, *above_surface_cloud, shape, object_pose);
 
-      Object o;
-      o.name = "o";
-      o.confidence = 0.0;
-      o.cloud = object_cloud;
-      o.pose = object_pose;
-      if (shape.type == shape_msgs::SolidPrimitive::BOX) {
-        o.dimensions.x = shape.dimensions[0];
-        o.dimensions.y = shape.dimensions[1];
-        o.dimensions.z = shape.dimensions[2];
-	  } else {
-	    std::cout << "error on BOX" ;
-	  }
-      objects->push_back(o);
+      pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+      if (isTennisBall(object_cloud, coefficients)) {
+          Object o;
+          o.name = "muh tennis ball";
+//          o.confidence = 0.0; // 10000000% confidence
+          o.cloud = object_cloud;
+          o.pose = object_pose;
+          o.radius = coefficients->value[3];
+          o.pose.position.x = coefficients->value[0];
+          o.pose.position.y  = coefficients->value[1];
+          o.pose.position.z  = coefficients->value[2];
+          o.dimensions.x = o.radius;
+          o.dimensions.y = o.radius;
+          o.dimensions.z = o.radius;
+
+          objects->push_back(o);
+      }
+
 
 	}
 }
+
+
+bool isTennisBall(PointCloudC::Ptr cloud, pcl::ModelCoefficients::Ptr coefficient) {
+    ros::NodeHandle nh;
+
+    pcl::SACSegmentation<pcl::PointXYZRGB> segmentation;
+    segmentation.setInputCloud(cloud);
+    segmentation.setModelType(pcl::SACMODEL_SPHERE);
+    segmentation.setMethodType(pcl::SAC_RANSAC);
+    segmentation.setDistanceThreshold(1);
+    segmentation.setOptimizeCoefficients(true);
+    segmentation.setRadiusLimits(0.001, 0.04);
+    segmentation.setMaxIterations(1000);
+    segmentation.setProbability(0.99);
+    segmentation.setEpsAngle(90.0f * (3.14159265/180.0f));
+
+    pcl::PointIndices inlierIndices;
+    segmentation.segment(inlierIndices, *coeff_out);
+
+    if (inlierIndices.indices.size() == 0) {
+      // ROS_INFO("RANSAC nothing found");
+      return false;
+    } else {
+      ROS_INFO("RANSAC found shape with [%d] points", (int)inlierIndices.indices.size());
+      for (int c = 0; c < coeff_out->values.size(); ++c)
+          ROS_INFO("Coeff %d = [%f]", (int)c+1, (float)coeff_out->values[c]);
+      return true;
+    }
+}
+
+
 
 
 Segmenter::Segmenter(const ros::Publisher& surface_points_pub,
