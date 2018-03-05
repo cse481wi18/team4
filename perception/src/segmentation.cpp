@@ -124,7 +124,6 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 	size_t min_size = std::numeric_limits<size_t>::max();
 	size_t max_size = std::numeric_limits<size_t>::min();
 	for (size_t i = 0; i < object_indices->size(); ++i) {
-	  // TODO: implement this
 	  size_t cluster_size = object_indices->at(i).indices.size();
 	  if (cluster_size < min_size) {
 	  	min_size = cluster_size;
@@ -137,6 +136,9 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 	ROS_INFO("Found %ld objects, min size: %ld, max size: %ld",
 	         object_indices->size(), min_size, max_size);
 }
+
+
+
 
 void FindObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                           std::vector<Object>* objects) {
@@ -194,7 +196,7 @@ void FindObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 }
 
 
-// TODO change "table" to floor
+// TODO change "table" to floor?
 void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                           std::vector<Object>* objects,
                           ros::Publisher surface_points_pub_,
@@ -210,19 +212,10 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 	// Extract subset of original_cloud into table_cloud:
 	pcl::ExtractIndices<PointC> extract;
 	extract.setInputCloud(cloud);
+	extract.setNegative(true);
 	extract.setIndices(table_inliers);
 	extract.filter(*table_cloud);
 
-	sensor_msgs::PointCloud2 msg_out;
-    pcl::toROSMsg(*table_cloud, msg_out);
-    surface_points_pub_.publish(msg_out);
-
-    // publish table bounding box
-    visualization_msgs::Marker table_marker;
-	table_marker.ns = "table";
-	table_marker.header.frame_id = "base_link";
-	table_marker.type = visualization_msgs::Marker::CUBE;
-	// GetAxisAlignedBoundingBox(table_cloud, &table_marker.pose, &table_marker.scale);
 
 	//Use simple_grasping instead of our own function
 	PointCloudC::Ptr extract_out(new PointCloudC());
@@ -231,18 +224,16 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 //	 simple_grasping::extractShape(*table_cloud, coeff, *extract_out, shape, table_pose);
 	FitBox(*table_cloud, coeff, *extract_out, shape, table_pose);
 
+	// -------
 	// segmenting surface objects
 	std::vector<pcl::PointIndices> object_indices;
-	SegmentSurfaceObjects(cloud, table_inliers, &object_indices);
+//	SegmentSurfaceObjects(cloud, table_inliers, &object_indices);
+	SegmentSurfaceObjects(table_cloud, table_inliers, &object_indices); // TODO change back?
 
     // find above surface cloud
 	PointCloudC::Ptr above_surface_cloud(new PointCloudC);
 	extract.setNegative(true);
 	extract.filter(*above_surface_cloud);
-	// publish the above surface cloud
-	pcl::toROSMsg(*above_surface_cloud, msg_out);
-	above_surface_pub_.publish(msg_out);
-
 
 	// bounding box for objects
 	for (size_t i = 0; i < object_indices.size(); ++i) {
@@ -250,12 +241,13 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 	  pcl::PointIndices::Ptr indices(new pcl::PointIndices);
 	  *indices = object_indices[i];
 	  PointCloudC::Ptr object_cloud(new PointCloudC());
-	  // TODO: fill in object_cloud using indices
 	  extract.setIndices(indices);
-	  extract.setNegative(false);
+//	  extract.setNegative(false);
 	  extract.filter(*object_cloud);
-	  geometry_msgs::Pose object_pose;
-      FitBox(*object_cloud, coeff, *above_surface_cloud, shape, object_pose);
+
+//	  geometry_msgs::Pose object_pose;
+
+//      FitBox(*object_cloud, coeff, *above_surface_cloud, shape, object_pose);
 
       Object o;
       o.name = "o";
@@ -271,17 +263,6 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 	  }
       objects->push_back(o);
 
-	  // Publish a bounding box around it.
-//	  visualization_msgs::Marker object_marker;
-//	  object_marker.ns = "objects";
-//	  object_marker.id = i;
-//	  object_marker.header.frame_id = "base_link";
-//	  object_marker.type = visualization_msgs::Marker::CUBE;
-//	  GetAxisAlignedBoundingBox(object_cloud, &object_marker.pose,
-//	                            &object_marker.scale);
-//	  object_marker.color.g = 1;
-//	  object_marker.color.a = 0.3;
-//	  marker_pub_.publish(object_marker);
 	}
 }
 
