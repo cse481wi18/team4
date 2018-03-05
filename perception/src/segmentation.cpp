@@ -289,15 +289,7 @@ bool isTennisBall(PointCloudC::Ptr cloud, pcl::ModelCoefficients::Ptr coefficien
     pcl::PointIndices inlierIndices;
     segmentation.segment(inlierIndices, *coeff_out);
 
-    if (inlierIndices.indices.size() == 0) {
-      // ROS_INFO("RANSAC nothing found");
-      return false;
-    } else {
-      ROS_INFO("RANSAC found shape with [%d] points", (int)inlierIndices.indices.size());
-      for (int c = 0; c < coeff_out->values.size(); ++c)
-          ROS_INFO("Coeff %d = [%f]", (int)c+1, (float)coeff_out->values[c]);
-      return true;
-    }
+    return inlierIndices.indices.size() != 0;
 }
 
 
