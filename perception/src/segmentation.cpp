@@ -328,16 +328,19 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
 	for (size_t i = 0; i < objects.size(); ++i) {
 	  const Object& object = objects[i];
 
+        // check if ball
+      if (object.radius > 0) {
+            // For tennis bot!
+            // TODO get msg.header.frame_id? need to change published data type
+          // add found object to ball positions
+          ball_positions.push_back(object.pose.position.x);
+          ball_positions.push_back(object.pose.position.y);
+          ball_positions.push_back(object.pose.position.z);
+          ball_number++;
+    //	  ROS_INFO("Found new ball: " + object.pose.position);
+    //	  ROS_INFO("total balls found: " + ball_number);
 
-
-	  // add found object to ball positions
-	  ball_positions.push_back(object.pose.position.x);
-	  ball_positions.push_back(object.pose.position.y);
-	  ball_positions.push_back(object.pose.position.z);
-	  ball_number++;
-//	  ROS_INFO("Found new ball: " + object.pose.position);
-//	  ROS_INFO("total balls found: " + ball_number);
-
+      }
 
 
 
