@@ -4,6 +4,7 @@ import sys, os, time
 import rospy
 import fetch_api
 from pbd_recorder import Recorder
+from perceptor import Perceptor
 
 """
 user inputs should be numbers corresponding to their option
@@ -12,6 +13,7 @@ user inputs should be numbers corresponding to their option
 
 class Interface:
     def __init__(self):
+        self._perceptor = Perceptor()
         self._main_menu_actions = {
             'main_menu': self._main_menu,
             '1': self._create_new_program,
@@ -83,7 +85,8 @@ class Interface:
             print 'Invalid choice: {}'.format(choice)
             self._save_pose()
         curr_tags.update({0: -1})  # add base frame option
-        self._recorder.record_pose(curr_tags[choice], self._gripper_open) # get ball_pose here?
+        ball_pose = self._perceptor.get_closest_ball_location()
+        self._recorder.record_pose(curr_tags[choice], ball_pose, self._gripper_open) # get ball_pose here?
         print 'Pose saved!'
         self._creating_program()
 

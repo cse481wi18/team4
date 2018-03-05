@@ -14,12 +14,13 @@
 
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-      ROS_INFO("Usage: rosrun perception tennis_ball_finder DATA_DIR"); // TODO milestone 1 read from curr cam
-    ros::spinOnce();
-    }
-    std::string data_dir(argv[1]);
+    if (argc >= 2) {
 
+      ROS_INFO("Usage: rosrun perception tennis_ball_finder DATA_DIR"); // TODO milestone 1 read from curr cam
+      ROS_INFO("Reading from hallucinated data"); // TODO milestone 1 read from curr cam
+
+    }
+//std::string data_dir(argv[1]);
 
   ros::init(argc, argv, "tennis_ball_finder");
   ros::NodeHandle nh;
@@ -60,7 +61,7 @@ int main(int argc, char** argv) {
 
   // Create the object recognizer.
   std::vector<perception_msgs::ObjectFeatures> dataset;
-  perception::LoadData(data_dir, &dataset);
+//  perception::LoadData(data_dir, &dataset);
   perception::ObjectRecognizer recognizer(dataset);
 
 

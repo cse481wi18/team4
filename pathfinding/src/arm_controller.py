@@ -45,21 +45,20 @@ class ArmController:
         self._arm = fetch_api.Arm()
         self._gripper = fetch_api.Gripper()
 
-        # TODO not block
-        # try:
-        #     self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
-        # except Exception as e:
-        #     print e
-        #
-        # try:
-        #     self.drop_path = pickle.load(open("drop_path.p", "rb"))
-        # except Exception as e:
-        #     print e
-        #
-        # try:
-        #     self.pick_path = pickle.load(open("pick_path.p", "rb"))
-        # except Exception as e:
-        #     print e
+        try:
+            self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
+        except Exception as e:
+            print e
+
+        try:
+            self.drop_path = pickle.load(open("drop_path.p", "rb"))
+        except Exception as e:
+            print e
+
+        try:
+            self.pick_path = pickle.load(open("pick_path.p", "rb"))
+        except Exception as e:
+            print e
 
     # block & return upon arm tuck
     def execute_path(self, path, ball_pose):

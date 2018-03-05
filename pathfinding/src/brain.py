@@ -12,9 +12,14 @@ from geometry_msgs.msg import PoseStamped
 
 BASKET_POSITION = PoseStamped() # TODO figure out map stuff for hallway
 
+# read in from pickle
+ROAM_POSITIONS = []
+
 # TODO milestone 1
 # find location behind target so that position that robot drives to is
 #  in arms reach of ball/basket
+
+
 
 def get_position_offset_target(target_pose):
     return target_pose
@@ -26,6 +31,7 @@ def main():
     my_driver = driver.Driver()
     my_perceptor = perceptor.Perceptor()
     my_arm = arm_controller.ArmController()
+    curr_roam_ind = 0
     while True:
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
         if ball_position is not None:
@@ -42,6 +48,10 @@ def main():
             driver.return_to_default_position()
         else:
             print "No ball found!"
+            if (len(ROAM_POSITIONS) is not 0):
+                my_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
+                curr_roam_ind += 1
+                curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)
             # TODO milestone 2: move head if no ball seen
             # TODO milestone 3: move base if no ball seen
         rospy.sleep(1)
