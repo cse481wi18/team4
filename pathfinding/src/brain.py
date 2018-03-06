@@ -54,17 +54,15 @@ def main():
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
         pub_pose(ball_position)
         if ball_position is not None:
-
             print "Ball Found!"
-
-            reachable = False
             # Check if ball is reachable (within .5)
-            if not reachable:
+            if not driver.within_tolerance(target, 0.5):
+                print "Ball is not reachable D:"
                 target = my_driver.get_position_offset_target(ball_position)
                 pub_pose(target)
-                print "going"
+                print "going to the ball!"
                 my_driver.go_to(target) # handle offset (go behind ball)
-                print "gone"
+                print "arrived at the ball!"
                 print "moving head to maximum ball finding position"
                 my_head.pan_tilt(0, 0.9)
                 rospy.sleep(5)
@@ -72,7 +70,6 @@ def main():
             if ball_position is None:
                 print "We lost the ball! :'(((((((("
                 continue
-            # TODO milestone 3: check if ball still there
             my_arm.pick_up_ball(ball_position)
             # assume for milestone 1 that basket is marked on map
             # driver.go_to(BASKET_POSITION)

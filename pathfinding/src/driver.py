@@ -8,19 +8,19 @@ from std_msgs.msg import Header
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import math
 
+TOLERANCE = 0.3
 
 def printPose(stampedPose):
     pose = stampedPose.pose.pose
-
     print "Position: ", pose.position.x, pose.position.y, pose.position.z
     print "Quaternion: ", pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w
 
 
 class Driver(object):
     def __init__(self):
-        self._goto_publisher = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
+        # self._goto_publisher = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
         self._curr_pose_sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.set_curr_map_pose)
-        # self._goto_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+        self._goto_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self._curr_goal_pose = None
         self._curr_map_pose = None
 
@@ -29,6 +29,27 @@ class Driver(object):
         # print "setting set_curr_map_pose to "
         # print curr_pose_msg.pose.pose
         self._curr_map_pose = curr_pose_msg.pose.pose # smthing of type Pose
+        if self._curr_goal_pose is not None and self.within_tolerance(self._curr_goal_pose, TOLERANCE):
+            self.cancel_goals()
+            self._curr_goal_pose = None
+
+    def go_to(self, pose):
+        self._curr_goal_pose = pose
+        print "going to ", pose
+        print "currently at ", self._curr_map_pose
+
+        goal_pose = PoseStamped()
+        goal_pose.header.frame_id = "base_link" # base link?
+        goal_pose.pose = copy.deepcopy(pose)
+        move_goal = MoveBaseGoal()
+        move_goal.target_pose = goal_pose
+        self._goto_client.send_goal_and_wait(move_goal) # blocks until move is successful
+        self._curr_goal_pose = None
+
+    def within_tolerance(self, target, tolerance):
+        dist = math.sqrt(math.pow((target.x - self._curr_map_pose.x), 2) + math.pow((target.y - self._curr_map_pose.y), 2))
+        return dist <= tolerance
+
 
     # def go_to(self, pose):
     #     self._curr_goal_pose = pose
@@ -40,34 +61,17 @@ class Driver(object):
     #     goal_pose.pose = copy.deepcopy(pose)
     #     # quat_arr = tft.quaternion_from_euler(0, 0, math.atan2(pose.position.y - self._curr_map_pose.y, pose.position.x - self._curr_map_pose.x))
     #     # orientation = Quaternion(quat_arr[0], quat_arr[1], quat_arr[2], quat_arr[3])
-    #     # goal_pose.pose.orientation = orientation #TODO figure out if we need - add to BallPositionsMsg
-    #     goal_pose.pose.orientation = Quaternion()
-    #     move_goal = MoveBaseGoal()
-    #     move_goal.target_pose = goal_pose
+    #     # goal_pose.pose.orientation = orientation
+    #
+    #     # move_goal = MoveBaseGoal()
+    #     # move_goal.target_pose = goal_pose
     #     print "calling goto"
-    #     self._goto_client.send_goal_and_wait(move_goal) # blocks until move is successful
+    #     self._goto_publisher.publish(goal_pose) # blocks until move is successful
+    #     rospy.sleep(65) # TODO CHANGE (lol)
     #     print "exiting goto"
     #     self._curr_goal_pose = None
 
-    def go_to(self, pose):
-        self._curr_goal_pose = pose
-        print "going to ", pose
-        print "currently at ", self._curr_map_pose
 
-        goal_pose = PoseStamped()
-        goal_pose.header.frame_id = "base_link" # base link?
-        goal_pose.pose = copy.deepcopy(pose)
-        # quat_arr = tft.quaternion_from_euler(0, 0, math.atan2(pose.position.y - self._curr_map_pose.y, pose.position.x - self._curr_map_pose.x))
-        # orientation = Quaternion(quat_arr[0], quat_arr[1], quat_arr[2], quat_arr[3])
-        # goal_pose.pose.orientation = orientation
-
-        # move_goal = MoveBaseGoal()
-        # move_goal.target_pose = goal_pose
-        print "calling goto"
-        self._goto_publisher.publish(goal_pose) # blocks until move is successful
-        rospy.sleep(65) # TODO CHANGE (lol)
-        print "exiting goto"
-        self._curr_goal_pose = None
 
     def cancel_goals(self):
         self._goto_client.cancelAllGoals()
