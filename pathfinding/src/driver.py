@@ -35,7 +35,7 @@ class Driver(object):
         print "going to ", pose
 
         goal_pose = PoseStamped()
-        goal_pose.header.frame_id = "map"
+        goal_pose.header.frame_id = "map" # base link?
         goal_pose.pose = copy.deepcopy(pose)
         # quat_arr = tft.quaternion_from_euler(0, 0, math.atan2(pose.position.y - self._curr_map_pose.y, pose.position.x - self._curr_map_pose.x))
         # orientation = Quaternion(quat_arr[0], quat_arr[1], quat_arr[2], quat_arr[3])
@@ -48,6 +48,11 @@ class Driver(object):
 
     def cancel_goals(self):
         self._goto_client.cancelAllGoals()
+
+    # TODO
+    def get_position_offset_target(self, target):
+        target.position.x = target.position.x - 0.1
+        return target
 
     # TODO blocking - milestone 2/3
     def return_to_default_position(self, pose_stamped):
