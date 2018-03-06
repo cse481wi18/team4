@@ -5,6 +5,7 @@ import driver
 import arm_controller
 import perceptor
 import wait_for_time
+import fetch_api
 from geometry_msgs.msg import PoseStamped
 
 # Note: Brain handles all conversions
@@ -31,8 +32,11 @@ def main():
     my_driver = driver.Driver()
     my_perceptor = perceptor.Perceptor()
     my_arm = arm_controller.ArmController()
+    my_head = fetch_api.Head()
     curr_roam_ind = 0
     while True:
+        print "moving head to maximum ball finding position"
+        my_head.pan_tilt(0, 0.9)
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
         if ball_position is not None:
 
@@ -40,6 +44,12 @@ def main():
             print ball_position
             target = get_position_offset_target(ball_position)
             my_driver.go_to(target) # handle offset (go behind ball)
+            print "moving head to maximum ball finding position"
+            my_head.pan_tilt(0, 0.9)
+            ball_position = my_perceptor.get_closest_ball_location()
+            if ball_position is None:
+                print "We lost the ball! :'(((((((("
+                continue
             # TODO milestone 3: check if ball still there
             my_arm.pick_up_ball(ball_position)
             # assume for milestone 1 that basket is marked on map

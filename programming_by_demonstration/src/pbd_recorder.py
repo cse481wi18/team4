@@ -7,7 +7,7 @@ import numpy as np
 import pickle
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from geometry_msgs.msg import Pose, PoseStamped, Quaternion, Point
-
+import pathfinding
 
 def pose_to_matrix(pose):
     transformationMatrix = tft.quaternion_matrix([pose.orientation.x, pose.orientation.y, pose.orientation.z,
@@ -37,6 +37,7 @@ class Recorder:
         self._reader = ArTagReader()
         self._sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers,
                                      self._reader.callback)  # Subscribe to AR tag poses, use reader.callback
+        # self._sub = rospy.Subscriber('tennis_ball_position_topic', BallPositions, self._set_curr_map_pose)
         self._transform_listener = tf.TransformListener()
 
     def arm_limp(self):

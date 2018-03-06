@@ -74,16 +74,16 @@ class Interface:
         return self._exec_menu(self._create_program_actions, choice)
 
     def _save_pose(self):
-        print 'Should the pose be saved relative to the base frame or to a tag?'
+        print 'Should the pose be saved relative to the base frame or ball?'
         print '0. base frame'
-        curr_tags = self._get_tags()
+        curr_tags = {1: 1}
         for key, val in curr_tags.items():
-            print '{}. Tag {}'.format(key, val)
+            print '{}. Ball {}'.format(key, val)
         choice = int(raw_input('  >>>  '))
         # check bounds:
-        if choice > len(curr_tags) or choice < 0:
-            print 'Invalid choice: {}'.format(choice)
-            self._save_pose()
+        # if choice > len(curr_tags) or choice < 0:
+        #     print 'Invalid choice: {}'.format(choice)
+        #     self._save_pose()
         curr_tags.update({0: -1})  # add base frame option
         ball_pose = self._perceptor.get_closest_ball_location()
         self._recorder.record_pose(curr_tags[choice], ball_pose, self._gripper_open) # get ball_pose here?
@@ -110,11 +110,11 @@ class Interface:
         }
         ...
         """
-        tags = self._recorder.get_tags()
-        dict_tags = {}
-        for idx, tag in enumerate(tags):
-            dict_tags[idx + 1] = tag
-        return dict_tags
+        # tags = self._recorder.get_tags()
+        # dict_tags = {}
+        # for idx, tag in enumerate(tags):
+        #     dict_tags[idx + 1] = tag
+        return {}
 
     def _open_grip(self):
         print 'Opening grip...'

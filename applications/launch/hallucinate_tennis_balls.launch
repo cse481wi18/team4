@@ -1,8 +1,8 @@
 <launch>
   <arg name="data_dir" />
   <param name="ec_cluster_tolerance" value="0.03" />
-  <param name="ec_min_cluster_size" value="700" />
-  <param name="ec_max_cluster_size" value="7500" />
+  <param name="ec_min_cluster_size" value="300" />
+  <param name="ec_max_cluster_size" value="1000" />
   <param name="distance_above_plane" value="0.02" />
   <param name="crop_min_x" value="-0.5" />
   <param name="crop_max_z" value="1.5" />
