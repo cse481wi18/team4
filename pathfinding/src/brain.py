@@ -21,10 +21,6 @@ ROAM_POSITIONS = []
 #  in arms reach of ball/basket
 
 
-
-def get_position_offset_target(target_pose):
-    return target_pose
-
 def main():
     rospy.init_node('brain')
     wait_for_time.wait_for_time()
@@ -42,8 +38,8 @@ def main():
 
             print "Ball Found!"
             print ball_position
-            target = get_position_offset_target(ball_position)
-            # my_driver.go_to(target) # handle offset (go behind ball)
+            target = driver.get_position_offset_target(ball_position)
+            my_driver.go_to(target) # handle offset (go behind ball)
             print "moving head to maximum ball finding position"
             my_head.pan_tilt(0, 0.9)
             ball_position = my_perceptor.get_closest_ball_location()
