@@ -42,8 +42,12 @@ class Driver(object):
         print "currently at ", self._curr_map_pose
 
         goal_pose = PoseStamped()
-        goal_pose.header.frame_id = "base_link" # base link?
+        goal_pose.header.frame_id = "map" # base link?
         goal_pose.pose = copy.deepcopy(pose)
+        quat_arr = tft.quaternion_from_euler(0, 0, math.atan2(pose.position.y - self._curr_map_pose.y,
+                                                              pose.position.x - self._curr_map_pose.x))
+        orientation = Quaternion(quat_arr[0], quat_arr[1], quat_arr[2], quat_arr[3])
+        goal_pose.pose.orientation = orientation
         move_goal = MoveBaseGoal()
         move_goal.target_pose = goal_pose
         self._goto_client.send_goal_and_wait(move_goal) # blocks until move is successful
@@ -64,9 +68,7 @@ class Driver(object):
     #     goal_pose = PoseStamped()
     #     goal_pose.header.frame_id = "base_link" # base link?
     #     goal_pose.pose = copy.deepcopy(pose)
-    #     # quat_arr = tft.quaternion_from_euler(0, 0, math.atan2(pose.position.y - self._curr_map_pose.y, pose.position.x - self._curr_map_pose.x))
-    #     # orientation = Quaternion(quat_arr[0], quat_arr[1], quat_arr[2], quat_arr[3])
-    #     # goal_pose.pose.orientation = orientation
+
     #
     #     # move_goal = MoveBaseGoal()
     #     # move_goal.target_pose = goal_pose
