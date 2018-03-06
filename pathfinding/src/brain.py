@@ -6,7 +6,9 @@ import arm_controller
 import perceptor
 import wait_for_time
 import fetch_api
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Vector3
+from visualization_msgs.msg import Marker
+from std_msgs.msg import ColorRGBA, Header
 
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
@@ -20,6 +22,21 @@ ROAM_POSITIONS = []
 # find location behind target so that position that robot drives to is
 #  in arms reach of ball/basket
 
+marker_publisher = rospy.Publisher('happy_marker', Marker, queue_size=10)
+cur_id = 0
+
+def pub_pose(target):
+    global cur_id
+    marker = Marker(
+        type=Marker.CUBE,
+        pose=target,
+        scale=Vector3(0.1, 0.1, 0.1),
+        color=ColorRGBA(1.0, 0.0, 0.0, 0.5),
+        header=Header(frame_id='base_link'),
+        id=cur_id
+    )
+    cur_id += 1
+    marker_publisher.publish(marker)
 
 def main():
     rospy.init_node('brain')
@@ -33,19 +50,24 @@ def main():
     while True:
         print "moving head to maximum ball finding position"
         my_head.pan_tilt(0, 0.9)
-        rospy.sleep(2)
+        rospy.sleep(5)
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
+        pub_pose(ball_position)
         if ball_position is not None:
 
             print "Ball Found!"
-            # print ball_position
-            target = my_driver.get_position_offset_target(ball_position)
-            print "going"
-            my_driver.go_to(target) # handle offset (go behind ball)
-            print "gone"
-            print "moving head to maximum ball finding position"
-            my_head.pan_tilt(0, 0.9)
-            rospy.sleep(2)
+
+            reachable = False
+            # Check if ball is reachable (within .5)
+            if not reachable:
+                target = my_driver.get_position_offset_target(ball_position)
+                pub_pose(target)
+                print "going"
+                my_driver.go_to(target) # handle offset (go behind ball)
+                print "gone"
+                print "moving head to maximum ball finding position"
+                my_head.pan_tilt(0, 0.9)
+                rospy.sleep(5)
             ball_position = my_perceptor.get_closest_ball_location()
             if ball_position is None:
                 print "We lost the ball! :'(((((((("

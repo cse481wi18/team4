@@ -74,7 +74,7 @@ class Driver(object):
 
     # TODO
     def get_position_offset_target(self, target):
-        target.position.y = target.position.y - 0.2
+        target.position.x = target.position.x - 0.5
         target.position.z = 0.0
         return target
 
