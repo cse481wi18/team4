@@ -107,7 +107,7 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
     }
   }
 
-  ROS_INFO("Found %ld objects, min size: %ld, max size: %ld",
+  ROS_INFO("before filtering: Found %ld objects, min size: %ld, max size: %ld",
            object_indices->size(), min_size, max_size);
 }
 
@@ -164,7 +164,10 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
     obj.dimensions.x = shape.dimensions[0];
     obj.dimensions.y = shape.dimensions[1];
     obj.dimensions.z = shape.dimensions[2];
-    objects->push_back(obj);
+    if (!(obj.dimensions.x > 0.12 || obj.dimensions.y > 0.12 || obj.dimensions.z > 0.12)) {
+        ROS_INFO("object x: %lf, object y: %lf, object z: %lf", obj.dimensions.x, obj.dimensions.y, obj.dimensions.z);
+        objects->push_back(obj);
+    }
   }
 }
 
