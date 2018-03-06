@@ -74,7 +74,14 @@ class ArmController:
             ps.header.frame_id = 'base_link'
 
             if not relative_to_ball:
-                ps.pose = pose
+                ps.pose = Pose()
+                ps.pose.position.x = pose.position[0]
+                ps.pose.position.y = pose.position[1]
+                ps.pose.position.z = pose.position[2]
+                ps.pose.orientation.x = pose.orientation[0]
+                ps.pose.orientation.y = pose.orientation[1]
+                ps.pose.orientation.z = pose.orientation[2]
+                ps.pose.orientation.w = pose.orientation[3]
                 err = self._arm.move_to_pose(ps)
                 if err is not None:
                     rospy.logerr(err)
