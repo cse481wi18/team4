@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
 //  perception::LoadData(data_dir, &dataset);
   perception::ObjectRecognizer recognizer(dataset);
 
-  perception::Segmenter segmenter(table_pub, above_table_pub, marker_pub,
+  perception::Segmenter segmenter(table_pub, above_table_pub, marker_pub, ball_poses_pub,
                                   recognizer);
   ros::Subscriber segment_sub = nh.subscribe(
       "cropped_cloud", 1, &perception::Segmenter::Callback, &segmenter);

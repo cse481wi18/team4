@@ -29,6 +29,8 @@
 #include "perception/object_recognizer.h"
 #include "perception/typedefs.h"
 
+#include "perception_msgs/BallPositions.h"
+
 using geometry_msgs::Pose;
 using geometry_msgs::Vector3;
 
@@ -169,10 +171,12 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 Segmenter::Segmenter(const ros::Publisher& surface_points_pub,
                      const ros::Publisher& above_surface_pub,
                      const ros::Publisher& marker_pub,
+                     const ros::Publisher& ball_poses_pub,
                      const ObjectRecognizer& recognizer)
     : surface_points_pub_(surface_points_pub),
       above_surface_pub_(above_surface_pub),
       marker_pub_(marker_pub),
+      ball_poses_pub_(ball_poses_pub),
       recognizer_(recognizer) {}
 
 void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {

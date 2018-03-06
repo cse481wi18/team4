@@ -6,6 +6,7 @@ project(perception_msgs)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   message_generation
+  geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -45,6 +46,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   ObjectFeatures.msg
+  BallPositions.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -64,6 +66,7 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
+  geometry_msgs
 )
 
 ################################################
