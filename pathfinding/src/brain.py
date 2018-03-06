@@ -33,15 +33,19 @@ def main():
     while True:
         print "moving head to maximum ball finding position"
         my_head.pan_tilt(0, 0.9)
+        rospy.sleep(2)
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
         if ball_position is not None:
 
             print "Ball Found!"
-            print ball_position
-            target = driver.get_position_offset_target(ball_position)
+            # print ball_position
+            target = my_driver.get_position_offset_target(ball_position)
+            print "going"
             my_driver.go_to(target) # handle offset (go behind ball)
+            print "gone"
             print "moving head to maximum ball finding position"
             my_head.pan_tilt(0, 0.9)
+            rospy.sleep(2)
             ball_position = my_perceptor.get_closest_ball_location()
             if ball_position is None:
                 print "We lost the ball! :'(((((((("
