@@ -62,9 +62,9 @@ class ArmController:
 
     # block & return upon arm tuck
     def execute_path(self, path, ball_pose):
-        print "starting path"
+        print "starting arm path"
         for pose, relative_to_ball, gripper_open in path:
-            print "next step"
+            print "next arm step"
             if gripper_open:
                 self._gripper.open()
             else:

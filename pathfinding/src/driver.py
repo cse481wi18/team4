@@ -29,11 +29,14 @@ class Driver(object):
         # print "setting set_curr_map_pose to "
         # print curr_pose_msg.pose.pose
         self._curr_map_pose = curr_pose_msg.pose.pose # smthing of type Pose
-        if self._curr_goal_pose is not None and self.within_tolerance(self._curr_goal_pose, TOLERANCE):
+        if self._curr_goal_pose is not None and self._curr_map_pose and self.within_tolerance(self._curr_goal_pose, TOLERANCE):
             self.cancel_goals()
             self._curr_goal_pose = None
 
     def go_to(self, pose):
+        if self._curr_map_pose is None:
+            print "Help! I'm lost!"
+            return
         self._curr_goal_pose = pose
         print "going to ", pose
         print "currently at ", self._curr_map_pose
@@ -47,7 +50,9 @@ class Driver(object):
         self._curr_goal_pose = None
 
     def within_tolerance(self, target, tolerance):
-        dist = math.sqrt(math.pow((target.x - self._curr_map_pose.x), 2) + math.pow((target.y - self._curr_map_pose.y), 2))
+        if self._curr_map_pose is None:
+            return False
+        dist = math.sqrt(math.pow((target.position.x - self._curr_map_pose.position.x), 2) + math.pow((target.position.y - self._curr_map_pose.position.y), 2))
         return dist <= tolerance
 
 

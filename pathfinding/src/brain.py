@@ -38,11 +38,14 @@ def pub_pose(target):
     cur_id += 1
     marker_publisher.publish(marker)
 
+# TODO milestone one cancel all goals on ctrl-c
+
 def main():
     rospy.init_node('brain')
     wait_for_time.wait_for_time()
 
     my_driver = driver.Driver()
+    #TODO milestone 1 - raise & lower torso
     my_perceptor = perceptor.Perceptor()
     my_arm = arm_controller.ArmController()
     my_head = fetch_api.Head()
@@ -56,7 +59,7 @@ def main():
         if ball_position is not None:
             print "Ball Found!"
             # Check if ball is reachable (within .5)
-            if not driver.within_tolerance(target, 0.5):
+            if not my_driver.within_tolerance(ball_position, 1):
                 print "Ball is not reachable D:"
                 target = my_driver.get_position_offset_target(ball_position)
                 pub_pose(target)
