@@ -25,8 +25,10 @@ class Driver(object):
         self._curr_map_pose = None
 
     # msg
-    def set_curr_map_pose(self, curr_pose):
-        self._curr_map_pose = curr_pose.pose.pose.position
+    def set_curr_map_pose(self, curr_pose_msg):
+        print "setting set_curr_map_pose to "
+        print curr_pose_msg.pose.pose
+        self._curr_map_pose = curr_pose_msg.pose.pose # smthing of type Pose
 
     def go_to(self, pose):
         self._curr_goal_pose = pose

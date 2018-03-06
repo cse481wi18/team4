@@ -7,7 +7,7 @@ import numpy as np
 import pickle
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from geometry_msgs.msg import Pose, PoseStamped, Quaternion, Point
-import pathfinding
+# import pathfinding
 
 def pose_to_matrix(pose):
     transformationMatrix = tft.quaternion_matrix([pose.orientation.x, pose.orientation.y, pose.orientation.z,

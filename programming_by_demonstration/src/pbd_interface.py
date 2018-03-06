@@ -60,6 +60,8 @@ class Interface:
 
     def _create_new_program(self):
         print 'Relaxing arm...'
+        self.ball_pose = self._perceptor.get_closest_ball_location()
+        print self.ball_pose
         if not rospy.get_param("use_sim_time", False):
             self._recorder.arm_limp()
         return self._creating_program()
@@ -85,8 +87,8 @@ class Interface:
         #     print 'Invalid choice: {}'.format(choice)
         #     self._save_pose()
         curr_tags.update({0: -1})  # add base frame option
-        ball_pose = self._perceptor.get_closest_ball_location()
-        self._recorder.record_pose(curr_tags[choice], ball_pose, self._gripper_open) # get ball_pose here?
+
+        self._recorder.record_pose(curr_tags[choice], self.ball_pose, self._gripper_open) # get ball_pose here?
         print 'Pose saved!'
         self._creating_program()
 
@@ -137,9 +139,9 @@ def exit():
 def main():
     rospy.init_node('pbd_interface')
     wait_for_time()
-    torso = fetch_api.Torso()
-    print 'Raising torso height...'
-    torso.set_height(torso.MAX_HEIGHT)
+    # torso = fetch_api.Torso()
+    # print 'Raising torso height...'
+    # torso.set_height(torso.MAX_HEIGHT)
     demo_runner = Interface()
     demo_runner.run()
 

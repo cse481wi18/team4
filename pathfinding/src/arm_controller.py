@@ -46,17 +46,17 @@ class ArmController:
         self._gripper = fetch_api.Gripper()
 
         try:
-            self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
+            self.tuck_path = pickle.load(open("../resources/tuck_path.p", "rb"))
         except Exception as e:
             print e
 
         try:
-            self.drop_path = pickle.load(open("drop_path.p", "rb"))
+            self.drop_path = pickle.load(open("../resources/drop_path.p", "rb"))
         except Exception as e:
             print e
 
         try:
-            self.pick_path = pickle.load(open("pick_path.p", "rb"))
+            self.pick_path = pickle.load(open("../resources/pick_path.p", "rb"))
         except Exception as e:
             print e
 
