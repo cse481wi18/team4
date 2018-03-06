@@ -43,7 +43,7 @@ def main():
             print "Ball Found!"
             print ball_position
             target = get_position_offset_target(ball_position)
-            my_driver.go_to(target) # handle offset (go behind ball)
+            # my_driver.go_to(target) # handle offset (go behind ball)
             print "moving head to maximum ball finding position"
             my_head.pan_tilt(0, 0.9)
             ball_position = my_perceptor.get_closest_ball_location()
@@ -53,9 +53,9 @@ def main():
             # TODO milestone 3: check if ball still there
             my_arm.pick_up_ball(ball_position)
             # assume for milestone 1 that basket is marked on map
-            driver.go_to(BASKET_POSITION)
+            # driver.go_to(BASKET_POSITION)
             my_arm.drop_ball_in_basket()
-            driver.return_to_default_position()
+            # driver.return_to_default_position()
         else:
             print "No ball found!"
             if (len(ROAM_POSITIONS) is not 0):

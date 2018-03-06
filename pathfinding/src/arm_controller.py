@@ -46,23 +46,25 @@ class ArmController:
         self._gripper = fetch_api.Gripper()
 
         try:
-            self.tuck_path = pickle.load(open("../resources/tuck_path.p", "rb"))
+            self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
         except Exception as e:
             print e
 
         try:
-            self.drop_path = pickle.load(open("../resources/drop_path.p", "rb"))
+            self.drop_path = pickle.load(open("drop_path.p", "rb"))
         except Exception as e:
             print e
 
         try:
-            self.pick_path = pickle.load(open("../resources/pick_path.p", "rb"))
+            self.pick_path = pickle.load(open("pick_path.p", "rb"))
         except Exception as e:
             print e
 
     # block & return upon arm tuck
     def execute_path(self, path, ball_pose):
+        print "starting path"
         for pose, relative_to_ball, gripper_open in path:
+            print "next step"
             if gripper_open:
                 self._gripper.open()
             else:
@@ -98,6 +100,7 @@ class ArmController:
         self.execute_path(self.tuck_path, None)
 
     def pick_up_ball(self, ball_pose):
+        self._gripper.open()
         self.execute_path(self.pick_path, ball_pose)
 
     # ball pose type TBD
@@ -129,3 +132,4 @@ class ArmController:
     # look at disco/arm wave demo
     def drop_ball_in_basket(self):
        self.execute_path(self.drop_path, None)
+       self.execute_path(self.tuck_path, None)

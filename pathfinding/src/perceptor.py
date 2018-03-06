@@ -24,8 +24,8 @@ class Perceptor:
 
 
     def _set_curr_map_pose(self, obj_feat_msg):
-        print "calling _set_curr_map_pose"
-        print "In perceptor, seeing: "
-        for i in obj_feat_msg.positions:
-            print i
+        # print "calling _set_curr_map_pose"
+        # print "In perceptor, seeing: "
+        # for i in obj_feat_msg.positions:
+        #     print i
         self._curr_seen_ball_poses = obj_feat_msg.positions
