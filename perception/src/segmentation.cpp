@@ -212,6 +212,11 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
   std::vector<Object> objects;
   SegmentTabletopScene(cloud, &objects);
 
+// For tennis ball finding:
+  std::vector<Pose> ball_positions;
+  size_t ball_number = 0;
+  perception_msgs::BallPositions ball_position_msg;
+
   for (size_t i = 0; i < objects.size(); ++i) {
     const Object& object = objects[i];
 
@@ -236,6 +241,12 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
     std::stringstream ss;
     ss << name << " (" << confidence << ")";
 
+    // Add ball found as msg:
+    ball_number++;
+    ball_positions.push_back(object.pose);
+
+
+
     // Publish the recognition result.
     visualization_msgs::Marker name_marker;
     name_marker.ns = "recognition";
@@ -255,5 +266,9 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
     name_marker.text = ss.str();
     marker_pub_.publish(name_marker);
   }
+    // publish msgs
+    ball_position_msg.positions = ball_positions;
+    ball_position_msg.num_balls_found = ball_number;
+    ball_poses_pub_.publish()
 }
 }  // namespace perception
