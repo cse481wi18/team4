@@ -269,6 +269,6 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
     // publish msgs
     ball_position_msg.positions = ball_positions;
     ball_position_msg.num_balls_found = ball_number;
-    ball_poses_pub_.publish()
+    ball_poses_pub_.publish(ball_position_msg);
 }
 }  // namespace perception
