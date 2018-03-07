@@ -53,10 +53,14 @@ class Driver(object):
         self._goto_client.send_goal_and_wait(move_goal) # blocks until move is successful
         self._curr_goal_pose = None
 
+    def slowly_go_to(self, pose):
+        pass
+
     def within_tolerance(self, target, tolerance):
         if self._curr_map_pose is None:
             return False
         dist = math.sqrt(math.pow((target.position.x - self._curr_map_pose.position.x), 2) + math.pow((target.position.y - self._curr_map_pose.position.y), 2))
+        print "[Driver.within_tolerance] calculated distance: ", dist
         return dist <= tolerance
 
 
