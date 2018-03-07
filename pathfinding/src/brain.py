@@ -28,7 +28,7 @@ cur_id = 0
 def pub_pose(target):
     global cur_id
     marker = Marker(
-        type=Marker.CUBE,
+        type=Marker.ARROW,
         pose=target,
         scale=Vector3(0.1, 0.1, 0.1),
         color=ColorRGBA(1.0, 0.0, 0.0, 0.5),
