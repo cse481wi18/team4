@@ -62,7 +62,7 @@ class ArmController:
 
     # block & return upon arm tuck
     def execute_path(self, path, ball_pose):
-        print "starting arm path"
+        print "checking arm path"
         for pose, relative_to_ball, gripper_open in path:
             print "next arm step"
             if gripper_open:
@@ -82,9 +82,6 @@ class ArmController:
                 ps.pose.orientation.y = pose.orientation[1]
                 ps.pose.orientation.z = pose.orientation[2]
                 ps.pose.orientation.w = pose.orientation[3]
-                err = self._arm.move_to_pose(ps)
-                if err is not None:
-                    rospy.logerr(err)
             else:
                 (point_with_position, point_with_quaternion) = pose.position, pose.orientation
                 point_to_wrist_matrix = tft.quaternion_matrix(
@@ -98,10 +95,49 @@ class ArmController:
                 ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
                 temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
                 ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
+            err = self._arm.check_pose(ps)
+            if err is not None:
+                rospy.loginfo("path not possible")
+                return False
 
-                err = self._arm.move_to_pose(ps)
-                if err is not None:
-                    rospy.logerr(err)
+        print "executing arm path"
+        for pose, relative_to_ball, gripper_open in path:
+            print "next arm step"
+            if gripper_open:
+                self._gripper.open()
+            else:
+                self._gripper.close()
+
+            ps = PoseStamped()
+            ps.header.frame_id = 'base_link'
+
+            if not relative_to_ball:
+                ps.pose = Pose()
+                ps.pose.position.x = pose.position[0]
+                ps.pose.position.y = pose.position[1]
+                ps.pose.position.z = pose.position[2]
+                ps.pose.orientation.x = pose.orientation[0]
+                ps.pose.orientation.y = pose.orientation[1]
+                ps.pose.orientation.z = pose.orientation[2]
+                ps.pose.orientation.w = pose.orientation[3]
+            else:
+                (point_with_position, point_with_quaternion) = pose.position, pose.orientation
+                point_to_wrist_matrix = tft.quaternion_matrix(
+                    [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z, point_with_quaternion.w])
+                point_to_wrist_matrix[:, 3] = (point_with_position.x, point_with_position.y, point_with_position.z, 1)
+                base_to_point_matrix = tft.quaternion_matrix(
+                    [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z, ball_pose.orientation.w])
+                base_to_point_matrix[:, 3] = (ball_pose.position.x, ball_pose.position.y, ball_pose.position.z, 1)
+                base_to_wrist_matrix = np.dot(base_to_point_matrix, point_to_wrist_matrix)
+                ps.pose = Pose()
+                ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
+                temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
+                ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
+            err = self._arm.move_to_pose(ps)
+            if err is not None:
+                rospy.logerr(err)
+                return False
+        return True
 
     def tuck_arm(self):
         self.execute_path(self.tuck_path, None)
