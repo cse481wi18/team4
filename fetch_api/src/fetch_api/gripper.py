@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 
 import actionlib
 from control_msgs.msg import GripperCommandAction, GripperCommandGoal
@@ -6,7 +5,6 @@ from control_msgs.msg import GripperCommandAction, GripperCommandGoal
 CLOSED_POS = 0.0  # The position for a fully-closed gripper (meters).
 OPENED_POS = 0.10  # The position for a fully-open gripper (meters).
 
-# TODO milestone 2 - get rip status
 
 class Gripper(object):
     """Gripper controls the robot's gripper.

@@ -6,9 +6,12 @@ import rospy
 import tf.transformations as tft
 import numpy as np
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
+from joint_state_reader import reader
 
 GRIPPER_MARKER_OFFSET = 0.166
 OBJECT_GRIPPER_OFFSET = - 0.04
+
+GRIPPER_NAMES = ['l_gripper_finger_joint', 'r_gripper_finger_joint']
 
 def transform_gripper_to_base(gripperPose, objectPose):
     """self.pose_ok
@@ -44,6 +47,7 @@ class ArmController:
     def __init__(self):
         self._arm = fetch_api.Arm()
         self._gripper = fetch_api.Gripper()
+        self._gripper_state = reader.JointStateReader()
 
         try:
             self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
@@ -65,11 +69,6 @@ class ArmController:
         print "checking arm path"
         for pose, relative_to_ball, gripper_open in path:
             print "next arm step"
-            if gripper_open:
-                self._gripper.open()
-            else:
-                self._gripper.close()
-
             ps = PoseStamped()
             ps.header.frame_id = 'base_link'
 
@@ -97,7 +96,7 @@ class ArmController:
                 ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
             err = self._arm.check_pose(ps)
             if err is not None:
-                rospy.loginfo("path not possible")
+                print "path not possible"
                 return False
 
         print "executing arm path"
@@ -140,11 +139,17 @@ class ArmController:
         return True
 
     def tuck_arm(self):
-        self.execute_path(self.tuck_path, None)
+        return self.execute_path(self.tuck_path, None)
 
     def pick_up_ball(self, ball_pose):
         self._gripper.open()
-        self.execute_path(self.pick_path, ball_pose)
+        possible = self.execute_path(self.pick_path, ball_pose)
+        print "getting gripper state"
+        values = self._gripper_state.get_joints(GRIPPER_NAMES)
+        for value in values:
+            if value < 0.01:
+                return False
+        return possible
 
     # ball pose type TBD
     # block before return
@@ -174,5 +179,6 @@ class ArmController:
     # go through set list of poses for gripper + arm\
     # look at disco/arm wave demo
     def drop_ball_in_basket(self):
-       self.execute_path(self.drop_path, None)
-       self.execute_path(self.tuck_path, None)
+       part1 = self.execute_path(self.drop_path, None)
+       part2 = self.execute_path(self.tuck_path, None)
+       return part1 and part2
