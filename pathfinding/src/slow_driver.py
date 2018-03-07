@@ -16,8 +16,8 @@ class Driver:
     def __init__(self):
         self._base = fetch_api.Base()
 
-    def go_forward(self):
-        self._base.go_forward(DEFAULT_FORWARD_DISTANCE)
+    def go_forward(self, distance = DEFAULT_FORWARD_DISTANCE):
+        self._base.go_forward(distance)
 
 
     # require: input in base_link (so robot's position is (0, 0)
