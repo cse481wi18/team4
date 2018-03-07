@@ -32,9 +32,9 @@ def pub_pose(target):
         pose=target,
         scale=Vector3(0.1, 0.1, 0.1),
         color=ColorRGBA(1.0, 0.0, 0.0, 0.5),
-        header=Header(frame_id='base_link'),
+        header=Header(frame_id='map'),
         id=cur_id,
-        lifetime=rospy.Duration(2)
+        lifetime=rospy.Duration(15)
     )
     cur_id += 1
     marker_publisher.publish(marker)
@@ -56,34 +56,41 @@ def main():
         my_head.pan_tilt(0, 0.9)
         rospy.sleep(5)
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
-        pub_pose(ball_position)
+        # pub_pose(ball_position)
         if ball_position is not None:
             print "Ball Found!"
             # Check if ball is reachable (within .5)
-            if not my_driver.within_tolerance(ball_position, 1):
+            if not my_driver.within_tolerance(ball_position, 2.5):
                 print "Ball is not reachable D:"
                 target = my_driver.get_position_offset_target(ball_position)
-                pub_pose(target)
+                # pub_pose(target)
+                transformed_target = my_driver.get_transformed_pose(target)
+                pub_pose(transformed_target)
                 print "going to the ball!"
                 my_driver.go_to(target) # handle offset (go behind ball)
                 print "arrived at the ball!"
+            for i in range(3):
                 print "moving head to maximum ball finding position"
                 my_head.pan_tilt(0, 0.9)
-                rospy.sleep(5)
-            ball_position = my_perceptor.get_closest_ball_location()
-            if ball_position is None:
-                print "We lost the ball! :'(((((((("
-                continue
-            success = my_arm.pick_up_ball(ball_position)
+                ball_position = my_perceptor.get_closest_ball_location()
+                if ball_position is None:
+                    print "We lost the ball! :'(((((((("
+                    rospy.sleep(1)
+                else:
+                    break
+            success = False
+            if ball_position is not None:
+                success = my_arm.pick_up_ball(ball_position)
             # assume for milestone 1 that basket is marked on map
-            # driver.go_to(BASKET_POSITION)
             print success
             if success:
+                # driver.go_to(BASKET_POSITION)
                 my_arm.drop_ball_in_basket()
             # driver.return_to_default_position()
         else:
             print "No ball found!"
             if (len(ROAM_POSITIONS) is not 0):
+                print "roaming"
                 my_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
                 curr_roam_ind += 1
                 curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)

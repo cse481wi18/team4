@@ -113,9 +113,9 @@ class Arm(object):
                      allowed_planning_time=10.0,
                      execution_timeout=15.0,
                      group_name='arm',
-                     num_planning_attempts=1,
+                     num_planning_attempts=5,
                      plan_only=False,
-                     replan=False,
+                     replan=True,
                      replan_attempts=5,
                      tolerance=0.01,
                      orientation_constraint=None):
@@ -156,7 +156,9 @@ class Arm(object):
             goal_builder.add_path_orientation_constraint(orientation_constraint)
         goal = goal_builder.build()
 
+        print "moving arm"
         self.moveClient.send_goal_and_wait(goal, rospy.Duration(execution_timeout))
+        print "arm moved"
 
         result = self.moveClient.get_result()
 

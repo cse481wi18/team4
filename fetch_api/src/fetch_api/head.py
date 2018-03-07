@@ -102,3 +102,4 @@ class Head(object):
 
         # Send the goal & wait for result
         self.pan_tilt_client.send_goal_and_wait(goal)
+        print "moved head"
