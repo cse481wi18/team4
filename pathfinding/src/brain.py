@@ -60,7 +60,7 @@ def main():
         if ball_position is not None:
             print "Ball Found!"
             # Check if ball is reachable (within .5)
-            if not my_driver.within_tolerance(ball_position, 2.5):
+            if not my_driver.within_tolerance(ball_position, 2.0):
                 print "Ball is not reachable D:"
                 target = my_driver.get_position_offset_target(ball_position)
                 # pub_pose(target)

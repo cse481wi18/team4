@@ -206,9 +206,9 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 181
+      Max Intensity: 216
       Min Color: 0; 0; 0
-      Min Intensity: 3
+      Min Intensity: 12
       Name: LaserScan
       Position Transformer: XYZ
       Queue Size: 10
@@ -348,7 +348,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.01
       Style: Flat Squares
-      Topic: /mock_point_cloud
+      Topic: /cropped_cloud
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -358,7 +358,8 @@ Visualization Manager:
       Marker Topic: visualization_marker
       Name: Marker
       Namespaces:
-        {}
+        objects: true
+        recognition: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -393,7 +394,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 17.3923
+      Distance: 5.50429
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -405,10 +406,10 @@ Visualization Manager:
         Z: 1.06452
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.619801
+      Pitch: 0.284801
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.91541
+      Yaw: 6.1336
     Saved: ~
 Window Geometry:
   Displays:
