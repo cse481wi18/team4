@@ -28,12 +28,13 @@ cur_id = 0
 def pub_pose(target):
     global cur_id
     marker = Marker(
-        type=Marker.CUBE,
+        type=Marker.ARROW,
         pose=target,
         scale=Vector3(0.1, 0.1, 0.1),
         color=ColorRGBA(1.0, 0.0, 0.0, 0.5),
         header=Header(frame_id='base_link'),
-        id=cur_id
+        id=cur_id,
+        lifetime=rospy.Duration(2)
     )
     cur_id += 1
     marker_publisher.publish(marker)
@@ -73,10 +74,12 @@ def main():
             if ball_position is None:
                 print "We lost the ball! :'(((((((("
                 continue
-            my_arm.pick_up_ball(ball_position)
+            success = my_arm.pick_up_ball(ball_position)
             # assume for milestone 1 that basket is marked on map
             # driver.go_to(BASKET_POSITION)
-            my_arm.drop_ball_in_basket()
+            print success
+            if success:
+                my_arm.drop_ball_in_basket()
             # driver.return_to_default_position()
         else:
             print "No ball found!"
@@ -88,7 +91,6 @@ def main():
             # TODO milestone 3: move base if no ball seen
         rospy.sleep(1)
 
-    rospy.spin()
 
 
 if __name__ == '__main__':
