@@ -31,7 +31,7 @@
     <arg if="$(arg use_keepout)" name="map_topic" value="map_keepout" />
   </include>
 
-  <!-- tilt the head -->
-  <node pkg="fetch_navigation" type="tilt_head.py" name="tilt_head_node" />
+  <!-- tilt the head TODO uncomment?-->
+  <!-- <node pkg="fetch_navigation" type="tilt_head.py" name="tilt_head_node" /> -->
 
 </launch>
