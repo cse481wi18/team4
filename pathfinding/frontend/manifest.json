@@ -1,0 +1,6 @@
+{
+  "name": "BallBot3000",
+  "short_name": "BallBot3000",
+  "start_url": "/",
+  "display": "standalone"
+}
