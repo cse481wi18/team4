@@ -88,6 +88,7 @@ class ArmController:
                 point_to_wrist_matrix = tft.quaternion_matrix(
                     [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z,
                      point_with_quaternion.w])
+                     point_with_quaternion.w])
                 point_to_wrist_matrix[:, 3] = (point_with_position.x, point_with_position.y, point_with_position.z, 1)
                 base_to_point_matrix = tft.quaternion_matrix(
                     [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z,
@@ -110,10 +111,10 @@ class ArmController:
         if not self._path_ok(path, ball_pose):
             print "Path not possible!"
             return False
-        print "executing arm path"
+        print "executing arm path..."
         print "ball pose: ", ball_pose
         for pose, relative_to_ball, gripper_open in path:
-            print "next arm step"
+            print "Next arm step!"
             if gripper_open:
                 self._gripper.open()
             else:

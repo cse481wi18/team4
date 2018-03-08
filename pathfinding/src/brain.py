@@ -64,7 +64,7 @@ def main():
         if ball_position is not None:
             print "Ball Found!"
             # Check if ball is reachable (within .5)
-            if not arm_controller.ball_reachable(ball_position):
+            if not my_arm.ball_reachable(ball_position):
                 print "Ball is not reachable D:"
                 s_driver.go_to(ball_position)
 
