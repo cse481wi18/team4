@@ -64,11 +64,13 @@ class ArmController:
         except Exception as e:
             print e
 
-    # block & return upon arm tuck
-    def execute_path(self, path, ball_pose):
+    def ball_reachable(self, ball_pose):
+        return self._path_ok(self.pick_path, ball_pose)
+
+    def _path_ok(self, path, ball_pose):
         print "checking arm path"
         for pose, relative_to_ball, gripper_open in path:
-            print "next arm step"
+            print "Checking: next arm step"
             ps = PoseStamped()
             ps.header.frame_id = 'base_link'
 
@@ -84,21 +86,30 @@ class ArmController:
             else:
                 (point_with_position, point_with_quaternion) = pose.position, pose.orientation
                 point_to_wrist_matrix = tft.quaternion_matrix(
-                    [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z, point_with_quaternion.w])
+                    [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z,
+                     point_with_quaternion.w])
                 point_to_wrist_matrix[:, 3] = (point_with_position.x, point_with_position.y, point_with_position.z, 1)
                 base_to_point_matrix = tft.quaternion_matrix(
-                    [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z, ball_pose.orientation.w])
+                    [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z,
+                     ball_pose.orientation.w])
                 base_to_point_matrix[:, 3] = (ball_pose.position.x, ball_pose.position.y, ball_pose.position.z, 1)
                 base_to_wrist_matrix = np.dot(base_to_point_matrix, point_to_wrist_matrix)
                 ps.pose = Pose()
-                ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
+                ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3],
+                                         base_to_wrist_matrix[2, 3])
                 temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
                 ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
             err = self._arm.check_pose(ps)
             if err is not None:
-                print "path not possible"
                 return False
+        return True
 
+    # block & return upon arm tuck
+    def execute_path(self, path, ball_pose):
+
+        if not self._path_ok(path, ball_pose):
+            print "Path not possible!"
+            return False
         print "executing arm path"
         print "ball pose: ", ball_pose
         for pose, relative_to_ball, gripper_open in path:

@@ -34,6 +34,7 @@ class Driver:
         self._listener = tf.TransformListener()
         self._pose_list = self.read_poses()
         self.print_waypoints()
+        self.print_waypoints()
 
     def read_poses(self):
         list = {}
@@ -77,7 +78,7 @@ class Driver:
 #         cb(msg)
 #
 #     File
-#     "/home/team4/catkin_ws/src/cse481wi18/pathfinding/src/driver.py", line
+#     "/home/team4/catkin_ws/src/cse481wi18/pathfinding/src/map_driver.py", line
 #     32, in set_curr_map_pose
 #     if self._curr_goal_pose is not None and self._curr_map_pose and self.within_tolerance(self._curr_goal_pose,
 #                                                                                           TOLERANCE):

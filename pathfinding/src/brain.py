@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 import rospy
-import driver
-import slow_driver
+import map_driver
+import ball_driver
 import arm_controller
 import perceptor
 import wait_for_time
@@ -48,8 +48,8 @@ def main():
     rospy.init_node('brain')
     wait_for_time.wait_for_time()
 
-    my_driver = driver.Driver()
-    s_driver = slow_driver.Driver()
+    my_driver = map_driver.Driver()
+    s_driver = ball_driver.Driver()
     #TODO milestone 1 - raise & lower torso
     my_perceptor = perceptor.Perceptor()
     my_arm = arm_controller.ArmController()
@@ -64,7 +64,7 @@ def main():
         if ball_position is not None:
             print "Ball Found!"
             # Check if ball is reachable (within .5)
-            if not my_driver.within_tolerance(ball_position, 0.7):
+            if not arm_controller.ball_reachable(ball_position):
                 print "Ball is not reachable D:"
                 s_driver.go_to(ball_position)
 
