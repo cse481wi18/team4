@@ -67,8 +67,8 @@ def main():
     if not load_annotated_positions():
         exit(1)
 
-    my_driver = map_driver.Driver()
-    s_driver = ball_driver.Driver()
+    my_map_driver = map_driver.Driver()
+    my_ball_driver = ball_driver.Driver()
 
     my_torso = fetch_api.Torso()
     my_perceptor = perceptor.Perceptor()
@@ -93,7 +93,7 @@ def main():
             # Check if ball is reachable (within .5)
             if not my_arm.ball_reachable(ball_position):
                 print "Ball is not reachable D:"
-                s_driver.go_to(ball_position)
+                my_ball_driver.go_to(ball_position)
 
                 print "arrived at the ball? checking..."
             for i in range(3):
@@ -117,11 +117,11 @@ def main():
             # driver.return_to_default_position()
         else:
             print "No ball found!"
-            if len(ROAM_POSITIONS) is not 0:
-                print "roaming..."
-                my_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
-                curr_roam_ind += 1
-                curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)
+            # if len(ROAM_POSITIONS) is not 0:
+            #     print "roaming..."
+            #     map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
+            #     curr_roam_ind += 1
+            #     curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)
             # TODO milestone 2: move head if no ball seen
             # TODO milestone 3: move base if no ball seen
         rospy.sleep(1)
