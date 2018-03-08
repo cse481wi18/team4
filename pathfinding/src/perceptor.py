@@ -20,7 +20,7 @@ class Perceptor:
 
     def __init__(self):
         self._sub = rospy.Subscriber('tennis_ball_position_topic', BallPositions, self._set_curr_map_pose)
-        self._curr_seen_ball_poses = [] # type Pose
+        self._curr_seen_ball_poses = []  # type Pose
 
 
     def _set_curr_map_pose(self, obj_feat_msg):

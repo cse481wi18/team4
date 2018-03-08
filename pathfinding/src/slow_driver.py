@@ -16,16 +16,23 @@ class Driver:
     def __init__(self):
         self._base = fetch_api.Base()
 
-    def go_forward(self, distance = DEFAULT_FORWARD_DISTANCE):
+    def go_forward(self, distance=DEFAULT_FORWARD_DISTANCE):
+        print "going forward by: ", distance
         self._base.go_forward(distance)
 
+    def go_to(self, target):
+        self.turn_towards(target)
+        target = self.get_position_offset_target(target)
+        self.go_forward(target.position.x)
 
     # require: input in base_link (so robot's position is (0, 0)
     def turn_towards(self, target_pose_in_base_link):
         # treat robot vector as (0, 1)
-        angle_in_rad = math.atan2(target_pose_in_base_link.position.y - 1, target_pose_in_base_link.position.x)
-        calculated_angle_in_deg = math.degrees(angle_in_rad)
-        self._base.turn(calculated_angle_in_deg)
+        angle_in_rad = math.atan2(target_pose_in_base_link.position.y, target_pose_in_base_link.position.x)
+        print "turning by: ", angle_in_rad
+        # calculated_angle_in_deg = math.degrees(angle_in_rad)
+        # Note: base.turn takes radians as an argument
+        self._base.turn(angle_in_rad)
 
 
     # TODO

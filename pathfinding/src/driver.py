@@ -9,6 +9,7 @@ from std_msgs.msg import Header
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import math
 import threading
+import numpy as np
 
 TOLERANCE = 0.3
 
@@ -33,8 +34,8 @@ class Driver:
     # msg
     def set_curr_map_pose(self, curr_pose_msg):
         global muh_position
-        print "setting set_curr_map_pose to ", curr_pose_msg
-        print "curr thread set curr_map_pose: ", threading.current_thread().name
+        # print "setting set_curr_map_pose to ", curr_pose_msg
+        # print "curr thread set curr_map_pose: ", threading.current_thread().name
         muh_position = curr_pose_msg.pose.pose
         # print curr_pose_msg.pose.pose
         if curr_pose_msg is not None:
@@ -89,10 +90,10 @@ class Driver:
         to_transform_pose_stmped.pose = copy.deepcopy(pose)
         transformed_pose_stmped = self._listener.transformPose('map', to_transform_pose_stmped)
 
-        print "going to transformed", transformed_pose_stmped
-        # print "currently at (field var)", self._curr_map_pose
-        print "currently at (global var)", muh_position
-        print "curr thread calling go_to: ", threading.current_thread().name
+        # print "going to transformed", transformed_pose_stmped
+        # # print "currently at (field var)", self._curr_map_pose
+        # print "currently at (global var)", muh_position
+        # print "curr thread calling go_to: ", threading.current_thread().name
 
         if muh_position is None:
             rospy.loginfo("Help! I'm lost!")
@@ -131,8 +132,8 @@ class Driver:
 
         print "going to transformed", transformed_pose_stmped
         # print "currently at (field var)", self._curr_map_pose
-        print "currently at (global var)", muh_position
-        print "curr thread calling go_to: ", threading.current_thread().name
+        # print "currently at (global var)", muh_position
+        # print "curr thread calling go_to: ", threading.current_thread().name
 
         if muh_position is None:
             rospy.loginfo("Help! I'm lost!")
@@ -157,7 +158,11 @@ class Driver:
         if self._curr_map_pose is None and muh_position is None:
             print "[Driver:within_tolerane] curr_map_pose not set"
             return False
-        dist = math.sqrt(math.pow((target.position.x - muh_position.position.x), 2) + math.pow((target.position.y - muh_position.position.y), 2))
+
+        tar = np.array([target.position.x, target.position.y])
+        pos = np.array([muh_position.position.x, muh_position.position.y])
+        dist = np.linalg.norm(tar - pos)
+        # dist = math.sqrt(math.pow((target.position.x - muh_position.position.x), 2) + math.pow((target.position.y - muh_position.position.y), 2))
         print "[Driver.within_tolerance] calculated distance: ", dist
         return dist <= tolerance
 
