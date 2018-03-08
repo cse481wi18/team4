@@ -77,12 +77,14 @@ def main():
 
     # raise torso before unfurling arm
     my_torso.set_height(TORSO_HEIGHT_TO_UNFURL_ARM)
+    rospy.sleep(5)
     my_arm.tuck_arm()
+    print "setting torso to maximum ball pickup position..."
+    my_torso.set_height(TORSO_HEIGHT_TO_PICKUP_BALL)
 
     curr_roam_ind = 0
     while True:
-        print "setting torso to maximum ball pickup position..."
-        my_torso.set_height(TORSO_HEIGHT_TO_PICKUP_BALL)
+
         print "moving head to maximum ball finding position..."
         my_head.pan_tilt(0, 0.9)
         rospy.sleep(TIME_TO_PERCEIVE_BALL)
@@ -93,19 +95,22 @@ def main():
             # Check if ball is reachable (within .5)
             if not my_arm.ball_reachable(ball_position):
                 print "Ball is not reachable D:"
+                print "ball_position: "
+                print ball_position
                 my_ball_driver.go_to(ball_position)
 
                 print "arrived at the ball? checking..."
             for i in range(3):
                 print "moving head to maximum ball finding position..."
                 my_head.pan_tilt(0, 0.9)
-                rospy.sleep(TIME_TO_PERCEIVE_BALL)
+                rospy.sleep(TIME_TO_PERCEIVE_BALL) # TODO sleep longer?
                 ball_position = my_perceptor.get_closest_ball_location()
                 if ball_position is None:
                     print "We lost the ball! :'(((((((("
                     rospy.sleep(1)
                 else:
                     break
+            # TODO handle case of bumped ball
             success = False
             if ball_position is not None:
                 success = my_arm.pick_up_ball(ball_position)
@@ -114,6 +119,7 @@ def main():
             if success:
                 # driver.go_to(BASKET_POSITION)
                 my_arm.drop_ball_in_basket()
+                my_arm.tuck_arm()
             # driver.return_to_default_position()
         else:
             print "No ball found!"
