@@ -88,7 +88,6 @@ class ArmController:
                 point_to_wrist_matrix = tft.quaternion_matrix(
                     [point_with_quaternion.x, point_with_quaternion.y, point_with_quaternion.z,
                      point_with_quaternion.w])
-                     point_with_quaternion.w])
                 point_to_wrist_matrix[:, 3] = (point_with_position.x, point_with_position.y, point_with_position.z, 1)
                 base_to_point_matrix = tft.quaternion_matrix(
                     [ball_pose.orientation.x, ball_pose.orientation.y, ball_pose.orientation.z,
@@ -100,6 +99,7 @@ class ArmController:
                                          base_to_wrist_matrix[2, 3])
                 temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
                 ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
+
             err = self._arm.check_pose(ps)
             if err is not None:
                 return False
@@ -160,6 +160,7 @@ class ArmController:
         return True
 
     def tuck_arm(self):
+        print "tucking arm..."
         return self.execute_path(self.tuck_path, None)
 
     def pick_up_ball(self, ball_pose):

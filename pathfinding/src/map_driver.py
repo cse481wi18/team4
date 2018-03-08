@@ -25,7 +25,6 @@ muh_position = None
 
 class Driver:
     def __init__(self):
-        print "calling init", threading.current_thread().name
         # self._goto_publisher = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
         self._curr_pose_sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.set_curr_map_pose)
         self._goto_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
@@ -33,7 +32,6 @@ class Driver:
         self._curr_map_pose = None
         self._listener = tf.TransformListener()
         self._pose_list = self.read_poses()
-        self.print_waypoints()
         self.print_waypoints()
 
     def read_poses(self):
