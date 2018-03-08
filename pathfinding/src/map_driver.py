@@ -31,20 +31,6 @@ class Driver:
         self._curr_goal_pose = None
         self._curr_map_pose = None
         self._listener = tf.TransformListener()
-        self._pose_list = self.read_poses()
-        self.print_waypoints()
-
-    def read_poses(self):
-        list = {}
-        try:
-            list = pickle.load(open(FILE_NAME, "rb"))
-        except Exception as e:
-            print e
-        return list
-
-    def print_waypoints(self):
-        for pose in self._pose_list.keys():
-            print pose
 
     # msg
     def set_curr_map_pose(self, curr_pose_msg):
