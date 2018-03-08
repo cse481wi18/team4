@@ -14,7 +14,7 @@ DEFAULT_FORWARD_DISTANCE = 0.07
 
 class Driver:
     def __init__(self):
-        self._base = fetch_api.Base()
+        self._goto_client = actionlib.SimplectionClient('move_base', MoveBaseAction)
 
     def go_forward(self, distance=DEFAULT_FORWARD_DISTANCE):
         print "going forward by: ", distance
@@ -26,7 +26,7 @@ class Driver:
         self.go_forward(target.position.x)
 
     # require: input in base_link (so robot's position is (0, 0)
-    def turn_towards(self, target_pose_in_base_link):
+    def turn_towards_target(self, target_pose_in_base_link):
         # treat robot vector as (0, 1)
         angle_in_rad = math.atan2(target_pose_in_base_link.position.y, target_pose_in_base_link.position.x)
         print "turning by: ", angle_in_rad
@@ -34,10 +34,11 @@ class Driver:
         # Note: base.turn takes radians as an argument
         self._base.turn(angle_in_rad)
 
+    # TODO
+    def within_tolerance(self, target, tolerance):
+        return False
 
     # TODO
-    def get_position_offset_target(self, target):
-        target.position.x = target.position.x - 0.5
-        target.position.z = 0.0
-        return target
+    def get_target_distance(self, target):
+            return target
 

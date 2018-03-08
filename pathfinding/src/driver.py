@@ -144,8 +144,6 @@ class Driver:
         to_transform_pose_stmped.pose = copy.deepcopy(pose)
         transformed_pose_stmped = self._listener.transformPose('map', to_transform_pose_stmped)
 
-
-
         print "going to transformed", transformed_pose_stmped
         # print "currently at (field var)", self._curr_map_pose
         # print "currently at (global var)", muh_position

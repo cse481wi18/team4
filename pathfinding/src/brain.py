@@ -19,6 +19,8 @@ BASKET_POSITION = PoseStamped() # TODO figure out map stuff for hallway
 # read in from pickle
 ROAM_POSITIONS = []
 
+TIME_TO_PERCEIVE_BALL = 5
+
 # TODO milestone 1
 # find location behind target so that position that robot drives to is
 #  in arms reach of ball/basket
@@ -56,26 +58,21 @@ def main():
     while True:
         print "moving head to maximum ball finding position"
         my_head.pan_tilt(0, 0.9)
-        rospy.sleep(5)
-        ball_position = my_perceptor.get_closest_ball_location()  # from perceptor node
-        pub_pose(ball_position)
+        rospy.sleep(TIME_TO_PERCEIVE_BALL)
+        ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
+        # pub_pose(ball_position)
         if ball_position is not None:
             print "Ball Found!"
             # Check if ball is reachable (within .5)
             if not my_driver.within_tolerance(ball_position, 0.7):
                 print "Ball is not reachable D:"
                 s_driver.go_to(ball_position)
-                print "drove to ball!"
-                # target = my_driver.get_position_offset_target(ball_position)
-                # # pub_pose(target)
-                # transformed_target = my_driver.get_transformed_pose(target)
-                # pub_pose(transformed_target)
-                # print "going to the ball!"
-                # my_driver.go_to(target) # handle offset (go behind ball)
-                # print "arrived at the ball!"
+
+                print "arrived at the ball? checking..."
             for i in range(3):
                 print "moving head to maximum ball finding position"
                 my_head.pan_tilt(0, 0.9)
+                rospy.sleep(TIME_TO_PERCEIVE_BALL)
                 ball_position = my_perceptor.get_closest_ball_location()
                 if ball_position is None:
                     print "We lost the ball! :'(((((((("
