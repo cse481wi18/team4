@@ -155,8 +155,7 @@ class ArmController:
                     print "[arm_controller: path execution failed]"
                     rospy.logerr(err)
                     return False
-            rospy.sleep(0.1)  # let the arm finish moving to prevent CONTROL_FAILED errors
-            # May only be a problem in sim, but I'll put it in for now
+            rospy.sleep(0.5)  # let the arm finish moving to prevent CONTROL_FAILED errors
         return True
 
     def tuck_arm(self):
