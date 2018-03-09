@@ -19,7 +19,7 @@ class Driver:
         self._base = fetch_api.Base()
 
     def go_forward(self, distance=DEFAULT_FORWARD_DISTANCE):
-        print "going forward by: ", distance
+        print "[ball_driver: going forward by: ", distance, "]"
         self._base.go_forward(distance)
 
     def go_to(self, target):
@@ -29,14 +29,12 @@ class Driver:
 
         # require: input in base_link (so robot's position is (0, 0)
     def turn_towards(self, target_pose_in_base_link):
-        print "turn_towards with target: "
-        print target_pose_in_base_link
         # treat robot vector as (0, 1)
         angle_in_rad = math.atan2(target_pose_in_base_link.position.y, target_pose_in_base_link.position.x)
         # base.turn(value * math.pi / 180)
         calculated_angle_in_deg = math.degrees(angle_in_rad)
-        print "turning by degrees: ", calculated_angle_in_deg
-        print "turning by radians: ", angle_in_rad
+        print "[ball_driver: turning by degrees: ", calculated_angle_in_deg, "]"
+        print "[ball_driver: turning by radians: ", angle_in_rad, "]"
         # Note: base.turn takes radians as an argument
         self._base.turn(angle_in_rad)
 
@@ -47,7 +45,7 @@ class Driver:
     # SHOULD DEFINITELY BE X
     def get_target_distance(self, target):
         distance = target.position.x - DEFAULT_REACHABLE_DISTANCE
-        print "Caculated distance", distance
+        print "[ball_driver: caculated distance: ", distance, "]"
         if distance < 0:
             distance = 0
         return distance

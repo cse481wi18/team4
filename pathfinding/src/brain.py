@@ -64,8 +64,8 @@ def main():
     wait_for_time.wait_for_time()
 
     # read in roaming positions
-    if not load_annotated_positions():
-        exit(1)
+    # if not load_annotated_positions():
+    #     exit(1)
 
     my_map_driver = map_driver.Driver()
     my_ball_driver = ball_driver.Driver()
@@ -76,53 +76,56 @@ def main():
     my_head = fetch_api.Head()
 
     # raise torso before unfurling arm
+    print "[brain: unfurling arm]"
     my_torso.set_height(TORSO_HEIGHT_TO_UNFURL_ARM)
     rospy.sleep(5)
     my_arm.tuck_arm()
-    print "setting torso to maximum ball pickup position..."
+    print "[brain: setting torso to maximum ball pickup position...]"
     my_torso.set_height(TORSO_HEIGHT_TO_PICKUP_BALL)
 
     curr_roam_ind = 0
     while True:
 
-        print "moving head to maximum ball finding position..."
+        print "[brain: moving head to maximum ball finding position...]"
         my_head.pan_tilt(0, 0.9)
         rospy.sleep(TIME_TO_PERCEIVE_BALL)
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
         # pub_pose(ball_position)
         if ball_position is not None:
-            print "Ball Found!"
-            # Check if ball is reachable (within .5)
+            print "[brain: ball found]"
             if not my_arm.ball_reachable(ball_position):
-                print "Ball is not reachable D:"
-                print "ball_position: "
-                print ball_position
+                print "[brain: ball is not reachable]"
+                # print "ball_position: "
+                # print ball_position
+                print "[brain: moving to ball...]"
+                pub_pose(ball_position)
                 my_ball_driver.go_to(ball_position)
 
-                print "arrived at the ball? checking..."
             for i in range(3):
-                print "moving head to maximum ball finding position..."
-                my_head.pan_tilt(0, 0.9)
                 rospy.sleep(TIME_TO_PERCEIVE_BALL) # TODO sleep longer?
                 ball_position = my_perceptor.get_closest_ball_location()
                 if ball_position is None:
-                    print "We lost the ball! :'(((((((("
+                    print "[brain: cannot find ball]"
                     rospy.sleep(1)
                 else:
                     break
             # TODO handle case of bumped ball
-            success = False
             if ball_position is not None:
-                success = my_arm.pick_up_ball(ball_position)
-            # assume for milestone 1 that basket is marked on map
-            print "Picked up ball?, ", success
-            if success:
-                # driver.go_to(BASKET_POSITION)
-                my_arm.drop_ball_in_basket()
-                my_arm.tuck_arm()
+                success = False
+                if ball_position is not None:
+                    print "[brain: picking up ball]"
+                    success = my_arm.pick_up_ball(ball_position)
+                # assume for milestone 1 that basket is marked on map
+                if success:
+                    print "[brain: pick successful, dropping ball]"
+                    # driver.go_to(BASKET_POSITION)
+                    my_arm.drop_ball_in_basket()
+                    my_arm.tuck_arm()
+                else:
+                    print "[brain: pick failed]"
             # driver.return_to_default_position()
         else:
-            print "No ball found!"
+            print "[brain: no ball found]"
             # if len(ROAM_POSITIONS) is not 0:
             #     print "roaming..."
             #     map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
@@ -130,6 +133,8 @@ def main():
             #     curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)
             # TODO milestone 2: move head if no ball seen
             # TODO milestone 3: move base if no ball seen
+        print "[brain: looping]"
+        print "\n*************************************************************\n"
         rospy.sleep(1)
 
 

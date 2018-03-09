@@ -9,7 +9,7 @@ class Perceptor:
     # return None if no ball found
     # return some type of position (pose_stamped) (correspond to pick_up_ball arg)
     def get_closest_ball_location(self):
-        print "calling get_closest_ball_location"
+        print "[Perceptor: calling get_closest_ball_location]"
         curr_poses = copy.deepcopy(self._curr_seen_ball_poses)
         # currently returns first ball in arr, TODO get closest ball
         if len(curr_poses) is not 0:

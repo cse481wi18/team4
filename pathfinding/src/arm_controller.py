@@ -68,9 +68,9 @@ class ArmController:
         return self._path_ok(self.pick_path, ball_pose)
 
     def _path_ok(self, path, ball_pose):
-        print "checking arm path"
+        print "[arm_controller: checking arm path...]"
         for pose, relative_to_ball, gripper_open in path:
-            print "Checking: next arm step"
+            print "[arm_controller: checking next step]"
             ps = PoseStamped()
             ps.header.frame_id = 'base_link'
 
@@ -109,12 +109,12 @@ class ArmController:
     def execute_path(self, path, ball_pose):
 
         if not self._path_ok(path, ball_pose):
-            print "Path not possible!"
+            print "[arm_controller: path not possible]"
             return False
-        print "executing arm path..."
-        print "ball pose: ", ball_pose
+        print "[arm_controller: executing arm path...]"
+        # print "ball pose: ", ball_pose
         for pose, relative_to_ball, gripper_open in path:
-            print "Next arm step!"
+            print "[arm_controller: executing next step]"
             if gripper_open:
                 self._gripper.open()
             else:
@@ -132,10 +132,9 @@ class ArmController:
                 ps.pose.orientation.y = pose.orientation[1]
                 ps.pose.orientation.z = pose.orientation[2]
                 ps.pose.orientation.w = pose.orientation[3]
-                print "moving arm"
                 err = self._arm.move_to_pose(ps)
-                print "arm moved"
                 if err is not None:
+                    print "[arm_controller: path execution failed]"
                     rospy.logerr(err)
                     return False
             else:
@@ -151,55 +150,33 @@ class ArmController:
                 ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
                 temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
                 ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
-                print "moving arm"
                 err = self._arm.move_to_pose(ps)
-                print "arm moved"
                 if err is not None:
+                    print "[arm_controller: path execution failed]"
                     rospy.logerr(err)
                     return False
+            rospy.sleep(0.1)  # let the arm finish moving to prevent CONTROL_FAILED errors
+            # May only be a problem in sim, but I'll put it in for now
         return True
 
     def tuck_arm(self):
-        print "tucking arm..."
+        print "[arm_controller: tucking arm...]"
         return self.execute_path(self.tuck_path, None)
 
     def pick_up_ball(self, ball_pose):
         self._gripper.open()
         possible = self.execute_path(self.pick_path, ball_pose)
-        print "getting gripper state"
+        if not possible:
+            rospy.sleep(1.0)
+            self.tuck_arm()
+            return False
+        print "[arm_controller: getting gripper state]"
         values = self._gripper_state.get_joints(GRIPPER_NAMES)
         for value in values:
             if value < 0.01:
                 return False
-        return possible
+        return True
 
-    # ball pose type TBD
-    # block before return
-    # def pick_up_ball(self, ball_pose):
-    #     pre_pose = Pose()
-    #     pre_pose.position.x = -GRIPPER_MARKER_OFFSET + OBJECT_GRIPPER_OFFSET - 0.1
-    #
-    #     pre_base_pose = PoseStamped()
-    #     pre_base_pose.header.frame_id = "base_link"
-    #     pre_base_pose.pose = transform_gripper_to_base(pre_pose, ball_pose.pose)
-    #
-    #     grasp_pose = Pose()
-    #     grasp_pose.position.x = -GRIPPER_MARKER_OFFSET + OBJECT_GRIPPER_OFFSET
-    #
-    #     grasp_base_pose = PoseStamped()
-    #     grasp_base_pose.header.frame_id = "base_link"
-    #     grasp_base_pose.pose = transform_gripper_to_base(grasp_pose, ball_pose.pose)
-    #
-    #     self._gripper.open()
-    #     self._arm.move_to_pose(pre_base_pose)
-    #     self._arm.move_to_pose(grasp_base_pose)
-    #     self._gripper.close()
-    #     self.tuck_arm()
-    #     # blocking
-    #     return False
-
-    # go through set list of poses for gripper + arm\
-    # look at disco/arm wave demo
     def drop_ball_in_basket(self):
        part1 = self.execute_path(self.drop_path, None)
        part2 = self.execute_path(self.tuck_path, None)
