@@ -1,7 +1,7 @@
 <launch>
-  <param name="ec_cluster_tolerance" value="0.03" />
+   <param name="ec_cluster_tolerance" value="0.03" />
   <param name="ec_min_cluster_size" value="300" />
-  <param name="ec_max_cluster_size" value="1000" />
+  <param name="ec_max_cluster_size" value="1150" />
   <param name="distance_above_plane" value="0.02" />
   <param name="crop_min_x" value="-0.5" />
   <param name="crop_max_z" value="1.5" />
@@ -9,7 +9,7 @@
   <param name="crop_min_z" value="-0.5" />
     <param name="crop_max_y" value="2.05" />
   <param name="crop_min_y" value="-1.0" />
-  <node pkg="perception" type="tennis_ball_finder" name="tennis_ball_finder" output="screen">
-    <remap from="cloud_in" to="mock_point_cloud" />
+  <node pkg="perception" type="hallucinated_tennis_ball_finder" name="tennis_ball_finder" respawn="false" output="screen">
+    <remap from="cloud_in"  to="/head_camera/depth/points" />
   </node>
 </launch>

@@ -70,14 +70,13 @@ def matrix_to_pose(matrix):
 
 class ArmController:
     def __init__(self):
-        pass
-        # moveit_commander.roscpp_initialize(sys.argv)
-        # self._arm = fetch_api.Arm()
-        # self._gripper = fetch_api.Gripper()
-        # self._gripper_state = reader.JointStateReader()
-        # moveit_robot = moveit_commander.RobotCommander() #? need this?
-        # self._group = moveit_commander.MoveGroupCommander('arm')
-        # rospy.on_shutdown(self._on_shutdown) # stop moving on shutdown
+        moveit_commander.roscpp_initialize(sys.argv)
+        self._arm = fetch_api.Arm()
+        self._gripper = fetch_api.Gripper()
+        self._gripper_state = reader.JointStateReader()
+        moveit_robot = moveit_commander.RobotCommander() #? need this?
+        self._group = moveit_commander.MoveGroupCommander('arm')
+        rospy.on_shutdown(self._on_shutdown) # stop moving on shutdown
 
         try:
             self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
@@ -144,8 +143,10 @@ class ArmController:
             return False
         print "[arm_controller: executing arm path...]"
         # print "ball pose: ", ball_pose
+        counter = 0
         for pose, relative_to_ball, gripper_open in path:
             print "[arm_controller: executing next step]"
+            counter+=1
             if gripper_open:
                 self._gripper.open()
             else:
@@ -163,7 +164,7 @@ class ArmController:
                 ps.pose.orientation.y = pose.orientation[1]
                 ps.pose.orientation.z = pose.orientation[2]
                 ps.pose.orientation.w = pose.orientation[3]
-                err = self._arm.straight_move_to_pose(self._group, ps, jump_threshold=2.0)
+                err = self._arm.move_to_pose(ps)
                 if err is not None:
                     print "[arm_controller: path execution failed]"
                     rospy.logerr(err)
@@ -181,12 +182,16 @@ class ArmController:
                 ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
                 temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
                 ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
-                err = self._arm.straight_move_to_pose(self._group, ps, jump_threshold=2.0)
+                if counter == 2:
+                    print "using striaght arm!"
+                    err = self._arm.straight_move_to_pose(self._group, ps, jump_threshold=2.0)
+                else:
+                    err = self._arm.move_to_pose(ps)
                 if err is not None:
                     print "[arm_controller: path execution failed]"
                     rospy.logerr(err)
                     return False
-            rospy.sleep(0.5)  # let the arm finish moving to prevent CONTROL_FAILED errors
+            rospy.sleep(1)  # let the arm finish moving to prevent CONTROL_FAILED errors
         return True
 
     def tuck_arm(self):

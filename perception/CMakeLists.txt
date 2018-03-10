@@ -153,6 +153,7 @@ add_library(perception_object_recognizer src/object_recognizer.cpp)
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(perception_save_cloud_main src/save_cloud_main.cpp)
 add_executable(perception_tennis_ball_finder src/tennis_ball_finder.cpp)
+add_executable(perception_hallucinated_tennis_ball_finder src/hallucinated_tennis_ball_finder.cpp)
 add_executable(perception_extract_features_main src/extract_features_main.cpp)
 
 ## Rename C++ executable without prefix
@@ -161,6 +162,7 @@ add_executable(perception_extract_features_main src/extract_features_main.cpp)
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 set_target_properties(perception_save_cloud_main PROPERTIES OUTPUT_NAME save_cloud PREFIX "")
 set_target_properties(perception_tennis_ball_finder PROPERTIES OUTPUT_NAME tennis_ball_finder PREFIX "")
+set_target_properties(perception_hallucinated_tennis_ball_finder PROPERTIES OUTPUT_NAME hallucinated_tennis_ball_finder PREFIX "")
 set_target_properties(perception_extract_features_main PROPERTIES OUTPUT_NAME extract_features PREFIX "")
 
 ## Add cmake target dependencies of the executable
@@ -175,6 +177,7 @@ add_dependencies(perception_object_recognizer ${${PROJECT_NAME}_EXPORTED_TARGETS
 
 add_dependencies(perception_save_cloud_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_tennis_ball_finder ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(perception_hallucinated_tennis_ball_finder ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_extract_features_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(perception_save_cloud_main
@@ -182,6 +185,14 @@ target_link_libraries(perception_save_cloud_main
 )
 
 target_link_libraries(perception_tennis_ball_finder
+  perception_crop
+  perception_downsample
+  perception_segmentation
+  perception_box_fitter
+  perception_object_recognizer
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(perception_hallucinated_tennis_ball_finder
   perception_crop
   perception_downsample
   perception_segmentation
