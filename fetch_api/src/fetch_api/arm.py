@@ -10,6 +10,7 @@ from moveit_msgs.msg import MoveItErrorCodes, MoveGroupAction
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest
 from geometry_msgs.msg import Pose, Quaternion, Point
 import tf
+from tf.listener import TransformListener
 
 TIME_FROM_START = 5
 
@@ -91,7 +92,7 @@ class Arm(object):
                                                    FollowJointTrajectoryAction)
         self.moveClient = actionlib.SimpleActionClient('move_group', MoveGroupAction)
         self._compute_ik = rospy.ServiceProxy('compute_ik', GetPositionIK)
-
+        self._tf_listener = TransformListener()
         # Wait for server
         self.client.wait_for_server()
         pass

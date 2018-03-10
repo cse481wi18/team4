@@ -8,6 +8,7 @@ import numpy as np
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from joint_state_reader import reader
 import moveit_commander
+import sys
 
 
 
@@ -132,7 +133,7 @@ class ArmController:
             ps.header.frame_id = 'base_link'
 
             if not relative_to_ball:
-                ps.pose = pose()
+                ps.pose = Pose()
                 ps.pose.position.x = pose.position[0]
                 ps.pose.position.y = pose.position[1]
                 ps.pose.position.z = pose.position[2]
@@ -189,6 +190,6 @@ class ArmController:
        part2 = self.execute_path(self.tuck_path, None)
        return part1 and part2
 
-    def on_shutdown(self):
+    def _on_shutdown(self):
         self._group.stop()
         moveit_commander.roscpp_shutdown()
