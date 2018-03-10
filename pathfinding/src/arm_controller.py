@@ -7,6 +7,9 @@ import tf.transformations as tft
 import numpy as np
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from joint_state_reader import reader
+import moveit_commander
+
+
 
 GRIPPER_MARKER_OFFSET = 0.166
 OBJECT_GRIPPER_OFFSET = - 0.04
@@ -45,9 +48,13 @@ def matrix_to_pose(matrix):
 
 class ArmController:
     def __init__(self):
+        moveit_commander.roscpp_initialize(sys.argv)
         self._arm = fetch_api.Arm()
         self._gripper = fetch_api.Gripper()
         self._gripper_state = reader.JointStateReader()
+        moveit_robot = moveit_commander.RobotCommander() #? need this?
+        self._group = moveit_commander.MoveGroupCommander('arm')
+        rospy.on_shutdown(self._on_shutdown) # stop moving on shutdown
 
         try:
             self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
@@ -67,6 +74,7 @@ class ArmController:
     def ball_reachable(self, ball_pose):
         return self._path_ok(self.pick_path, ball_pose)
 
+    # TODO is it possible that plan_arm will return true but straight_arm_move_to_pose wont?
     def _path_ok(self, path, ball_pose):
         print "[arm_controller: checking arm path...]"
         for pose, relative_to_ball, gripper_open in path:
@@ -124,7 +132,7 @@ class ArmController:
             ps.header.frame_id = 'base_link'
 
             if not relative_to_ball:
-                ps.pose = Pose()
+                ps.pose = pose()
                 ps.pose.position.x = pose.position[0]
                 ps.pose.position.y = pose.position[1]
                 ps.pose.position.z = pose.position[2]
@@ -132,7 +140,7 @@ class ArmController:
                 ps.pose.orientation.y = pose.orientation[1]
                 ps.pose.orientation.z = pose.orientation[2]
                 ps.pose.orientation.w = pose.orientation[3]
-                err = self._arm.move_to_pose(ps)
+                err = self._arm.straight_move_to_pose(self._group, ps, jump_threshold=2.0)
                 if err is not None:
                     print "[arm_controller: path execution failed]"
                     rospy.logerr(err)
@@ -150,7 +158,7 @@ class ArmController:
                 ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
                 temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
                 ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
-                err = self._arm.move_to_pose(ps)
+                err = self._arm.straight_move_to_pose(self._group, ps, jump_threshold=2.0)
                 if err is not None:
                     print "[arm_controller: path execution failed]"
                     rospy.logerr(err)
@@ -180,3 +188,7 @@ class ArmController:
        part1 = self.execute_path(self.drop_path, None)
        part2 = self.execute_path(self.tuck_path, None)
        return part1 and part2
+
+    def on_shutdown(self):
+        self._group.stop()
+        moveit_commander.roscpp_shutdown()
