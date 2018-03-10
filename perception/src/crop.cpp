@@ -11,7 +11,8 @@
 namespace perception {
 Cropper::Cropper(const ros::Publisher& pub) : pub_(pub) {}
 
-void Cropper::Callback(const sensor_msgs::PointCloud2& msg) {
+sensor_msgs::PointCloud2 Cropper::Callback(const sensor_msgs::PointCloud2& msg) {
+   ROS_INFO("[tennis_ball_finder.cpp] Called Cropper::Callback");
   PointCloudC::Ptr cloud(new PointCloudC());
   pcl::fromROSMsg(msg, *cloud);
 
@@ -34,6 +35,8 @@ void Cropper::Callback(const sensor_msgs::PointCloud2& msg) {
 
   sensor_msgs::PointCloud2 msg_out;
   pcl::toROSMsg(*cropped_cloud, msg_out);
-  pub_.publish(msg_out);
+  ROS_INFO("[tennis_ball_finder.cpp: Cropper::Callback] returning cropped_cloud");
+//  pub_.publish(msg_out);
+  return msg_out;
 }
 }  // namespace perception

@@ -5,7 +5,7 @@ namespace perception {
 class Cropper {
  public:
   Cropper(const ros::Publisher& pub);
-  void Callback(const sensor_msgs::PointCloud2& msg);
+  sensor_msgs::PointCloud2 Callback(const sensor_msgs::PointCloud2& msg);
 
  private:
   ros::Publisher pub_;
