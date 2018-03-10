@@ -13,7 +13,7 @@ import threading
 import numpy as np
 
 TOLERANCE = 0.3
-FILE_NAME = "savedPoses.p"
+FILE_NAME = "tennis_ball_robot_positions.p"
 
 def printPose(stampedPose):
     pose = stampedPose.pose.pose
@@ -35,7 +35,6 @@ class Driver:
     # msg
     def set_curr_map_pose(self, curr_pose_msg):
         global muh_position
-        # print "setting set_curr_map_pose to ", curr_pose_msg
         # print "curr thread set curr_map_pose: ", threading.current_thread().name
         muh_position = curr_pose_msg.pose.pose
         # print curr_pose_msg.pose.pose
@@ -45,20 +44,28 @@ class Driver:
 
     # No tolerance adjustment
     def go_to(self, pose):
-        self._goto_client.cancelAllGoals()
+        print "canceling goals..."
+        self._goto_client.cancel_all_goals()
         global muh_position
         print "[driver/go_to]Going to position: "
         print pose
-        if muh_position is None:
-            rospy.loginfo("[Driver] Help! I'm lost! muh_position is not set!")
-            return
+        print "[driver/go_to]I think I'm at: "
+        print muh_position
+        ps = PoseStamped()
+        ps.header.frame_id = "map"
+        ps.pose = pose
+        # if muh_position is None:
+        #     rospy.loginfo("[Driver] Help! I'm lost! muh_position is not set!")
+        #     return
         self._curr_goal_pose = pose
         move_goal = MoveBaseGoal()
-        move_goal.target_pose = pose
+        move_goal.target_pose = ps
         self._goto_client.send_goal_and_wait(move_goal) # blocks until move is successful
+        print "[driver] done moving"
         self._curr_goal_pose = None
 
 
     def cancel_goals(self):
-        self._goto_client.cancelAllGoals()
+        pass
+        # self._goto_client.cancelAllGoals()
 

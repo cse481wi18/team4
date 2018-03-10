@@ -46,16 +46,38 @@ def matrix_to_pose(matrix):
     pose.position.z = matrix[2][3]
 
     return pose
+# TODO Lol
+# /move_group_commander_wrappers_1520711652741721187 :89: Loading robot model 'fetch'...
+# /move_group_commander_wrappers_1520711652741721187 :932: No root/virtual joint specified in SRDF. Assuming fixed joint
+# /move_group_commander_wrappers_1520711652741721187 :89: Loading robot model 'fetch'...
+# /move_group_commander_wrappers_1520711652741721187 :932: No root/virtual joint specified in SRDF. Assuming fixed joint
+# /move_group_commander_wrappers_1520711652741721187 treeFromUrdfModel:197: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+# Traceback (most recent call last):
+#   File "/home/team4/catkin_ws/src/cse481wi18/pathfinding/src/brain.py", line 143, in <module>
+#     main()
+#   File "/home/team4/catkin_ws/src/cse481wi18/pathfinding/src/brain.py", line 75, in main
+#     my_arm = arm_controller.ArmController()
+#   File "/home/team4/catkin_ws/src/cse481wi18/pathfinding/src/arm_controller.py", line 57, in __init__
+#     self._group = moveit_commander.MoveGroupCommander('arm')
+#   File "/opt/ros/indigo/lib/python2.7/dist-packages/moveit_commander/move_group.py", line 51, in __init__
+#     self._g = _moveit_move_group_interface.MoveGroup(name, robot_description)
+# RuntimeError: Unable to connect to move_group action server 'move_group' within allotted time (5s)
+# terminate called after throwing an instance of 'boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::lock_error> >'
+#   what():  boost: mutex lock failed in pthread_mutex_lock: Invalid argument
+# Aborted (core dumped)
+
+
 
 class ArmController:
     def __init__(self):
-        moveit_commander.roscpp_initialize(sys.argv)
-        self._arm = fetch_api.Arm()
-        self._gripper = fetch_api.Gripper()
-        self._gripper_state = reader.JointStateReader()
-        moveit_robot = moveit_commander.RobotCommander() #? need this?
-        self._group = moveit_commander.MoveGroupCommander('arm')
-        rospy.on_shutdown(self._on_shutdown) # stop moving on shutdown
+        pass
+        # moveit_commander.roscpp_initialize(sys.argv)
+        # self._arm = fetch_api.Arm()
+        # self._gripper = fetch_api.Gripper()
+        # self._gripper_state = reader.JointStateReader()
+        # moveit_robot = moveit_commander.RobotCommander() #? need this?
+        # self._group = moveit_commander.MoveGroupCommander('arm')
+        # rospy.on_shutdown(self._on_shutdown) # stop moving on shutdown
 
         try:
             self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
