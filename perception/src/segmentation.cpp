@@ -182,6 +182,9 @@ Segmenter::Segmenter(const ros::Publisher& surface_points_pub,
       ball_poses_pub_(ball_poses_pub),
       recognizer_(recognizer) {}
 
+
+
+
 void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
 
 
