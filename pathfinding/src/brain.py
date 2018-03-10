@@ -15,9 +15,9 @@ from std_msgs.msg import ColorRGBA, Header
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
 
-BASKET_POSITION = Pose() # TODO figure out map stuff for hallway
+POSITION_FILE_NAMES = "tennis_ball_robot_positions.py"
+BASKET_POSITION = None # TODO figure out map stuff for hallway
 
-# read in from pickle
 ROAM_POSITIONS = []
 
 TIME_TO_PERCEIVE_BALL = 5
@@ -50,22 +50,22 @@ def pub_pose(target):
 def load_annotated_positions():
     global BASKET_POSITION, ROAM_POSITIONS
     try:
-        saved_poses = pickle.load(open("savedPoses.p", "rb"))
+        saved_poses = pickle.load(open(POSITION_FILE_NAMES, "rb"))
         BASKET_POSITION = saved_poses["basket"]
         del saved_poses["basket"]
         ROAM_POSITIONS = dict(saved_poses).values()
     except Exception as e:
         print "Couldn't read in annotated positions!, ", e
         return False
-    return True
+    return BASKET_POSITION is not None and ROAM_POSITIONS != []
 
 def main():
     rospy.init_node('brain')
     wait_for_time.wait_for_time()
 
     # read in roaming positions
-    # if not load_annotated_positions():
-    #     exit(1)
+    if not load_annotated_positions():
+        exit(1)
 
     my_map_driver = map_driver.Driver()
     my_ball_driver = ball_driver.Driver()
@@ -126,11 +126,11 @@ def main():
             # driver.return_to_default_position()
         else:
             print "[brain: no ball found]"
-            # if len(ROAM_POSITIONS) is not 0:
-            #     print "roaming..."
-            #     map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
-            #     curr_roam_ind += 1
-            #     curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)
+            if len(ROAM_POSITIONS) is not 0:
+                print "roaming..."
+                map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
+                curr_roam_ind += 1
+                curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)
             # TODO milestone 2: move head if no ball seen
             # TODO milestone 3: move base if no ball seen
         print "[brain: looping]"
