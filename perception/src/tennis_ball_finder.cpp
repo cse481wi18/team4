@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
         cloud_msg = ros::topic::waitForMessage<sensor_msgs::PointCloud2>("cloud_in", ros::Duration(3));
         if (cloud_msg != NULL) {
             ROS_INFO("[tennis_ball_finder.cpp] Got the cloud_msg; calling cropper");
-            // for some reason perc
+            // for some reason segmenter callback not picking up published cropped cloud - doing it manually
             sensor_msgs::PointCloud2 cropped_msg = cropper.Callback(*cloud_msg);
             segmenter.Callback(cropped_msg);
         } else {
