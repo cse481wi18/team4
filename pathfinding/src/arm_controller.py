@@ -7,6 +7,10 @@ import tf.transformations as tft
 import numpy as np
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from joint_state_reader import reader
+import moveit_commander
+import sys
+
+
 
 GRIPPER_MARKER_OFFSET = 0.166
 OBJECT_GRIPPER_OFFSET = - 0.04
@@ -42,12 +46,37 @@ def matrix_to_pose(matrix):
     pose.position.z = matrix[2][3]
 
     return pose
+# TODO Lol
+# /move_group_commander_wrappers_1520711652741721187 :89: Loading robot model 'fetch'...
+# /move_group_commander_wrappers_1520711652741721187 :932: No root/virtual joint specified in SRDF. Assuming fixed joint
+# /move_group_commander_wrappers_1520711652741721187 :89: Loading robot model 'fetch'...
+# /move_group_commander_wrappers_1520711652741721187 :932: No root/virtual joint specified in SRDF. Assuming fixed joint
+# /move_group_commander_wrappers_1520711652741721187 treeFromUrdfModel:197: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+# Traceback (most recent call last):
+#   File "/home/team4/catkin_ws/src/cse481wi18/pathfinding/src/brain.py", line 143, in <module>
+#     main()
+#   File "/home/team4/catkin_ws/src/cse481wi18/pathfinding/src/brain.py", line 75, in main
+#     my_arm = arm_controller.ArmController()
+#   File "/home/team4/catkin_ws/src/cse481wi18/pathfinding/src/arm_controller.py", line 57, in __init__
+#     self._group = moveit_commander.MoveGroupCommander('arm')
+#   File "/opt/ros/indigo/lib/python2.7/dist-packages/moveit_commander/move_group.py", line 51, in __init__
+#     self._g = _moveit_move_group_interface.MoveGroup(name, robot_description)
+# RuntimeError: Unable to connect to move_group action server 'move_group' within allotted time (5s)
+# terminate called after throwing an instance of 'boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::lock_error> >'
+#   what():  boost: mutex lock failed in pthread_mutex_lock: Invalid argument
+# Aborted (core dumped)
+
+
 
 class ArmController:
     def __init__(self):
+        moveit_commander.roscpp_initialize(sys.argv)
         self._arm = fetch_api.Arm()
         self._gripper = fetch_api.Gripper()
         self._gripper_state = reader.JointStateReader()
+        # moveit_robot = moveit_commander.RobotCommander() #? need this?
+        self._group = moveit_commander.MoveGroupCommander('arm')
+        rospy.on_shutdown(self._on_shutdown) # stop moving on shutdown
 
         try:
             self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
@@ -67,6 +96,7 @@ class ArmController:
     def ball_reachable(self, ball_pose):
         return self._path_ok(self.pick_path, ball_pose)
 
+    # TODO is it possible that plan_arm will return true but straight_arm_move_to_pose wont?
     def _path_ok(self, path, ball_pose):
         print "[arm_controller: checking arm path...]"
         for pose, relative_to_ball, gripper_open in path:
@@ -113,8 +143,10 @@ class ArmController:
             return False
         print "[arm_controller: executing arm path...]"
         # print "ball pose: ", ball_pose
+        counter = 0
         for pose, relative_to_ball, gripper_open in path:
             print "[arm_controller: executing next step]"
+            counter+=1
             if gripper_open:
                 self._gripper.open()
             else:
@@ -150,12 +182,16 @@ class ArmController:
                 ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
                 temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
                 ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
-                err = self._arm.move_to_pose(ps)
+                if counter == 2:
+                    print "using striaght arm!"
+                    err = self._arm.straight_move_to_pose(self._group, ps, jump_threshold=2.0)
+                else:
+                    err = self._arm.move_to_pose(ps)
                 if err is not None:
                     print "[arm_controller: path execution failed]"
                     rospy.logerr(err)
                     return False
-            rospy.sleep(0.5)  # let the arm finish moving to prevent CONTROL_FAILED errors
+            rospy.sleep(1)  # let the arm finish moving to prevent CONTROL_FAILED errors
         return True
 
     def tuck_arm(self):
@@ -180,3 +216,7 @@ class ArmController:
        part1 = self.execute_path(self.drop_path, None)
        part2 = self.execute_path(self.tuck_path, None)
        return part1 and part2
+
+    def _on_shutdown(self):
+        self._group.stop()
+        moveit_commander.roscpp_shutdown()

@@ -2,7 +2,7 @@
 <link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
 
 
-<dom-module id="BallBot3000-app">
+<dom-module id="ballbot-app">
     <template>
         <style>
 
@@ -12,7 +12,7 @@
 
 
             paper-button {
-                background-color: #eee;
+                background-color: #bbb;
                 user-select: none;
             }
 
@@ -28,29 +28,27 @@
                        on-close="_handleClose"
                        on-error="_handleError"
         ></ros-websocket>
-
+        <ros-topic
+                id="startService"
+                topic="start_ballbot_topic"
+                ros="{{ros}}"
+                msg-type="std_msgs/Empty"
+        ></ros-topic>
 
 
         <div class="layout horizontal center" id="start_button">
-            <paper-button on-tap="_startRobot">Set torso</paper-button>
+            <button on-click="_startRobot">GO</button>
         </div>
 
-        <ros-service
-                id="startService"
-                on-response="_handleStartSuccess"
-                on-fail="_handleStartError"
-                name="start_ballbot_topic"
-                ros="{{ros}}"
-                service-type="start_ballbot_topic"
-        ></ros-service>
+
     </template>
   <script>
     /**
      * @customElement
      * @polymer
      */
-    class BallBot3000App extends Polymer.Element {
-      static get is() { return 'BallBot3000-app'; }
+    class ballbotApp extends Polymer.Element {
+      static get is() { return 'ballbot-app'; }
       static get properties() {
         return {
 //          prop1: {
@@ -81,10 +79,12 @@
 
         _startRobot(){
             console.log("calling _startRobot");
-            this.$.startService.call({});
+            console.log(this.$.startService);
+            console.log(this.$.startService.properties());
+            this.$.startService.publish({});
         }
     }
 
-    window.customElements.define(BallBot3000App.is, BallBot3000App);
+    window.customElements.define(ballbotApp.is, ballbotApp);
   </script>
 </dom-module>

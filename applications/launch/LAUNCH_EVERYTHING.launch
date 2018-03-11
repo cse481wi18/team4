@@ -1,0 +1,10 @@
+<launch>
+  <include file="tennis_ball_map.launch">
+  </include>
+  <include file="see_tennis_balls_USEFORDEMO.launch">
+  </include>
+  <include file="brain.launch">
+  </include>
+  <include file="$(find fetch_api)/launch/move_group.launch">
+  </include>
+</launch>

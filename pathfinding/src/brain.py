@@ -7,24 +7,25 @@ import arm_controller
 import perceptor
 import wait_for_time
 import fetch_api
-import webapp_handler
 import pickle
 from std_msgs.msg import Empty
 from geometry_msgs.msg import Pose, PoseStamped, Vector3
 from visualization_msgs.msg import Marker
 from std_msgs.msg import ColorRGBA, Header
+import speaker
 
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
 
-POSITION_FILE_NAMES = "tennis_ball_robot_positions.py"
+# POSITION_FILE_NAMES = "room_tennis_ball_robot_positions.p"
+POSITION_FILE_NAMES = "hallway_tennis_ball_robot_positions.p"
 BASKET_POSITION = None # TODO figure out map stuff for hallway
 
 ROAM_POSITIONS = []
 
-TIME_TO_PERCEIVE_BALL = 5
+TIME_TO_PERCEIVE_BALL = .5
 TORSO_HEIGHT_TO_PICKUP_BALL = 0.03
-TORSO_HEIGHT_TO_UNFURL_ARM = 0.25
+TORSO_HEIGHT_TO_UNFURL_ARM = 0.2
 
 # TODO milestone 1
 # find location behind target so that position that robot drives to is
@@ -40,7 +41,7 @@ def pub_pose(target):
         pose=target,
         scale=Vector3(0.1, 0.1, 0.1),
         color=ColorRGBA(1.0, 0.0, 0.0, 0.5),
-        header=Header(frame_id='base_link'),
+        header=Header(frame_id='map'),
         id=cur_id,
         lifetime=rospy.Duration(15)
     )
@@ -54,12 +55,16 @@ def load_annotated_positions():
     try:
         saved_poses = pickle.load(open(POSITION_FILE_NAMES, "rb"))
         BASKET_POSITION = saved_poses["basket"]
+        BASKET_POSITION.position.z = 0.0
         del saved_poses["basket"]
         ROAM_POSITIONS = dict(saved_poses).values()
+        for pose in ROAM_POSITIONS:
+            pose.position.z = 0.0
     except Exception as e:
         print "Couldn't read in annotated positions!, ", e
         return False
     return BASKET_POSITION is not None and ROAM_POSITIONS != []
+
 
 class Brain(object):
     def run(self):
@@ -144,4 +149,3 @@ class Brain(object):
             print "[brain: looping]"
             print "\n*************************************************************\n"
             rospy.sleep(1)
-

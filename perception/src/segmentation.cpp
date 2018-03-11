@@ -186,7 +186,7 @@ Segmenter::Segmenter(const ros::Publisher& surface_points_pub,
 
 
 void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
-
+//    ROS_INFO("[tennis_ball_finder.cpp]  Segmenter::Callback called!");
 
   PointCloudC::Ptr cloud_unfiltered(new PointCloudC());
   pcl::fromROSMsg(msg, *cloud_unfiltered);

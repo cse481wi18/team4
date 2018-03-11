@@ -50,3 +50,7 @@ class Driver:
             distance = 0
         return distance
 
+
+    def turn_around(self):
+        self._base.turn(3.1415)
+

@@ -15,6 +15,7 @@ class Perceptor:
         self._get_ball_pub.publish(Pose())
         # block until we get a response (balls or no balls)
         ball_positions_msg = rospy.wait_for_message("tennis_ball_position_topic", BallPositions)
+        print "[Perceptor] received a ball ball_positions_msg!"
         curr_poses = ball_positions_msg.positions
         # currently returns first ball in arr, TODO get closest ball
         if len(curr_poses) is not 0:

@@ -7,7 +7,7 @@ import wait_for_time
 import brain
 
 
-class ActuatorServer(object):
+class Server(object):
     def __init__(self):
         self._brain = None
 
@@ -25,12 +25,12 @@ class ActuatorServer(object):
 
 def main():
     rospy.init_node('web_teleop_actuators')
+    print("started webteleoajfsodj;igodsaigz")
     wait_for_time.wait_for_time()
-    server = ActuatorServer()
-    start_bot_service = rospy.Service('start_ballbot_topic', Empty,
-                                  server.handle_set_torso)
-    stop_bot_service = rospy.Service('stop_ballbot_topic', Empty,
-                                  server.handle_stop)
+    server = Server()
+    rospy.Subscriber('start_ballbot_topic', Empty, callback=server.handle_start)
+    # stop_bot_service = rospy.Service('stop_ballbot_topic', String,
+    #                               server.handle_stop)
     rospy.spin()
 
 
