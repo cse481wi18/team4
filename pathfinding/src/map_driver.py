@@ -46,11 +46,10 @@ class Driver:
     def go_to(self, pose):
         print "canceling goals..."
         self._goto_client.cancel_all_goals()
-        global muh_position
+        rospy.sleep(3)
         print "[driver/go_to]Going to position: "
         print pose
         print "[driver/go_to]I think I'm at: "
-        print muh_position
         ps = PoseStamped()
         ps.header.frame_id = "map"
         ps.pose = pose
@@ -68,4 +67,9 @@ class Driver:
     def cancel_goals(self):
         pass
         # self._goto_client.cancelAllGoals()
+
+    # def _on_shutdown(self):
+    #     self._group.stop()
+    #     moveit_commander.roscpp_shutdown()
+
 

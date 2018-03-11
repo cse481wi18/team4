@@ -13,7 +13,7 @@
 
 #include "ros/ros.h"
 #include "sensor_msgs/PointCloud2.h"
-
+#include "perception_msgs/BallPositions.h"
 
 #define CROPPED_CLOUD_TOPIC "cropped_cloud"
 
@@ -55,14 +55,19 @@ int main(int argc, char** argv) {
     if (ball_location_message != NULL) {
         ROS_INFO("[tennis_ball_finder.cpp] Got a request for a ball location!");
         // get next message from input camera (cloud_in) and pass it to Cropper callback
-        cloud_msg = ros::topic::waitForMessage<sensor_msgs::PointCloud2>("cloud_in", ros::Duration(3));
+        cloud_msg = ros::topic::waitForMessage<sensor_msgs::PointCloud2>("cloud_in"); // block
         if (cloud_msg != NULL) {
             ROS_INFO("[tennis_ball_finder.cpp] Got the cloud_msg; calling cropper");
             // for some reason segmenter callback not picking up published cropped cloud - doing it manually
             sensor_msgs::PointCloud2 cropped_msg = cropper.Callback(*cloud_msg);
             segmenter.Callback(cropped_msg);
         } else {
-            ROS_INFO("Error - didn't get an input msg from camera!");
+            ROS_INFO("Error - didn't get an input msg from camera! Returning 'no balls found'");
+            perception_msgs::BallPositions ball_position_msg;
+            std::vector<geometry_msgs::Pose> my_empty_poses;
+            ball_position_msg.positions = my_empty_poses;
+            ball_position_msg.num_balls_found = 0;
+            ball_poses_pub.publish(ball_position_msg);
         }
         // set reset pointers just in case (boost pointers dont let you just set them to null)
         ball_location_message.reset();

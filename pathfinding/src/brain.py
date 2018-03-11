@@ -11,6 +11,7 @@ import pickle
 from geometry_msgs.msg import Pose, PoseStamped, Vector3
 from visualization_msgs.msg import Marker
 from std_msgs.msg import ColorRGBA, Header
+import speaker
 
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
@@ -77,6 +78,7 @@ def main():
     my_perceptor = perceptor.Perceptor()
     my_arm = arm_controller.ArmController()
     my_head = fetch_api.Head()
+    my_speaker = speaker.Speaker()
 
     # raise torso before unfurling arm
     print "[brain: unfurling arm]"
@@ -106,27 +108,31 @@ def main():
                 if ball_position is None:
                     print "[brain: cannot find ball]"
                     continue
-            success = False
             print "[brain: picking up ball]"
             success = my_arm.pick_up_ball(ball_position)
             # assume for milestone 1 that basket is marked on map
             if success:
                 print "[brain: pick successful, dropping ball]"
-                # driver.go_to(BASKET_POSITION)
+                my_map_driver.go_to(BASKET_POSITION)
                 my_arm.drop_ball_in_basket()
                 my_arm.tuck_arm()
+                my_ball_driver.turn_around()
             else:
                 print "[brain: pick failed]"
+                my_speaker.say_negative()
             # driver.return_to_default_position()
         else:
             print "[brain: no ball found]"
             if len(ROAM_POSITIONS) is not 0:
+                rospy.sleep(1)
                 pub_pose(ROAM_POSITIONS[curr_roam_ind])
                 print "roaming..."
+                pub_pose(map_driver.muh_position)
                 my_map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
                 curr_roam_ind += 1
                 curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)
                 my_head.pan_tilt(0, 0.9)
+                # rospy.sleep(1)
         # TODO milestone 2: move head if no ball seen
         # TODO milestone 3: move base if no ball seen
         print "[brain: looping]"

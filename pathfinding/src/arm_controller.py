@@ -74,7 +74,7 @@ class ArmController:
         self._arm = fetch_api.Arm()
         self._gripper = fetch_api.Gripper()
         self._gripper_state = reader.JointStateReader()
-        moveit_robot = moveit_commander.RobotCommander() #? need this?
+        # moveit_robot = moveit_commander.RobotCommander() #? need this?
         self._group = moveit_commander.MoveGroupCommander('arm')
         rospy.on_shutdown(self._on_shutdown) # stop moving on shutdown
 
