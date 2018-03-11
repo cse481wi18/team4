@@ -7,7 +7,7 @@ from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryG
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 JOINT_NAME = 'torso_lift_joint'
-TIME_FROM_START = 5  # How many seconds it should take to set the torso height.
+TIME_FROM_START = 3  # How many seconds it should take to set the torso height.
 
 
 class Torso(object):
