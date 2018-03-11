@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="pathfinding" type="brain.py" name="brain" output="screen" />
+</launch>

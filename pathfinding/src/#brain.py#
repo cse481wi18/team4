@@ -79,7 +79,7 @@ def main():
     my_perceptor = perceptor.Perceptor()
     my_arm = arm_controller.ArmController()
     my_head = fetch_api.Head()
-#    my_speaker = speaker.Speaker()
+    my_speaker = speaker.Speaker()
 
     # raise torso before unfurling arm
     print "[brain: unfurling arm]"
