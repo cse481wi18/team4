@@ -1,15 +1,49 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
+
 
 <dom-module id="BallBot3000-app">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>Hello [[prop1]]!</h2>
-  </template>
+    <template>
+        <style>
 
+            :host {
+                display: block;
+            }
+
+
+            paper-button {
+                background-color: #eee;
+                user-select: none;
+            }
+
+        </style>
+        <!-- HTML TEMPLATE
+             Here is where you add the HTML for your element.
+             There is special syntax for binding JavaScript variables in your template.
+        -->
+        <h1>BallBot3000</h1>
+        <ros-websocket auto ros="{{ros}}"
+                       url="{{url}}"
+                       on-connection="_handleConnection"
+                       on-close="_handleClose"
+                       on-error="_handleError"
+        ></ros-websocket>
+
+
+
+        <div class="layout horizontal center" id="start_button">
+            <paper-button on-tap="_startRobot">Set torso</paper-button>
+        </div>
+
+        <ros-service
+                id="startService"
+                on-response="_handleStartSuccess"
+                on-fail="_handleStartError"
+                name="start_ballbot_topic"
+                ros="{{ros}}"
+                service-type="start_ballbot_topic"
+        ></ros-service>
+    </template>
   <script>
     /**
      * @customElement
@@ -19,12 +53,36 @@
       static get is() { return 'BallBot3000-app'; }
       static get properties() {
         return {
-          prop1: {
-            type: String,
-            value: 'BallBot3000-app'
-          }
+//          prop1: {
+//            type: String,
+//            value: 'BallBot3000-app'
+//          }
         };
       }
+        _handleConnection() {
+            this.status = 'Connected to the websocket server.';
+            console.log(this.status);
+        }
+        _handleClose() {
+            this.status = 'Closed connection to the websocket server.';
+            console.log(this.status);
+        }
+        _handleError() {
+            this.status = 'Error connecting to the websocket server.';
+            console.log(this.status);
+        }
+
+        _handleStartSuccess(){
+            console.log("_handleStartSuccess");
+        }
+        _handleStartError(){
+            console.log("_handleStartError");
+        }
+
+        _startRobot(){
+            console.log("calling _startRobot");
+            this.$.startService.call({grip: false});
+        }
     }
 
     window.customElements.define(BallBot3000App.is, BallBot3000App);
