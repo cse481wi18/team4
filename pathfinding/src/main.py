@@ -15,11 +15,12 @@ class ActuatorServer(object):
 
     def handle_start(self, request):
         self._brain = brain.Brain()
-        self._brain
+        self._brain.run()
         return True
 
     def handle_stop(self, request):
-        del self._brain
+        del self._brain # TODO ???
+        self._brain = None
         return True
 
 
@@ -28,14 +29,10 @@ def main():
     rospy.init_node('web_teleop_actuators')
     wait_for_time()
     server = ActuatorServer()
-    torso_service = rospy.Service('web_teleop/set_torso', SetTorso,
+    start_bot_service = rospy.Service('start_ballbot_topic', SetTorso,
                                   server.handle_set_torso)
-    arm_service = rospy.Service('web_teleop/set_arm', SetArm,
-                                server.handle_set_arm)
-    head_service = rospy.Service('web_teleop/set_head', SetHead,
-                                 server.handle_set_head)
-    grip_service = rospy.Service('web_teleop/set_grip', SetGrip,
-                                 server.handle_set_grip)
+    stop_bot_service = rospy.Service('stop_ballbot_topic', SetTorso,
+                                  server.handle_stop)
     rospy.spin()
 
 
