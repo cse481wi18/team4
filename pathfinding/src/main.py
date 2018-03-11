@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-import fetch_api
 import rospy
-from web_teleop.srv import SetArm, SetArmResponse, SetGrip, SetGripResponse, SetHead, SetHeadResponse, SetTorso, \
-    SetTorsoResponse
+from std_msgs.msg import Empty
 
 import wait_for_time
 import brain
@@ -27,11 +25,11 @@ class ActuatorServer(object):
 
 def main():
     rospy.init_node('web_teleop_actuators')
-    wait_for_time()
+    wait_for_time.wait_for_time()
     server = ActuatorServer()
-    start_bot_service = rospy.Service('start_ballbot_topic', SetTorso,
+    start_bot_service = rospy.Service('start_ballbot_topic', Empty,
                                   server.handle_set_torso)
-    stop_bot_service = rospy.Service('stop_ballbot_topic', SetTorso,
+    stop_bot_service = rospy.Service('stop_ballbot_topic', Empty,
                                   server.handle_stop)
     rospy.spin()
 
