@@ -31,6 +31,7 @@ class Driver:
         self._curr_goal_pose = None
         self._curr_map_pose = None
         self._listener = tf.TransformListener()
+        rospy.on_shutdown(self._on_shutdown)
 
     # msg
     def set_curr_map_pose(self, curr_pose_msg):
@@ -45,7 +46,7 @@ class Driver:
     # No tolerance adjustment
     def go_to(self, pose):
         print "canceling goals..."
-        self._goto_client.cancel_all_goals()
+        self._cancel_goals()
         rospy.sleep(3)
         print "[driver/go_to]Going to position: "
         print pose
@@ -64,12 +65,10 @@ class Driver:
         self._curr_goal_pose = None
 
 
-    def cancel_goals(self):
-        pass
-        # self._goto_client.cancelAllGoals()
+    def _cancel_goals(self):
+        self._goto_client.cancel_all_goals()
 
-    # def _on_shutdown(self):
-    #     self._group.stop()
-    #     moveit_commander.roscpp_shutdown()
+    def _on_shutdown(self):
+        self._cancel_goals()
 
 

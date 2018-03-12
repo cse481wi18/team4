@@ -13,12 +13,13 @@ from geometry_msgs.msg import Pose, PoseStamped, Vector3
 from visualization_msgs.msg import Marker
 from std_msgs.msg import ColorRGBA, Header
 import speaker
+import os
 
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
 
 # POSITION_FILE_NAMES = "room_tennis_ball_robot_positions.p"
-POSITION_FILE_NAMES = "hallway_tennis_ball_robot_positions.p"
+POSITION_FILE_NAMES = "/hallway_tennis_ball_robot_positions.p"
 BASKET_POSITION = None # TODO figure out map stuff for hallway
 
 ROAM_POSITIONS = []
@@ -53,7 +54,9 @@ def pub_pose(target):
 def load_annotated_positions():
     global BASKET_POSITION, ROAM_POSITIONS
     try:
-        saved_poses = pickle.load(open(POSITION_FILE_NAMES, "rb"))
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        rospy.logerr(str(dir_path)+POSITION_FILE_NAMES)
+        saved_poses = pickle.load(open(str(dir_path)+POSITION_FILE_NAMES, "rb"))
         BASKET_POSITION = saved_poses["basket"]
         BASKET_POSITION.position.z = 0.0
         del saved_poses["basket"]
@@ -61,24 +64,16 @@ def load_annotated_positions():
         for pose in ROAM_POSITIONS:
             pose.position.z = 0.0
     except Exception as e:
-        print "Couldn't read in annotated positions!, ", e
+        rospy.logerr("Couldn't read in annotated positions! ")
         return False
     return BASKET_POSITION is not None and ROAM_POSITIONS != []
 
 
 class Brain(object):
     def run(self):
-        rospy.init_node('brain')
-        wait_for_time.wait_for_time()
-
         # read in roaming positions
         if not load_annotated_positions():
             exit(1)
-
-        # register web app stuff
-        server = webapp_handler.BallBotServer()
-        start_service = rospy.Service('start_ballbot_topic', Empty,
-                                         server.handle_start)
 
         my_map_driver = map_driver.Driver()
         my_ball_driver = ball_driver.Driver()
@@ -89,28 +84,28 @@ class Brain(object):
         my_head = fetch_api.Head()
 
         # raise torso before unfurling arm
-        print "[brain: unfurling arm]"
+        rospy.logerr( "[brain: unfurling arm]")
         my_torso.set_height(TORSO_HEIGHT_TO_UNFURL_ARM)
         rospy.sleep(5)
         my_arm.tuck_arm()
-        print "[brain: setting torso to maximum ball pickup position...]"
+        rospy.logerr( "[brain: setting torso to maximum ball pickup position...]")
         my_torso.set_height(TORSO_HEIGHT_TO_PICKUP_BALL)
 
         curr_roam_ind = 0
         while True:
 
-            print "[brain: moving head to maximum ball finding position...]"
+            rospy.logerr( "[brain: moving head to maximum ball finding position...]")
             my_head.pan_tilt(0, 0.9)
             rospy.sleep(TIME_TO_PERCEIVE_BALL)
             ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
             # pub_pose(ball_position)
             if ball_position is not None:
-                print "[brain: ball found]"
+                rospy.logerr( "[brain: ball found]")
                 if not my_arm.ball_reachable(ball_position):
-                    print "[brain: ball is not reachable]"
+                    rospy.logerr( "[brain: ball is not reachable]")
                     # print "ball_position: "
                     # print ball_position
-                    print "[brain: moving to ball...]"
+                    rospy.logerr( "[brain: moving to ball...]")
                     pub_pose(ball_position)
                     my_ball_driver.go_to(ball_position)
 
@@ -141,7 +136,7 @@ class Brain(object):
                 print "[brain: no ball found]"
                 if len(ROAM_POSITIONS) is not 0:
                     print "roaming..."
-                    map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
+                    my_map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
                     curr_roam_ind += 1
                     curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)
                 # TODO milestone 2: move head if no ball seen

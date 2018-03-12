@@ -81,17 +81,17 @@ class ArmController:
         try:
             self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
         except Exception as e:
-            print e
+            rospy.logerr(e)
 
         try:
             self.drop_path = pickle.load(open("drop_path.p", "rb"))
         except Exception as e:
-            print e
+            rospy.logerr(e)
 
         try:
             self.pick_path = pickle.load(open("pick_path.p", "rb"))
         except Exception as e:
-            print e
+            rospy.logerr(e)
 
     def ball_reachable(self, ball_pose):
         return self._path_ok(self.pick_path, ball_pose)

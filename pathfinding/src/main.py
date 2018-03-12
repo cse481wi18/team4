@@ -12,6 +12,8 @@ class Server(object):
         self._brain = None
 
     def handle_start(self, request):
+        rospy.logerr("Called handle_start")
+        print "Called handle_start"
         self._brain = brain.Brain()
         self._brain.run()
         return True
@@ -21,12 +23,10 @@ class Server(object):
         self._brain = None
         return True
 
-
-
 def main():
-    rospy.init_node('web_teleop_actuators')
-    print("started webteleoajfsodj;igodsaigz")
+    rospy.init_node('Server')
     wait_for_time.wait_for_time()
+    print "started webteleoajfsodj;igodsaigz"
     server = Server()
     rospy.Subscriber('start_ballbot_topic', Empty, callback=server.handle_start)
     # stop_bot_service = rospy.Service('stop_ballbot_topic', String,

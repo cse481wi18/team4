@@ -3,7 +3,7 @@ from perception_msgs.msg import BallPositions
 from geometry_msgs.msg import Pose
 import fetch_api
 
-NEGATIVE = ["fuck","fiddlesticks", "fudgesicle", "crap"]
+NEGATIVE = ["fiddlesticks", "fudgesicle", "crap"]
 
 class Speaker:
     def __init__(self):
@@ -15,5 +15,3 @@ class Speaker:
     def say_negative(self):
         self._sound.say(NEGATIVE[self._curr_ind])
         self._curr_ind = (self._curr_ind + 1) % len(NEGATIVE)
-
-
