@@ -1,6 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
-
+<link rel="import" href="../bower_components/ros-topic/ros-topic.html">
 
 <dom-module id="ballbot-app">
     <template>
@@ -29,12 +29,11 @@
                        on-error="_handleError"
         ></ros-websocket>
         <ros-topic
-                id="startService"
+                auto id="startService"
                 topic="start_ballbot_topic"
                 ros="{{ros}}"
                 msg-type="std_msgs/Empty"
         ></ros-topic>
-
 
         <div class="layout horizontal center" id="start_button">
             <button on-click="_startRobot">GO</button>
@@ -77,10 +76,10 @@
             console.log("_handleStartError");
         }
 
-        _startRobot(){
+        _startRobot(evt){
             console.log("calling _startRobot");
-            console.log(this.$.startService);
-            this.$.startService.publish({});
+            var msg = {};
+            this.$.startService.publish(msg);
         }
     }
 
