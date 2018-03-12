@@ -17,16 +17,16 @@ import os
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
 
-# POSITION_FILE_NAMES = "room_tennis_ball_robot_positions.p"
+POSITION_FILE_NAMES = "room_tennis_ball_robot_positions.p"
 # POSITION_FILE_NAMES = "hallway_tennis_ball_robot_positions.p"
-POSITION_FILE_NAMES = "middle_hallway_tennisballs.p"
+# POSITION_FILE_NAMES = "middle_hallway_tennisballs.p"
 BASKET_POSITION = None # TODO figure out map stuff for hallway
 
 ROAM_POSITIONS = []
 
 TIME_TO_PERCEIVE_BALL = .5
 TORSO_HEIGHT_TO_PICKUP_BALL = 0.03
-TORSO_HEIGHT_TO_UNFURL_ARM = 0.2
+TORSO_HEIGHT_TO_UNFURL_ARM = 0.25
 
 # TODO milestone 1
 # find location behind target so that position that robot drives to is
@@ -35,7 +35,7 @@ TORSO_HEIGHT_TO_UNFURL_ARM = 0.2
 marker_publisher = rospy.Publisher('happy_marker', Marker, queue_size=10)
 cur_id = 0
 
-def pub_pose(target):
+def pub_map_pose(target):
     global cur_id
     marker = Marker(
         type=Marker.ARROW,
@@ -48,6 +48,21 @@ def pub_pose(target):
     )
     cur_id += 1
     marker_publisher.publish(marker)
+
+def pub_baselink_pose(target):
+    global cur_id
+    marker = Marker(
+        type=Marker.ARROW,
+        pose=target,
+        scale=Vector3(0.1, 0.1, 0.1),
+        color=ColorRGBA(1.0, 0.0, 0.0, 0.5),
+        header=Header(frame_id='base_link'),
+        id=cur_id,
+        lifetime=rospy.Duration(15)
+    )
+    cur_id += 1
+    marker_publisher.publish(marker)
+
 
 # TODO milestone one cancel all goals on ctrl-c
 
@@ -99,7 +114,7 @@ def main():
         print "[brain: moving head to maximum ball finding position...]"
         rospy.sleep(TIME_TO_PERCEIVE_BALL)
         ball_position = my_perceptor.get_closest_ball_location() # from perceptor node
-        # pub_pose(ball_position)
+        pub_baselink_pose(ball_position)
         if ball_position is not None:
             print "[brain: ball found]"
             if not my_arm.ball_reachable(ball_position):
@@ -107,7 +122,7 @@ def main():
                 # print "ball_position: "
                 # print ball_position
                 print "[brain: moving to ball...]"
-                pub_pose(ball_position)
+                pub_baselink_pose(ball_position)
                 my_ball_driver.go_to(ball_position)
                 rospy.sleep(TIME_TO_PERCEIVE_BALL) # TODO sleep longer?
                 ball_position = my_perceptor.get_closest_ball_location()
@@ -131,9 +146,9 @@ def main():
             print "[brain: no ball found]"
             if len(ROAM_POSITIONS) is not 0:
                 rospy.sleep(1)
-                pub_pose(ROAM_POSITIONS[curr_roam_ind])
+                pub_map_pose(ROAM_POSITIONS[curr_roam_ind])
                 print "roaming..."
-                pub_pose(map_driver.muh_position)
+                # pub_map_pose(map_driver.muh_position)
                 my_map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
                 curr_roam_ind += 1
                 curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)

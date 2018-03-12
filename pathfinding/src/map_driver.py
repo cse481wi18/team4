@@ -44,6 +44,7 @@ class Driver:
 
     # No tolerance adjustment
     def go_to(self, pose):
+        global muh_position
         print "canceling goals..."
         self._goto_client.cancel_all_goals()
         rospy.sleep(3)
