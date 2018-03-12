@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find applications)/launch/tennis_ball_map.launch">
+  </include>
+  <include file="$(find fetch_api)/launch/move_group.launch">
+  </include>
+  <include file="$(find applications)/launch/see_tennis_balls_USEFORDEMO.launch">
+  </include>
+</launch>

@@ -68,6 +68,7 @@ def load_annotated_positions():
 def main():
     rospy.init_node('brain')
     wait_for_time.wait_for_time()
+    rospy.logerr("sjkaegn;awjerg;owiegjneg")
 
     # read in roaming positions
     if not load_annotated_positions():
