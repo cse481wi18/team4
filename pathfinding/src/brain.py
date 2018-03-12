@@ -17,9 +17,9 @@ import os
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
 
-POSITION_FILE_NAMES = "room_tennis_ball_robot_positions.p"
+# POSITION_FILE_NAMES = "room_tennis_ball_robot_positions.p"
 # POSITION_FILE_NAMES = "hallway_tennis_ball_robot_positions.p"
-# POSITION_FILE_NAMES = "middle_hallway_tennisballs.p"
+POSITION_FILE_NAMES = "middle_hallway_tennisballs.p"
 BASKET_POSITION = None # TODO figure out map stuff for hallway
 
 ROAM_POSITIONS = []
