@@ -26,7 +26,7 @@ class Server(object):
 def main():
     rospy.init_node('Server')
     wait_for_time.wait_for_time()
-    print "started webteleoajfsodj;igodsaigz"
+    print "started server main"
     server = Server()
     rospy.Subscriber('start_ballbot_topic', Empty, callback=server.handle_start)
     # stop_bot_service = rospy.Service('stop_ballbot_topic', String,

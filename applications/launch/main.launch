@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="pathfinding" type="main.py" name="my_main" output="screen" />
+</launch>

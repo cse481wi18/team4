@@ -55,7 +55,7 @@ def pub_pose(target):
 def load_annotated_positions():
     global BASKET_POSITION, ROAM_POSITIONS
     try:
-        filename = str(os.path.dirname(os.path.realpath(__file__))) + POSITION_FILE_NAMES
+        filename = str(os.path.dirname(os.path.realpath(__file__))) + "/" + POSITION_FILE_NAMES
         saved_poses = pickle.load(open(filename, "rb"))
         BASKET_POSITION = saved_poses["basket"]
         BASKET_POSITION.position.z = 0.0
@@ -72,7 +72,7 @@ def load_annotated_positions():
 
 class Brain(object):
     def run(self):
-        rospy.logerr("sjkaegn;awjerg;owiegjneg")
+        rospy.logerr("Starting brain!")
 
         # read in roaming positions
         if not load_annotated_positions():
@@ -88,7 +88,7 @@ class Brain(object):
     #    my_speaker = speaker.Speaker()
 
         # raise torso before unfurling arm
-        print "[brain: unfurling arm]"
+        rospy.logerr("[brain: unfurling arm]")
         my_torso.set_height(TORSO_HEIGHT_TO_UNFURL_ARM)
         rospy.sleep(5)
         my_arm.tuck_arm()
@@ -129,11 +129,11 @@ class Brain(object):
     #                my_speaker.say_negative()
                 # driver.return_to_default_position()
             else:
-                print "[brain: no ball found]"
+                rospy.logerr("[brain: no ball found]")
                 if len(ROAM_POSITIONS) is not 0:
                     rospy.sleep(1)
                     pub_pose(ROAM_POSITIONS[curr_roam_ind])
-                    print "roaming..."
+                    rospy.logerr("roaming...")
                     pub_pose(map_driver.muh_position)
                     my_map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
                     curr_roam_ind += 1
