@@ -11,6 +11,7 @@ import pickle
 from geometry_msgs.msg import Pose, PoseStamped, Vector3
 from visualization_msgs.msg import Marker
 from std_msgs.msg import ColorRGBA, Header
+import os
 
 
 # Note: Brain handles all conversions
@@ -53,11 +54,13 @@ def pub_pose(target):
 def load_annotated_positions():
     global BASKET_POSITION, ROAM_POSITIONS
     try:
-        saved_poses = pickle.load(open(POSITION_FILE_NAMES, "rb"))
+        filename = str(os.path.dirname(os.path.realpath(__file__))) + POSITION_FILE_NAMES
+        saved_poses = pickle.load(open(filename, "rb"))
         BASKET_POSITION = saved_poses["basket"]
         BASKET_POSITION.position.z = 0.0
         del saved_poses["basket"]
         ROAM_POSITIONS = dict(saved_poses).values()
+        ROAM_POSITIONS.sort()
         for pose in ROAM_POSITIONS:
             pose.position.z = 0.0
     except Exception as e:
