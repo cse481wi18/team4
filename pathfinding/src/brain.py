@@ -54,7 +54,7 @@ def pub_pose(target):
 def load_annotated_positions():
     global BASKET_POSITION, ROAM_POSITIONS
     try:
-        filename = str(os.path.dirname(os.path.realpath(__file__))) + POSITION_FILE_NAMES
+        filename = str(os.path.dirname(os.path.realpath(__file__))) + "/" + POSITION_FILE_NAMES
         saved_poses = pickle.load(open(filename, "rb"))
         BASKET_POSITION = saved_poses["basket"]
         BASKET_POSITION.position.z = 0.0

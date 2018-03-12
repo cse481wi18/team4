@@ -9,7 +9,7 @@ from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from joint_state_reader import reader
 import moveit_commander
 import sys
-
+import os
 
 
 GRIPPER_MARKER_OFFSET = 0.166
@@ -79,17 +79,20 @@ class ArmController:
         rospy.on_shutdown(self._on_shutdown) # stop moving on shutdown
 
         try:
-            self.tuck_path = pickle.load(open("tuck_path.p", "rb"))
+            filename = str(os.path.dirname(os.path.realpath(__file__))) + "/tuck_path.p"
+            self.tuck_path = pickle.load(open(filename, "rb"))
         except Exception as e:
             print e
 
         try:
-            self.drop_path = pickle.load(open("drop_path.p", "rb"))
+            filename = str(os.path.dirname(os.path.realpath(__file__))) + "/drop_path.p"
+            self.drop_path = pickle.load(open(filename,"rb"))
         except Exception as e:
             print e
 
         try:
-            self.pick_path = pickle.load(open("pick_path.p", "rb"))
+            filename = str(os.path.dirname(os.path.realpath(__file__))) + "/pick_path.p"
+            self.pick_path = pickle.load(open(filename, "rb"))
         except Exception as e:
             print e
 
