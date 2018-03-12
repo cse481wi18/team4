@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python
 
 import rospy
@@ -11,13 +12,14 @@ import pickle
 from geometry_msgs.msg import Pose, PoseStamped, Vector3
 from visualization_msgs.msg import Marker
 from std_msgs.msg import ColorRGBA, Header
-import speaker
+
 
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
 
 # POSITION_FILE_NAMES = "room_tennis_ball_robot_positions.p"
-POSITION_FILE_NAMES = "hallway_tennis_ball_robot_positions.p"
+# POSITION_FILE_NAMES = "hallway_tennis_ball_robot_positions.p"
+POSITION_FILE_NAMES = "middle_hallway_tennisballs.p"
 BASKET_POSITION = None # TODO figure out map stuff for hallway
 
 ROAM_POSITIONS = []
@@ -79,7 +81,7 @@ def main():
     my_perceptor = perceptor.Perceptor()
     my_arm = arm_controller.ArmController()
     my_head = fetch_api.Head()
-    my_speaker = speaker.Speaker()
+#    my_speaker = speaker.Speaker()
 
     # raise torso before unfurling arm
     print "[brain: unfurling arm]"

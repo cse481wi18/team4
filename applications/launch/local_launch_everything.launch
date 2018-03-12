@@ -1,0 +1,12 @@
+<launch>
+  <include file="$(find applications)/launch/local_tennis_ball_map.launch">
+  </include>
+  <include file="$(find fetch_api)/launch/move_group.launch">
+  </include>
+  <!-- REPUBLISHER -->
+  <node pkg="perception" type="hallucinated_tennis_ball_finder" name="hallucinate_all_balls" args="/home/team4/catkin_ws/src/cse481wi18/tennis_ball_perception_data/reachable.bag"  />
+  <include file="$(find applications)/launch/hallucinate_tennis_balls.launch">
+  </include>
+  <!-- <include file="$(find applications)/launch/brain.launch">
+  </include> -->
+</launch>
