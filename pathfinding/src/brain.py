@@ -55,7 +55,7 @@ def pub_baselink_pose(target):
         type=Marker.ARROW,
         pose=target,
         scale=Vector3(0.1, 0.1, 0.1),
-        color=ColorRGBA(1.0, 0.0, 0.0, 0.5),
+        color=ColorRGBA(1.0, 1.0, 0.0, 0.5),
         header=Header(frame_id='base_link'),
         id=cur_id,
         lifetime=rospy.Duration(15)
@@ -137,7 +137,9 @@ def main():
                 my_map_driver.go_to(BASKET_POSITION)
                 my_arm.drop_ball_in_basket()
                 my_arm.tuck_arm()
+                rospy.logerr("starting turnaround")
                 my_ball_driver.turn_around()
+                rospy.logerr("done turning around")
             else:
                 print "[brain: pick failed]"
 #                my_speaker.say_negative()
@@ -152,8 +154,8 @@ def main():
                 my_map_driver.go_to(ROAM_POSITIONS[curr_roam_ind])
                 curr_roam_ind += 1
                 curr_roam_ind = curr_roam_ind % len(ROAM_POSITIONS)
-                my_head.pan_tilt(0, 0.9)
-                # rospy.sleep(1)
+                #my_head.pan_tilt(0, 0.9)
+                #rospy.sleep(1)
         # TODO milestone 2: move head if no ball seen
         # TODO milestone 3: move base if no ball seen
         print "[brain: looping]"
