@@ -11,7 +11,7 @@ import pickle
 from geometry_msgs.msg import Pose, PoseStamped, Vector3
 from visualization_msgs.msg import Marker
 from std_msgs.msg import ColorRGBA, Header
-import speaker
+
 
 # Note: Brain handles all conversions
 # milestone 1 - no backpack
@@ -121,7 +121,7 @@ def main():
                 my_ball_driver.turn_around()
             else:
                 print "[brain: pick failed]"
-                my_speaker.say_negative()
+#                my_speaker.say_negative()
             # driver.return_to_default_position()
         else:
             print "[brain: no ball found]"
