@@ -73,20 +73,20 @@ class ArmController:
         rospy.on_shutdown(self._on_shutdown) # stop moving on shutdown
 
         try:
-            filename = str(os.path.dirname(os.path.realpath(__file__))) + "/" + TUCK_PATH_FILE
-            self.tuck_path = pickle.load(open(filename, "rb"))
+            my_filename = str(os.path.dirname(os.path.realpath(__file__))) + "/" + TUCK_PATH_FILE
+            self.tuck_path = pickle.load(open(my_filename, "rb"))
         except Exception as e:
             rospy.logerr(e)
 
         try:
-            filename = str(os.path.dirname(os.path.realpath(__file__))) + "/" + DROP_PATH_FILE
-            self.drop_path = pickle.load(open(filename, "rb"))
+            my_filename = str(os.path.dirname(os.path.realpath(__file__))) + "/" + DROP_PATH_FILE
+            self.drop_path = pickle.load(open(my_filename, "rb"))
         except Exception as e:
             rospy.logerr(e)
 
         try:
-            filename = str(os.path.dirname(os.path.realpath(__file__))) + "/" + PICK_PATH_FILE
-            self.pick_path = pickle.load(open(filename, "rb"))
+            my_filename = str(os.path.dirname(os.path.realpath(__file__))) + "/" + PICK_PATH_FILE
+            self.pick_path = pickle.load(open(my_filename, "rb"))
         except Exception as e:
             rospy.logerr(e)
 
