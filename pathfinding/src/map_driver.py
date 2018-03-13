@@ -1,16 +1,10 @@
 
 import actionlib
 import rospy
-import copy
-import pickle
 import tf
-import tf.transformations as tft
+from actionlib_msgs.msg import GoalStatus
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Pose, Quaternion
-from std_msgs.msg import Header
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-import math
-import threading
-import numpy as np
 
 TOLERANCE = 0.3
 FILE_NAME = "tennis_ball_robot_positions.p"
@@ -49,20 +43,25 @@ class Driver:
         print "canceling goals..."
         self._cancel_goals()
         rospy.sleep(3)
-        print "[driver/go_to]Going to position: "
-        print pose
-        print "[driver/go_to]I think I'm at: "
-        ps = PoseStamped()
-        ps.header.frame_id = "map"
-        ps.pose = pose
-        # if muh_position is None:
-        #     rospy.loginfo("[Driver] Help! I'm lost! muh_position is not set!")
-        #     return
-        self._curr_goal_pose = pose
-        move_goal = MoveBaseGoal()
-        move_goal.target_pose = ps
-        self._goto_client.send_goal_and_wait(move_goal) # blocks until move is successful
-        print "[driver] done moving"
+        for i in range(3):
+            rospy.logerr("looping: index {}".format(i))
+            print "[driver/go_to]Going to position: "
+            print pose
+            print "[driver/go_to]I think I'm at: "
+            ps = PoseStamped()
+            ps.header.frame_id = "map"
+            ps.pose = pose
+            # if muh_position is None:
+            #     rospy.loginfo("[Driver] Help! I'm lost! muh_position is not set!")
+            #     return
+            self._curr_goal_pose = pose
+            move_goal = MoveBaseGoal()
+            move_goal.target_pose = ps
+            self._goto_client.send_goal_and_wait(move_goal) # blocks until move is successful
+            if self._goto_client.get_state() == GoalStatus.SUCCEEDED:
+                break
+            else:
+                rospy.logerr("Error - did not move successfully")
         self._curr_goal_pose = None
 
 

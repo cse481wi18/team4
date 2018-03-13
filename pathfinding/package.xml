@@ -61,6 +61,8 @@
   <exec_depend>rospy</exec_depend>
   <build_depend>perception_msgs</build_depend>
   <exec_depend>perception_msgs</exec_depend>
+  <build_depend>actionlib_msgs</build_depend>
+  <exec_depend>actionlib_msgs</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
