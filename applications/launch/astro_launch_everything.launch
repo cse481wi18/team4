@@ -5,4 +5,6 @@
   </include>
   <include file="$(find applications)/launch/see_tennis_balls_USEFORDEMO.launch">
   </include>
+  <!-- launches backed of web socket -->
+  <include file="$(find pathfinding)/launch/startbrain_webapp.launch"></include>
 </launch>
