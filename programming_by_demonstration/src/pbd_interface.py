@@ -62,8 +62,8 @@ class Interface:
         print 'Relaxing arm...'
         self.ball_pose = self._perceptor.get_closest_ball_location()
         print self.ball_pose
-        # if not rospy.get_param("use_sim_time", False):
-            # self._recorder.arm_limp()
+        if not rospy.get_param("use_sim_time", False):
+            self._recorder.arm_limp()
         return self._creating_program()
 
     def _creating_program(self):
