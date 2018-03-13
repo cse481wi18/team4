@@ -1,5 +1,10 @@
 <launch>
-  <arg name="map_file" default="$(env HOME)/maps/sieg_3.yaml" />
+  <arg name="issim" />
+
+
+  <arg unless="$(arg issim)" name="map_file" default="$(env HOME)/maps/sieg_3.yaml" />
+  <arg if="$(arg issim)" name="map_file" default="$(env HOME)/maps/playground.yaml" />
+
   <include file="$(find fetch_api)/launch/fetch_nav.launch">
     <arg name="map_file" value="$(arg map_file)"/>
   </include>
