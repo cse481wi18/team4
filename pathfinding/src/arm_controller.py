@@ -212,7 +212,9 @@ class ArmController:
         values = self._gripper_state.get_joints(GRIPPER_NAMES)
         for value in values:
             if value < 0.01:
+#                self.tuck_arm()
                 return False
+#        self.tuck_arm()
         return True
 
     def drop_ball_in_basket(self):
