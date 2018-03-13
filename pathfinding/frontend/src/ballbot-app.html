@@ -1,0 +1,88 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
+<link rel="import" href="../bower_components/ros-topic/ros-topic.html">
+
+<dom-module id="ballbot-app">
+    <template>
+        <style>
+
+            :host {
+                display: block;
+            }
+
+
+            paper-button {
+                background-color: #bbb;
+                user-select: none;
+            }
+
+        </style>
+        <!-- HTML TEMPLATE
+             Here is where you add the HTML for your element.
+             There is special syntax for binding JavaScript variables in your template.
+        -->
+        <h1>BallBot3000</h1>
+        <ros-websocket auto ros="{{ros}}"
+                       url="{{url}}"
+                       on-connection="_handleConnection"
+                       on-close="_handleClose"
+                       on-error="_handleError"
+        ></ros-websocket>
+        <ros-topic
+                auto id="startService"
+                topic="start_ballbot_topic"
+                ros="{{ros}}"
+                msg-type="std_msgs/Empty"
+        ></ros-topic>
+
+        <div class="layout horizontal center" id="start_button">
+            <button on-click="_startRobot">GO</button>
+        </div>
+
+
+    </template>
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class ballbotApp extends Polymer.Element {
+      static get is() { return 'ballbot-app'; }
+      static get properties() {
+        return {
+//          prop1: {
+//            type: String,
+//            value: 'BallBot3000-app'
+//          }
+        };
+      }
+        _handleConnection() {
+            this.status = 'Connected to the websocket server.';
+            console.log(this.status);
+        }
+        _handleClose() {
+            this.status = 'Closed connection to the websocket server.';
+            console.log(this.status);
+        }
+        _handleError() {
+            this.status = 'Error connecting to the websocket server.';
+            console.log(this.status);
+        }
+
+        _handleStartSuccess(){
+            console.log("_handleStartSuccess");
+        }
+        _handleStartError(){
+            console.log("_handleStartError");
+        }
+
+        _startRobot(evt){
+            console.log("calling _startRobot");
+            var msg = {};
+            this.$.startService.publish(msg);
+        }
+    }
+
+    window.customElements.define(ballbotApp.is, ballbotApp);
+  </script>
+</dom-module>
