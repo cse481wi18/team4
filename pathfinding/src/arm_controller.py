@@ -185,11 +185,11 @@ class ArmController:
                 ps.pose.position = Point(base_to_wrist_matrix[0, 3], base_to_wrist_matrix[1, 3], base_to_wrist_matrix[2, 3])
                 temp = tft.quaternion_from_matrix(base_to_wrist_matrix)
                 ps.pose.orientation = Quaternion(temp[0], temp[1], temp[2], temp[3])
-                if counter == 2:
-                    print "using striaght arm!"
-                    err = self._arm.straight_move_to_pose(self._group, ps, jump_threshold=2.0)
-                else:
-                    err = self._arm.move_to_pose(ps)
+                # if counter == 2:
+                #     print "using striaght arm!"
+                #     err = self._arm.straight_move_to_pose(self._group, ps, jump_threshold=2.0)
+                # else:
+                err = self._arm.move_to_pose(ps)
                 if err is not None:
                     print "[arm_controller: path execution failed]"
                     rospy.logerr(err)

@@ -5,16 +5,42 @@
 #include "pcl_conversions/pcl_conversions.h"
 #include "ros/ros.h"
 #include "sensor_msgs/PointCloud2.h"
+#include "pcl_ros/transforms.h"
 
 #include "perception/typedefs.h"
 
 namespace perception {
-Cropper::Cropper(const ros::Publisher& pub) : pub_(pub) {}
+Cropper::Cropper(const ros::Publisher& pub) : pub_(pub), tf_listener_() {}
 
 sensor_msgs::PointCloud2 Cropper::Callback(const sensor_msgs::PointCloud2& msg) {
    ROS_INFO("[tennis_ball_finder.cpp] Called Cropper::Callback");
+
+  sensor_msgs::PointCloud2 BLANK;
+
+  PointCloudC::Ptr untransformed_cloud(new PointCloudC());
+  pcl::fromROSMsg(msg, *untransformed_cloud);
+
+  tf_listener_.waitForTransform("base_link", untransformed_cloud->header.frame_id,
+            ros::Time(0), ros::Duration(5.0));
+  tf::StampedTransform transform;
+  try {
+    tf_listener_.lookupTransform("base_link", untransformed_cloud->header.frame_id,
+             ros::Time(0), transform);
+  } catch (tf::LookupException& e) {
+    std::cerr << e.what() << std::endl;
+    return BLANK;
+  } catch (tf::ExtrapolationException& e) {
+    std::cerr << e.what() << std::endl;
+    return BLANK;
+  }
+
+  PointCloudC::Ptr cloud_out(new PointCloudC());
+  pcl_ros::transformPointCloud(*untransformed_cloud, *cloud_out, transform);
+  cloud_out->header.frame_id = "base_link";
+
   PointCloudC::Ptr cloud(new PointCloudC());
-  pcl::fromROSMsg(msg, *cloud);
+  std::vector<int> index;
+  pcl::removeNaNFromPointCloud(*cloud_out, *cloud, index);
 
   double min_x, min_y, min_z, max_x, max_y, max_z;
   ros::param::param("crop_min_x", min_x, 0.3);

@@ -102,11 +102,11 @@ class Brain():
 
         # raise torso before unfurling arm
         print "[brain: unfurling arm]"
-        my_torso.set_height(TORSO_HEIGHT_TO_UNFURL_ARM)
-        rospy.sleep(5)
+        # my_torso.set_height(TORSO_HEIGHT_TO_UNFURL_ARM)
+        # rospy.sleep(5)
+        my_torso.set_height(TORSO_HEIGHT_TO_PICKUP_BALL)
         my_arm.tuck_arm()
         print "[brain: setting torso to maximum ball pickup position...]"
-        my_torso.set_height(TORSO_HEIGHT_TO_PICKUP_BALL)
         my_head.pan_tilt(0, 0.9)
         curr_roam_ind = 0
         while True:
@@ -141,6 +141,7 @@ class Brain():
                     rospy.logerr("done turning around")
                 else:
                     print "[brain: pick failed]"
+                    my_arm.tuck_arm()
     #                my_speaker.say_negative()
                 # driver.return_to_default_position()
             else:
